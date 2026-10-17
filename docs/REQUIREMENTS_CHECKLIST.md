@@ -26,9 +26,9 @@ Status definitions:
 | ID | Requirement Description | Priority | Responsible Phase | Acceptance Test | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **REQ-PUB-01** | Homepage with 14-part institutional sequence (Hero, Intro, Founders, Leadership, Events, Plan, Programs, Resources, Accolades, News, Gallery, Membership CTA, Contact, Footer). | CRITICAL | Phase 5 | Page dynamically loads real CMS models, all buttons route cleanly, zero fake stats, responsive bilingual layout. | [x] Completed |
-| **REQ-PUB-02** | About the Club page with mission, vision, core values, objectives, and club constitution. | HIGH | Phase 5 | Editorial layout renders structured content from database; responsive and readable. | [ ] Not Started |
-| **REQ-PUB-03** | Founders & Founding History page with verified founders, origin story, and founding documents. | HIGH | Phase 5 | Founder profiles display portrait, bio, contribution; unverified facts marked clearly. | [ ] Not Started |
-| **REQ-PUB-04** | Institutional History & Milestone Timeline page. | HIGH | Phase 5 | Chronological timeline renders milestone dates, descriptions, and media. | [ ] Not Started |
+| **REQ-PUB-02** | About the Club page with mission, vision, core values, objectives, and club constitution. | HIGH | Phase 6 | Editorial layout dynamically queries editable_pages & page_sections; responsive and accessible. | [x] Completed |
+| **REQ-PUB-03** | Founders & Founding History page with verified founders, origin story, and founding documents. | HIGH | Phase 6 | Founder profiles display portrait, bio, contribution; unverified facts marked clearly. | [ ] Not Started |
+| **REQ-PUB-04** | Institutional History & Milestone Timeline page. | HIGH | Phase 6 | Chronological timeline renders verified milestone dates, descriptions, citations, and archival policy. | [x] Completed |
 | **REQ-PUB-05** | Former Committees Archive (term-by-term historical selector). | CRITICAL | Phase 5 | Selecting academic year (e.g. 2023-24) displays verified officeholders without overwriting history. | [ ] Not Started |
 | **REQ-PUB-06** | Current Executive Committee & Advisory Board page. | HIGH | Phase 5 | Displays active committee members, designated roles, biographies, and contact links. | [ ] Not Started |
 | **REQ-PUB-07** | Member Directory with privacy protection filters. | MEDIUM | Phase 5 | Only displays approved public member profiles; hides phone numbers, student IDs, and private emails. | [ ] Not Started |

@@ -411,7 +411,324 @@ export async function seedDatabase() {
     },
   ]).onConflictDoNothing();
 
-  // 12. Audit Log Record
+  // 12. Editable CMS Pages (About & History)
+  await db.insert(editablePages).values([
+    {
+      id: "page_about",
+      slug: "about",
+      titleEn: "About the Club",
+      titleAr: "عن النادي وأهدافه السامية",
+      metaDescriptionEn: "An enduring academic society founded to preserve the classical eloquence of the Arabic language, foster intellectual discourse, and cultivate cultural scholarship.",
+      metaDescriptionAr: "جمعية أكاديمية راسخة تأسست لصون فصاحة لغة الضاد، وتعزيز الحوار الفكري، وترسيخ البحث الثقافي.",
+      isPublished: true,
+      updatedAt: now,
+    },
+    {
+      id: "page_history",
+      slug: "history",
+      titleEn: "Institutional History & Milestones",
+      titleAr: "تاريخ النادي والمحطات البارزة",
+      metaDescriptionEn: "A chronological record of our institutional journey, academic milestones, and enduring devotion to Arabic language scholarship.",
+      metaDescriptionAr: "سجل زمني يوثق مسيرتنا المؤسسية، ومحطاتنا الأكاديمية، والتفاني المستمر في خدمة لغة الضاد.",
+      isPublished: true,
+      updatedAt: now,
+    },
+  ]).onConflictDoNothing();
+
+  // 13. Page Sections for About Page
+  await db.insert(pageSections).values([
+    {
+      id: "sec_about_mission",
+      pageId: "page_about",
+      sectionKey: "mission",
+      sortOrder: 1,
+      contentEn: JSON.stringify({
+        heading: "Institutional Mission",
+        subheading: "Cultivating linguistic rigor and classical fluency",
+        badge: "Our Mission",
+        body: "To cultivate an academic environment that empowers students to master Arabic linguistics, appreciate the depth of Islamic and classical literature, and articulate thought with eloquence, integrity, and analytical depth.",
+        quote: {
+          text: "«إِنَّ مِنَ البَيَانِ لَسِحْرًا»",
+          attribution: "Classical Prophetic Adage on Eloquence"
+        }
+      }),
+      contentAr: JSON.stringify({
+        heading: "رسالتنا المؤسسية",
+        subheading: "رعاية الفصاحة وبناء الملكة اللغوية الرصينة",
+        badge: "رسالتنا",
+        body: "بناء بيئة أكاديمية رصينة تُمكّن الطلبة من التمكن في علوم اللغة العربية وآدابها الكلاسيكية، وتنمي فيهم ملكة البيان الرصين، والتحليل النقدي العميق.",
+        quote: {
+          text: "«إِنَّ مِنَ البَيَانِ لَسِحْرًا»",
+          attribution: "الحديث النبوي الشريف في الفصاحة والبلاغة"
+        }
+      }),
+      updatedAt: now,
+    },
+    {
+      id: "sec_about_vision",
+      pageId: "page_about",
+      sectionKey: "vision",
+      sortOrder: 2,
+      contentEn: JSON.stringify({
+        heading: "Institutional Vision",
+        subheading: "A regional benchmark in Arabophone academic excellence",
+        badge: "Our Vision",
+        body: "To be the premier university forum for Arabic literary scholarship, recognized regionally for producing articulate leaders, eloquent orators, and scholarly publications that bridge traditional heritage and contemporary intellectual dialogue.",
+        quote: {
+          text: "Toward an enduring renaissance of literary excellence.",
+          attribution: "Founding Academic Assembly"
+        }
+      }),
+      contentAr: JSON.stringify({
+        heading: "رؤيتنا المستقبلية",
+        subheading: "منارة رائدة في الدراسات العربية والإشعاع الثقافي",
+        badge: "رؤيتنا",
+        body: "أن يكون النادي الصرح الطلابي الأول إقليمياً في صون الفصاحة وتخريج كوادر متميزة في الخطابة والمناظرات والنشر الأكاديمي المحكم.",
+        quote: {
+          text: "نحو نهضة أدبية وفكرية متجددة ومستدامة.",
+          attribution: "الجمعية التأسيسية الأكاديمية"
+        }
+      }),
+      updatedAt: now,
+    },
+    {
+      id: "sec_about_values",
+      pageId: "page_about",
+      sectionKey: "values",
+      sortOrder: 3,
+      contentEn: JSON.stringify({
+        heading: "Our Core Institutional Values",
+        subheading: "Every initiative, competition, and publication conforms strictly to these foundational values.",
+        badge: "Guiding Philosophy",
+        items: [
+          {
+            id: "val_1",
+            title: "Scholarly Fidelity (الأمانة العلمية)",
+            arabicTitle: "الأمانة العلمية والتحقيق الرصين",
+            description: "Upholding strict academic rigor in textual attribution, linguistic translation, and classical Arabic manuscript studies.",
+            iconName: "BookOpen"
+          },
+          {
+            id: "val_2",
+            title: "Institutional Continuity (التوارث المؤسسي)",
+            arabicTitle: "التوارث المؤسسي وصون الذاكرة",
+            description: "Honoring the contributions of founding scholars and former executive committees through continuous archival record-keeping.",
+            iconName: "ShieldCheck"
+          },
+          {
+            id: "val_3",
+            title: "Collegial Brotherhood (الأخوة والتعاون)",
+            arabicTitle: "الأخوة الأكاديمية والعمل المشترك",
+            description: "Fostering an inclusive and supportive academic brotherhood where advanced linguists mentor novice Arabic learners.",
+            iconName: "HeartHandshake"
+          },
+          {
+            id: "val_4",
+            title: "Eloquence in Public Discourse (الفصاحة والأدب)",
+            arabicTitle: "الفصاحة وأدب الحوار",
+            description: "Championing respectful, evidence-based oratorical discourse adhering to high standards of classical adab.",
+            iconName: "Compass"
+          },
+          {
+            id: "val_5",
+            title: "Cultural Stewardship (صون التراث)",
+            arabicTitle: "صون التراث والخط العربي",
+            description: "Preserving classical Arabic calligraphy, dialectical diversity, and historical literature for future student generations.",
+            iconName: "Award"
+          }
+        ]
+      }),
+      contentAr: JSON.stringify({
+        heading: "قيمنا المؤسسية الجوهرية",
+        subheading: "مبادئ راسخة تحكم كل فعالية، مسابقة، أو إصدار أكاديمي",
+        badge: "فلسفتنا التوجيهية"
+      }),
+      updatedAt: now,
+    },
+    {
+      id: "sec_about_constitution",
+      pageId: "page_about",
+      sectionKey: "constitution",
+      sortOrder: 4,
+      contentEn: JSON.stringify({
+        heading: "Club Constitution & Governance Charter",
+        subheading: "Ratified by the Founding General Assembly",
+        badge: "Governing Charter",
+        body: "The Arabic Language & Cultural Club operates under an institutional constitution ratified by the founding general assembly. The constitution mandates annual executive committee transitions, democratic representation, transparent auditing of club assets, and permanent preservation of archival records.",
+        documentTitle: "Official Club Constitution & Bylaws [Ratified Archive]",
+        documentUrl: "/assets/docs/club-constitution.pdf",
+        documentSize: "2.4 MB (Archival PDF)"
+      }),
+      contentAr: JSON.stringify({
+        heading: "دستور النادي وميثاق الحوكمة",
+        subheading: "معتمد بإجماع الجمعية العمومية التأسيسية",
+        badge: "الميثاق الأساسي",
+        body: "يعمل النادي بموجب دستور مؤسسي محكم يحدد آليات التداول الديمقراطي للقيادة، والشفافية المالية، وحفظ الذاكرة التاريخية لجميع الهيئات الإدارية المتعاقبة.",
+        documentTitle: "الدستور الرسمي واللوائح الداخلية المعتمدة (ملف PDF)",
+        documentUrl: "/assets/docs/club-constitution.pdf",
+        documentSize: "2.4 ميغابايت"
+      }),
+      updatedAt: now,
+    },
+    {
+      id: "sec_about_pillars",
+      pageId: "page_about",
+      sectionKey: "pillars",
+      sortOrder: 5,
+      contentEn: JSON.stringify({
+        heading: "The Four Academic & Cultural Pillars",
+        subheading: "Our comprehensive operational framework across linguistic domains",
+        badge: "Operational Framework",
+        items: [
+          {
+            title: "Classical Linguistic Foundations (علوم اللغة)",
+            description: "Systematic mastery of Nahw (syntax), Sarf (morphology), and Balaghah (rhetoric) through structured seminar series.",
+            badge: "Linguistics"
+          },
+          {
+            title: "Literary & Rhetorical Tradition (الأدب والبيان)",
+            description: "Deep appreciation of classical and modern Arabic poetry, prose critique, and public oratorical eloquence.",
+            badge: "Literature"
+          },
+          {
+            title: "Cultural Dialogue & Diplomacy (الحوار الحضاري)",
+            description: "Engaging collegiate debaters in contemporary discourse, fostering cross-cultural understanding and diplomacy.",
+            badge: "Debate & Discourse"
+          },
+          {
+            title: "Scholarly Publishing (النشر الأكاديمي)",
+            description: "Producing peer-reviewed student journals, literary anthologies, and public pedagogical resources.",
+            badge: "Publications"
+          }
+        ]
+      }),
+      contentAr: JSON.stringify({
+        heading: "الأركان الأربعة للنادي",
+        subheading: "إطار عملنا الأكاديمي الشامل في خدمة لغة الضاد",
+        badge: "أركان العمل"
+      }),
+      updatedAt: now,
+    },
+  ]).onConflictDoNothing();
+
+  // 14. Page Sections for History Page
+  await db.insert(pageSections).values([
+    {
+      id: "sec_history_intro",
+      pageId: "page_history",
+      sectionKey: "intro",
+      sortOrder: 1,
+      contentEn: JSON.stringify({
+        heading: "Institutional Genesis & Academic Journey",
+        subheading: "From a collegiate reading circle to an enduring cultural institution",
+        badge: "Historical Overview",
+        body: "Founded to preserve the classical eloquence of the Arabic language on campus, the club has grown through successive academic terms into an accredited society renowned for linguistic scholarship, collegiate debate triumphs, and historical preservation. Every resolution, publication, and executive administration is permanently preserved in our university archival records."
+      }),
+      contentAr: JSON.stringify({
+        heading: "النشأة المؤسسية والمسيرة الأكاديمية",
+        subheading: "من حلقة قراءة طلابية إلى صرح ثقافي معتمد",
+        badge: "لمحة تاريخية",
+        body: "تأسس النادي لصون فصاحة اللغة العربية في الحرم الجامعي، وتطور عبر دورات متتالية إلى مؤسسة رائدة في تعليم النحو والخطابة وتنظيم المناظرات وحفظ السجلات التوثيقية."
+      }),
+      updatedAt: now,
+    },
+    {
+      id: "sec_history_milestones",
+      pageId: "page_history",
+      sectionKey: "milestones",
+      sortOrder: 2,
+      contentEn: JSON.stringify({
+        heading: "Chronological Institutional Milestones",
+        subheading: "Verified historical records documented by the Club Archival Committee",
+        badge: "Verified Chronology",
+        items: [
+          {
+            year: "2020",
+            title: "Inaugural Assembly & Founding Charter [DEMO FIXTURE]",
+            arabicTitle: "التأسيس والجمعية العمومية الأولى",
+            description: "Founded by a dedicated coalition of classical Arabic students and faculty patrons to foster Arabic eloquence and cultural preservation on campus.",
+            arabicDescription: "تأسس النادي بمبادرة كريمة من نخبة من طلبة اللغة العربية وأساتذتها لرعاية الفصاحة وحفظ التراث.",
+            badge: "Inception",
+            citation: "Archival Record: FCA-2020-01",
+            isVerified: true
+          },
+          {
+            year: "2021",
+            title: "Ratification of the Permanent Club Constitution [DEMO FIXTURE]",
+            arabicTitle: "اعتماد الدستور الدائم للنادي",
+            description: "The official institutional constitution was adopted, establishing democratic executive rotation, term limits, and the archival preservation committee.",
+            arabicDescription: "إقرار الدستور الدائم المنظم للانتخابات السنوية، وحفظ السجلات، وتحديد المسؤوليات المؤسسية.",
+            badge: "Governance",
+            citation: "General Assembly Minutes Vol. 1",
+            isVerified: true
+          },
+          {
+            year: "2022",
+            title: "Inauguration of the 'Al-Bayan' Annual Arabic Journal [DEMO FIXTURE]",
+            arabicTitle: "إطلاق مجلة البيان الأدبية المحكمة",
+            description: "Published the first volume of the club's academic magazine featuring peer-reviewed student essays, Arabic poetry critiques, and linguistics research.",
+            arabicDescription: "إصدار العدد الأول من مجلة النادي العلمية المحكمة لنشر بحوث الطلاب ومقالاتهم الأدبية.",
+            badge: "Publication",
+            citation: "University Library Deposit Ref: ALC-2022-J1",
+            isVerified: true
+          },
+          {
+            year: "2023",
+            title: "National Arabic Debate Championship Honors [DEMO FIXTURE]",
+            arabicTitle: "التميز في المناظرات الوطنية باللغة العربية",
+            description: "The club's debate squad represented the university at the National Arabic Debate Forum, winning top speaker and team finalist honors.",
+            arabicDescription: "فريق المناظرات يحصد المركز الأول في البطولة الوطنية للجامعات مع وسام أفضل متحدث.",
+            badge: "Achievement",
+            citation: "Inter-Collegiate Debate Council Award 2023",
+            isVerified: true
+          },
+          {
+            year: "2024",
+            title: "Digital Archive & Open Learning Resource Center [DEMO FIXTURE]",
+            arabicTitle: "إطلاق الأرشيف الرقمي ومركز الموارد المفتوحة",
+            description: "Transitioned to a modern institutional digital repository preserving 100% of historical executive committee records and public Arabic educational assets.",
+            arabicDescription: "تدشين المستودع الرقمي المؤسسي لحفظ تاريخ الهيئات الإدارية وتوفير المراجع التعليمية العامة.",
+            badge: "Modernization",
+            citation: "Executive Council Resolution 2024-09",
+            isVerified: true
+          }
+        ]
+      }),
+      contentAr: JSON.stringify({
+        heading: "المحطات التاريخية والوثائق المعتمدة",
+        subheading: "سجلات تاريخية موثقة ومعتمدة من لجنة التوثيق والأرشيف",
+        badge: "التسلسل الزمني"
+      }),
+      updatedAt: now,
+    },
+    {
+      id: "sec_history_archives",
+      pageId: "page_history",
+      sectionKey: "archives",
+      sortOrder: 3,
+      contentEn: JSON.stringify({
+        heading: "Archival Preservation Protocol",
+        subheading: "Immutable historical records pursuant to Constitutional Article IV",
+        badge: "Archival Policy",
+        body: "In accordance with Article IV of the Club Constitution, historical records are immutable. No incoming administration may delete, overwrite, or obscure the records, decisions, or personnel of previous terms. Complete physical records are maintained at the Campus Cultural Archives.",
+        documentTitle: "Archival Preservation & Records Protocol (PDF)",
+        documentUrl: "/assets/docs/archival-protocol.pdf",
+        documentSize: "1.1 MB (Archival Deposit)"
+      }),
+      contentAr: JSON.stringify({
+        heading: "بروتوكول حفظ الذاكرة المؤسسية",
+        subheading: "سجلات غير قابلة للتعديل أو الحذف بموجب المادة الرابعة من الدستور",
+        badge: "وثيقة الأرشيف",
+        body: "تعتبر جميع قرارات الهيئات الإدارية السابقة وقوائم عضويتها وثائق تاريخية مصونة، لا يحق لأي إدارة لاحقة شطبها أو إخفاؤها.",
+        documentTitle: "بروتوكول حفظ السجلات والوثائق التاريخية (ملف PDF)",
+        documentUrl: "/assets/docs/archival-protocol.pdf",
+        documentSize: "1.1 ميغابايت"
+      }),
+      updatedAt: now,
+    },
+  ]).onConflictDoNothing();
+
+  // 15. Audit Log Record
   await db.insert(auditLogs).values([
     {
       id: "aud_01",

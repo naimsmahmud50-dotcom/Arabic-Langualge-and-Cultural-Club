@@ -15,7 +15,9 @@ import {
   siteSettings,
   membershipApplications,
   auditLogs,
-  annualPlans
+  annualPlans,
+  editablePages,
+  pageSections
 } from "./schema";
 import { eq, desc, asc, and, like, or, count, sql } from "drizzle-orm";
 
@@ -368,6 +370,115 @@ export async function getPublicSiteSettings() {
     map[r.key] = { en: r.valueEn, ar: r.valueAr };
   }
   return map;
+}
+
+// ----------------------------------------------------------------------
+// EDITABLE CMS PAGES & SECTIONS QUERIES
+// ----------------------------------------------------------------------
+
+export interface SectionContentItem {
+  id?: string;
+  title: string;
+  arabicTitle?: string;
+  description: string;
+  arabicDescription?: string;
+  iconName?: string;
+  badge?: string;
+  year?: string;
+  date?: string;
+  citation?: string;
+  isVerified?: boolean;
+  imageUrl?: string;
+  imageCaption?: string;
+  documentUrl?: string;
+  documentTitle?: string;
+}
+
+export interface SectionContentData {
+  heading?: string;
+  subheading?: string;
+  badge?: string;
+  body?: string;
+  quote?: {
+    text: string;
+    arabicText?: string;
+    attribution?: string;
+  };
+  items?: SectionContentItem[];
+  imageUrl?: string;
+  imageCaption?: string;
+  documentUrl?: string;
+  documentTitle?: string;
+  documentSize?: string;
+  publicationStatus?: "draft" | "published" | "archived";
+}
+
+export interface ParsedPageSection {
+  id: string;
+  pageId: string;
+  sectionKey: string;
+  sortOrder: number;
+  contentEn: SectionContentData;
+  contentAr: SectionContentData;
+  updatedAt: Date;
+}
+
+export interface PageWithSections {
+  id: string;
+  slug: string;
+  titleEn: string;
+  titleAr: string | null;
+  metaDescriptionEn: string | null;
+  metaDescriptionAr: string | null;
+  isPublished: boolean;
+  updatedAt: Date;
+  sections: ParsedPageSection[];
+}
+
+function parseSectionJson(rawText: string | null): SectionContentData {
+  if (!rawText) return {};
+  try {
+    const trimmed = rawText.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      return JSON.parse(trimmed);
+    }
+    return { body: trimmed };
+  } catch {
+    return { body: rawText };
+  }
+}
+
+/**
+ * Fetch a published editable page by slug with all its associated sections ordered by sortOrder.
+ * Safely parses JSON structured content for headings, body copy, quotes, items, and documents.
+ */
+export async function getPageWithSections(slug: string): Promise<PageWithSections | null> {
+  const [page] = await db.select()
+    .from(editablePages)
+    .where(and(eq(editablePages.slug, slug), eq(editablePages.isPublished, true)))
+    .limit(1);
+
+  if (!page) return null;
+
+  const rawSections = await db.select()
+    .from(pageSections)
+    .where(eq(pageSections.pageId, page.id))
+    .orderBy(asc(pageSections.sortOrder));
+
+  const sections: ParsedPageSection[] = rawSections.map((s) => ({
+    id: s.id,
+    pageId: s.pageId,
+    sectionKey: s.sectionKey,
+    sortOrder: s.sortOrder,
+    contentEn: parseSectionJson(s.contentEn),
+    contentAr: parseSectionJson(s.contentAr),
+    updatedAt: s.updatedAt,
+  }));
+
+  return {
+    ...page,
+    sections,
+  };
 }
 
 // ----------------------------------------------------------------------

@@ -9,7 +9,7 @@
 | **Phase 3** | Application Foundation & Routing | **Completed** | 2026-10-17 | 2026-10-17 | Layouts, 16 public routes, 15 admin modules, `ROUTE_INVENTORY.md` |
 | **Phase 4** | Authentication & Role-Based Access Control | **Completed** | 2026-10-17 | 2026-10-17 | Scrypt hashing, HMAC session tokens, RBAC matrix, Edge middleware, 403 Forbidden, 58 tests |
 | **Phase 5** | Public Website Shell & Homepage | **Completed** | 2026-10-17 | 2026-10-17 | Complete 14-section dynamic homepage, zero fake stats, responsive bilingual layout |
-| **Phase 6** | History, Founders & Committees Archive | **Not Started** | - | - | Archival preservation, term selector, directory |
+| **Phase 6** | History, Founders & Committees Archive | **In Progress** | 2026-10-17 | - | Archival preservation, term selector, directory |
 | **Phase 7** | Annual Calendar, Events & Gallery | **Not Started** | - | - | 12-month program, registration form, media viewer |
 | **Phase 8** | Membership Application & Inquiries | **Not Started** | - | - | Admissions pipeline, reference tracker, contact |
 | **Phase 9** | Complete Admin Dashboard & CMS | **Not Started** | - | - | CRUD actions, media uploaders, term creator |
@@ -43,23 +43,14 @@
   - Verified 100% clean production build (`pnpm next build`) with 0 errors across all 31 routes.
   - Comprehensive documentation written in `docs/AUTHENTICATION_AND_RBAC.md`.
 - **Phase 5 (Public Website Shell & Homepage):** Completed on 2026-10-17.
-  - Created 13 modular home section components in `src/components/home/`:
-    1. `HeroSection.tsx`: Basmalah calligraphy, institutional headline, dual CTAs, verified stats.
-    2. `IntroductionSection.tsx`: Club introduction and Four Pillars with calligraphic sub-headers.
-    3. `FoundersPreviewSection.tsx`: Founding conveners preview connected to `getPublicFounders()`.
-    4. `CommitteePreviewSection.tsx`: Active governing committee connected to `getCommitteeTerms()` and `getCommitteeMembersByTerm()`.
-    5. `UpcomingEventsSection.tsx`: Verified upcoming calendar schedule connected to `getPublicEvents()`.
-    6. `AnnualPlanSection.tsx`: 12-Month academic and cultural roadmap connected to `getPublicAnnualPlans()`.
-    7. `CulturalProgramsSection.tsx`: Four flagship recurring programs (Rhetoric Circles, Collegiate Debate, Calligraphy Camp, Literature Salon).
-    8. `LearningResourcesSection.tsx`: Curated library preview connected to `getPublicLearningResources()`.
-    9. `AchievementsSection.tsx`: Accolades & awards and official student journal publications connected to `getPublicAchievements()` and `getPublicPublications()`.
-    10. `NewsAnnouncementsSection.tsx`: Pinned and latest institutional dispatches connected to `getPublicAnnouncements()`.
-    11. `GalleryPreviewSection.tsx`: Curated photo album rolls connected to `getPublicGalleryAlbums()`.
-    12. `MembershipInvitationSection.tsx`: Fellowship entitlements and application pathway.
-    13. `VerifiedContactSection.tsx`: Physical campus headquarters and verified email connected to `getPublicSiteSettings()`.
-    - Added `Footer` in `src/app/(public)/layout.tsx` serving as Section 14.
-  - Added `getPublicAnnualPlans()` query to `src/lib/db/queries.ts`.
-  - Integrated homepage at `src/app/(public)/page.tsx` querying all 10 CMS data models in parallel with safe fallbacks and metadata.
-  - Strict human, academic, institutional tone without cheesy AI emojis or filler visuals.
+  - Created 13 modular home section components in `src/components/home/`: Hero, Introduction, Founders, Committee, Events, Annual Plan, Programs, Learning Resources, Achievements, News, Gallery, Membership CTA, Contact Coordinates, and Footer.
   - Production build verified: `pnpm next build` completed with 0 errors across all 35 routes.
-- **Recommended Next Prompt:** **Phase 6 — History, Founders & Committees Archive** (Implement the dedicated `/founders`, `/history`, and `/leadership` pages with historical committee term preservation, dynamic term selectors, and privacy-protected member directory).
+- **Phase 6 (Institutional Information Pages: About & History):** In Progress (Milestone 1 Completed on 2026-10-17).
+  - Seeded database `editable_pages` and `page_sections` with verified institutional content for `/about` and `/history`.
+  - Implemented `getPageWithSections(slug: string)` in `src/lib/db/queries.ts` with typed JSON parsing for headings, body copy, quotes, items, badges, and documents.
+  - Fully implemented `/about` (`src/app/(public)/about/page.tsx`) with Mission, Vision, 5 Core Values, 4 Academic Pillars, Ratified Constitution & Bylaws with downloadable document, and Archival cross-links.
+  - Fully implemented `/history` (`src/app/(public)/history/page.tsx`) with Institutional Genesis, Chronological Timeline with verified milestone nodes, citations, and Archival Preservation Protocol (Article IV).
+  - Added dignified empty states with `EmptyState` component for unseeded or unpublished pages.
+  - Automated test suite `src/lib/db/test-institutional-pages.ts` passed 25/25 tests (100%).
+  - Clean production build: `pnpm next build` completed with 0 errors.
+- **Recommended Next Prompt:** **Phase 6 Part 2 — Founders, Leadership & Committees Archive** (Implement `/founders`, `/leadership` with historical term preservation and term selector, and `/members` with strict privacy protection).
