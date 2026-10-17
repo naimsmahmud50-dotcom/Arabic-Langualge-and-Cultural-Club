@@ -555,3 +555,214 @@ export async function getAdminAuditLogs(limit: number = 50) {
     .limit(limit);
 }
 
+// ----------------------------------------------------------------------
+// COMMITTEE TERMS & ASSIGNMENT MANAGEMENT OPERATIONS (Historical Preservation)
+// ----------------------------------------------------------------------
+
+export interface CreateCommitteeTermInput {
+  academicYear: string;
+  titleEn: string;
+  titleAr?: string | null;
+  startDate: string; // ISO YYYY-MM-DD
+  endDate?: string | null;
+  isCurrent?: boolean;
+  summaryEn?: string | null;
+  summaryAr?: string | null;
+}
+
+/**
+ * Creates a new committee term while strictly preserving former terms.
+ * Validates date ranges (startDate <= endDate).
+ * If marked current, unmarks any existing current term automatically.
+ */
+export async function createCommitteeTerm(data: CreateCommitteeTermInput) {
+  if (data.endDate && data.startDate > data.endDate) {
+    throw new Error("Invalid date range: startDate must be before or equal to endDate");
+  }
+
+  const id = `term_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const now = new Date();
+
+  if (data.isCurrent) {
+    await db.update(committeeTerms)
+      .set({ isCurrent: false, updatedAt: now })
+      .where(eq(committeeTerms.isCurrent, true));
+  }
+
+  await db.insert(committeeTerms).values({
+    id,
+    academicYear: data.academicYear,
+    titleEn: data.titleEn,
+    titleAr: data.titleAr || null,
+    startDate: data.startDate,
+    endDate: data.endDate || null,
+    isCurrent: !!data.isCurrent,
+    summaryEn: data.summaryEn || null,
+    summaryAr: data.summaryAr || null,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return id;
+}
+
+export interface AssignMemberToCommitteeInput {
+  termId: string;
+  memberId: string;
+  positionTitleEn: string;
+  positionTitleAr?: string | null;
+  rankOrder?: number;
+  roleDescription?: string | null;
+}
+
+/**
+ * Assigns a member to an executive or committee role in a specific term.
+ * Supports a member serving in multiple distinct terms across history.
+ */
+export async function assignMemberToCommittee(data: AssignMemberToCommitteeInput) {
+  const id = `asgn_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const now = new Date();
+
+  await db.insert(committeeAssignments).values({
+    id,
+    termId: data.termId,
+    memberId: data.memberId,
+    positionTitleEn: data.positionTitleEn,
+    positionTitleAr: data.positionTitleAr || null,
+    rankOrder: data.rankOrder ?? 100,
+    roleDescription: data.roleDescription || null,
+    createdAt: now,
+  });
+
+  return id;
+}
+
+/**
+ * Fetches all committee assignments and terms a member has served in across history.
+ */
+export async function getMemberCommitteeHistory(memberId: string) {
+  return await db.select({
+    assignmentId: committeeAssignments.id,
+    termId: committeeTerms.id,
+    academicYear: committeeTerms.academicYear,
+    termTitleEn: committeeTerms.titleEn,
+    termTitleAr: committeeTerms.titleAr,
+    isCurrent: committeeTerms.isCurrent,
+    positionTitleEn: committeeAssignments.positionTitleEn,
+    positionTitleAr: committeeAssignments.positionTitleAr,
+    rankOrder: committeeAssignments.rankOrder,
+    roleDescription: committeeAssignments.roleDescription,
+    startDate: committeeTerms.startDate,
+  })
+  .from(committeeAssignments)
+  .innerJoin(committeeTerms, eq(committeeAssignments.termId, committeeTerms.id))
+  .where(eq(committeeAssignments.memberId, memberId))
+  .orderBy(desc(committeeTerms.startDate));
+}
+
+/**
+ * Updates a member's public directory visibility preference.
+ */
+export async function setMemberPublicVisibility(memberId: string, isPublic: boolean) {
+  await db.update(members)
+    .set({ isPublic, updatedAt: new Date() })
+    .where(eq(members.id, memberId));
+}
+
+/**
+ * Fetches all founders (including unpublished) for administrative curation.
+ */
+export async function getAdminFounders() {
+  return await db.select()
+    .from(founders)
+    .orderBy(asc(founders.sortOrder));
+}
+
+export interface CreateFounderInput {
+  nameEn: string;
+  nameAr?: string | null;
+  portraitUrl?: string | null;
+  roleTitleEn: string;
+  roleTitleAr?: string | null;
+  bioEn?: string | null;
+  bioAr?: string | null;
+  foundingYear?: number | null;
+  sortOrder?: number;
+  isPublished?: boolean;
+}
+
+/**
+ * Creates a new founder profile.
+ */
+export async function createFounder(data: CreateFounderInput) {
+  const id = `fnd_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const now = new Date();
+
+  await db.insert(founders).values({
+    id,
+    nameEn: data.nameEn,
+    nameAr: data.nameAr || null,
+    portraitUrl: data.portraitUrl || null,
+    roleTitleEn: data.roleTitleEn,
+    roleTitleAr: data.roleTitleAr || null,
+    bioEn: data.bioEn || null,
+    bioAr: data.bioAr || null,
+    foundingYear: data.foundingYear || null,
+    sortOrder: data.sortOrder ?? 0,
+    isPublished: data.isPublished ?? true,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return id;
+}
+
+/**
+ * Fetches members for administrative management with complete private fields and filters.
+ */
+export async function getAdminMembers(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  isPublic?: boolean;
+} = {}) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 20));
+  const offset = (page - 1) * limit;
+
+  const conditions = [];
+  if (params.status && params.status !== "all") {
+    conditions.push(eq(members.status, params.status as any));
+  }
+  if (params.isPublic !== undefined) {
+    conditions.push(eq(members.isPublic, params.isPublic));
+  }
+  if (params.search) {
+    const s = `%${params.search}%`;
+    conditions.push(or(
+      like(members.fullNameEn, s),
+      like(members.fullNameAr, s),
+      like(members.membershipId, s),
+      like(members.email, s)
+    )!);
+  }
+
+  const data = await db.select()
+    .from(members)
+    .where(and(...conditions))
+    .orderBy(desc(members.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ total }] = await db.select({ total: count() })
+    .from(members)
+    .where(and(...conditions));
+
+  return {
+    data,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+  };
+}
+
+
