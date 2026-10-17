@@ -57,8 +57,8 @@ Status definitions:
 | **REQ-ADM-08** | Photo Gallery & Media Asset CMS: bulk photo uploads, captions, credits, cover image selector. | CRITICAL | Phase 8 | Uploads validate size/mime-type; albums and photos persist with proper storage URLs. | [ ] Not Started |
 | **REQ-ADM-09** | News & Announcements CMS: rich text editor, draft/published status, scheduled expiry. | HIGH | Phase 8 | Draft posts remain hidden from public; published posts appear immediately. | [ ] Not Started |
 | **REQ-ADM-10** | Arabic Learning Resources & Publications CMS. | HIGH | Phase 8 | Upload resource files, assign categories, publish verified learning materials. | [ ] Not Started |
-| **REQ-ADM-11** | User Accounts & Granular Role Permissions (RBAC). | CRITICAL | Phase 9 | Super Admin can assign roles; restricted roles (e.g. Media Manager) cannot access User Management. | [ ] Not Started |
-| **REQ-ADM-12** | Immutable Audit Logs for sensitive operations. | HIGH | Phase 9 | Records actor, action type, target entity ID, and timestamp on delete/publish/permission changes. | [ ] Not Started |
+| **REQ-ADM-11** | User Accounts & Granular Role Permissions (RBAC). | CRITICAL | Phase 4 | Super Admin can assign roles; restricted roles (e.g. Media Manager, Content Editor) cannot access User Management. | [x] Completed |
+| **REQ-ADM-12** | Immutable Audit Logs for sensitive operations. | HIGH | Phase 4 | Records actor, action type, target entity ID, and timestamp on login/failed login/reset/provisioning. | [x] Completed |
 | **REQ-ADM-13** | Site Settings & Global SEO Configuration. | HIGH | Phase 9 | Update club title, contact email, social media links, and meta tags directly from dashboard. | [ ] Not Started |
 | **REQ-ADM-14** | Database Backup & Disaster Recovery documentation/tools. | MEDIUM | Phase 9 | Backup script or export utility documented and tested for reproducible recovery. | [ ] Not Started |
 
@@ -69,10 +69,10 @@ Status definitions:
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **REQ-DAT-01** | Normalized relational schema with 18+ core entities, foreign keys, timestamps, and indexes. | CRITICAL | Phase 2 | Schema migration executes cleanly without circular dependencies; schema types verified. | [x] Completed |
 | **REQ-DAT-02** | Reproducible migration and seeding pipeline (with fictional demo fixtures clearly tagged). | HIGH | Phase 2 | Running migration and seed scripts populates local development database reliably. | [x] Completed |
-| **REQ-SEC-01** | Secure Authentication: session management, password hashing, protected cookie flags. | CRITICAL | Phase 3 | Passwords never logged or exposed in client payloads; secure session verified. | [ ] Not Started |
-| **REQ-SEC-02** | Server-Side Authorization: every API route and Server Action checks role permissions. | CRITICAL | Phase 3 | Direct URL requests to privileged actions by non-admin accounts return 403 Forbidden. | [ ] Not Started |
-| **REQ-SEC-03** | Input Sanitization, SQL Injection prevention, XSS protection, CSRF mitigation. | CRITICAL | Phase 9 | Inputs validated via Zod schemas; parameterized queries used throughout. | [ ] Not Started |
-| **REQ-SEC-04** | Rate Limiting on public submission forms (Contact, Registration, Application). | HIGH | Phase 9 | Rapid consecutive submissions trigger 429 Too Many Requests response. | [ ] Not Started |
+| **REQ-SEC-01** | Secure Authentication: session management, password hashing, protected cookie flags. | CRITICAL | Phase 4 | Scrypt hashing, HMAC session tokens, httpOnly/lax/secure cookies, 100% test pass. | [x] Completed |
+| **REQ-SEC-02** | Server-Side Authorization: every API route and Server Action checks role permissions. | CRITICAL | Phase 4 | Edge middleware + assertPermission() checks. Direct URL requests return 403 Forbidden. | [x] Completed |
+| **REQ-SEC-03** | Input Sanitization, SQL Injection prevention, XSS protection, CSRF mitigation. | CRITICAL | Phase 4 | Strict Zod validation, parameterized Drizzle queries, signed cookies. | [x] Completed |
+| **REQ-SEC-04** | Rate Limiting on authentication & submission forms. | HIGH | Phase 4 | Sliding window rate limiter locks brute-force attempts after 5 failures. | [x] Completed |
 | **REQ-SEC-05** | Media Upload Security: file type validation (JPEG/PNG/WebP/PDF), max size caps, safe storage keys. | HIGH | Phase 9 | Uploading executable or script files is rejected with safe validation error. | [ ] Not Started |
 
 ---

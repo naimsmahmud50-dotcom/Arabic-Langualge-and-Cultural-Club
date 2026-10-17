@@ -5,9 +5,9 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Phase 0** | Repository Inspection & Specifications | **Completed** | 2026-10-17 | 2026-10-17 | `docs/*` (8 foundational spec files) |
 | **Phase 1** | Brand System & Premium Design System | **Completed** | 2026-10-17 | 2026-10-17 | Design tokens, 16 UI primitives, `DESIGN_SYSTEM.md` |
-| **Phase 2** | Technical Architecture & Database Schema | **Completed** | 2026-10-17 | 2026-10-17 | 21 relational tables, migrations, seed, queries |
+| **Phase 2** | Technical Architecture & Database Schema | **Completed** | 2026-10-17 | 2026-10-17 | 24 relational tables, migrations, seed, queries |
 | **Phase 3** | Application Foundation & Routing | **Completed** | 2026-10-17 | 2026-10-17 | Layouts, 16 public routes, 15 admin modules, `ROUTE_INVENTORY.md` |
-| **Phase 4** | Authentication & Role-Based Access Control | **Not Started** | - | - | NextAuth/JWT session, RBAC middleware, protected admin routes |
+| **Phase 4** | Authentication & Role-Based Access Control | **Completed** | 2026-10-17 | 2026-10-17 | Scrypt hashing, HMAC session tokens, RBAC matrix, Edge middleware, 403 Forbidden, 58 tests |
 | **Phase 5** | Public Website Shell & Homepage | **Not Started** | - | - | Flagship narrative sections, dynamic showcases |
 | **Phase 6** | History, Founders & Committees Archive | **Not Started** | - | - | Archival preservation, term selector, directory |
 | **Phase 7** | Annual Calendar, Events & Gallery | **Not Started** | - | - | 12-month program, registration form, media viewer |
@@ -22,16 +22,24 @@
 
 ### Execution Summary
 - **Phase 0 (Repository Inspection & Specifications):** Completed on 2026-10-17.
-- **Phase 2 (Technical Architecture & Database Schema):** Completed on 2026-10-17 (21 tables, migrations, seed, queries).
+- **Phase 2 (Technical Architecture & Database Schema):** Completed on 2026-10-17 (24 tables, migrations, seed, queries).
 - **Phase 1 (Brand System & Premium Design System):** Completed on 2026-10-17 (Heritage design tokens, 16 UI primitives, showcase page at `/design-system`).
-- **Phase 3 (Application Foundation & Routing):** Completed on 2026-10-17.
-  - Implemented shared public layout (`Header`, `Footer`, `MobileNav`, `PageHeader`).
-  - Implemented dedicated administrative layout (`AdminSidebar`, `AdminHeader`).
-  - Built all 16 public routes (`/`, `/about`, `/founders`, `/history`, `/leadership`, `/members`, `/events`, `/events/[slug]`, `/gallery`, `/gallery/[slug]`, `/resources`, `/publications`, `/news`, `/membership`, `/contact`, `/policies`).
-  - Built all 15 administrative routes (`/admin`, `/admin/login`, `/admin/pages`, `/admin/founders`, `/admin/committees`, `/admin/members`, `/admin/applications`, `/admin/events`, `/admin/gallery`, `/admin/news`, `/admin/resources`, `/admin/publications`, `/admin/users`, `/admin/settings`, `/admin/audit-logs`).
-  - Built global institutional states: `loading.tsx` (suspense skeleton), `not-found.tsx` (bilingual 404), `error.tsx` (runtime boundary).
-  - Prominently added developer JSDoc headers on every component and route specifying role, parameters, and master spec requirement mapping.
-  - Documented complete route catalog in `docs/ROUTE_INVENTORY.md`.
-  - Verified 100% clean production build (`pnpm next build` completed in 707ms with 0 errors).
-  - Database test suite verified with 100% passing tests (`pnpm exec tsx src/lib/db/test-db.ts`).
-- **Recommended Next Prompt:** **Prompt 05 — Authentication & Role-Based Access Control** (Setup secure credentials/session authentication, login form handling, route middleware protecting `/admin/*`, and audit log attribution).
+- **Phase 3 (Application Foundation & Routing):** Completed on 2026-10-17 (16 public routes, 15 admin routes, global states, `ROUTE_INVENTORY.md`).
+- **Phase 4 (Authentication & Role-Based Access Control):** Completed on 2026-10-17.
+  - Implemented native `crypto.scryptSync` password hashing and constant-time verification with complexity rules (`src/lib/auth/password.ts`).
+  - Defined explicit Least-Privilege permissions across all 5 institutional roles: Super Admin, Administrator, Content Editor, Membership Manager, and Event Manager (`src/lib/auth/rbac.ts`).
+  - Implemented universal HMAC-SHA256 session token signing and verification (`src/lib/auth/token.ts`).
+  - Implemented server-managed, revocable sessions in database `sessions` table (`src/lib/auth/session.ts`).
+  - Implemented sliding-window brute-force rate limiter (`src/lib/auth/rate-limit.ts`).
+  - Implemented security audit logger (`src/lib/auth/audit.ts`).
+  - Implemented secure Server Actions (`loginAction`, `logoutAction`, `requestPasswordResetAction`, `resetPasswordAction`, `provisionUserAction`) in `src/lib/auth/actions.ts`.
+  - Built Next.js Edge middleware protecting `/admin/*` and asserting route-level RBAC (`src/middleware.ts`).
+  - Created institutional 403 Forbidden page (`src/app/admin/forbidden/page.tsx`).
+  - Created password recovery request and reset pages (`/admin/forgot-password`, `/admin/reset-password`).
+  - Wired `/admin/login` to Server Action with error alerts and test accounts accordion for instant evaluation.
+  - Added user identity and dynamic role-filtered navigation in `AdminSidebar.tsx`.
+  - Added server-side permission assertions in `users/page.tsx`, `settings/page.tsx`, and `audit-logs/page.tsx`.
+  - Automated test suite passed 58/58 tests with 100% success (`src/lib/auth/test-auth.ts`).
+  - Verified 100% clean production build (`pnpm next build`) with 0 errors across all 31 routes.
+  - Comprehensive documentation written in `docs/AUTHENTICATION_AND_RBAC.md`.
+- **Recommended Next Prompt:** **Prompt 06 — Public Website Shell & Flagship Homepage** (Implement the public homepage with hero narrative, mission/values showcase, upcoming events highlights, Arabic learning resource previews, and interactive calligraphy crest).

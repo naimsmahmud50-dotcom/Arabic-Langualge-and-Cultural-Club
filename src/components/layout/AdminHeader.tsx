@@ -1,11 +1,12 @@
 /**
- * @file AdminHeader.tsx
+ * @file src/components/layout/AdminHeader.tsx
  * @description Topbar header for the administrative dashboard.
- * Displays:
- * - Current module breadcrumbs & title
- * - Current administrator profile & active role badge
- * - Theme toggle
- * - Secure logout action
+ * 
+ * FEATURES:
+ * - Module title & contextual subtitle.
+ * - Current administrator active role badge with institutional crest.
+ * - Interactive theme toggle.
+ * - Secure logout button invoking server-side `logoutAction` and audit logger.
  */
 
 "use client";
@@ -13,7 +14,7 @@
 import React from "react";
 import { ThemeToggle, Badge, Button } from "@/components/ui";
 import { LogOut, User, Shield } from "lucide-react";
-import Link from "next/link";
+import { logoutAction } from "@/lib/auth/actions";
 
 export interface AdminHeaderProps {
   title: string;
@@ -48,12 +49,18 @@ export function AdminHeader({
 
         <ThemeToggle />
 
-        {/* Logout Link */}
-        <Link href="/admin/login">
-          <Button variant="ghost" size="sm" leftIcon={<LogOut className="w-3.5 h-3.5" />}>
+        {/* Form-based Secure Logout */}
+        <form action={logoutAction}>
+          <Button
+            type="submit"
+            variant="ghost"
+            size="sm"
+            leftIcon={<LogOut className="w-3.5 h-3.5" />}
+            title="Terminate administrative session"
+          >
             Logout
           </Button>
-        </Link>
+        </form>
       </div>
     </header>
   );

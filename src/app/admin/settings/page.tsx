@@ -12,9 +12,19 @@
 import React from "react";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { Card, CardContent, Badge, Button, Input } from "@/components/ui";
+import { getSession } from "@/lib/auth/session";
+import { assertPermission } from "@/lib/auth/rbac";
+import { redirect } from "next/navigation";
 import { Settings, Save, Globe, ShieldCheck, Database, HardDriveDownload } from "lucide-react";
 
-export default function AdminSettingsPage() {
+export default async function AdminSettingsPage() {
+  const session = await getSession();
+  if (!session) {
+    redirect("/admin/login?next=/admin/settings");
+  }
+
+  // Enforce server-side authorization: settings:manage (Super Admin only)
+  assertPermission(session.role, "settings:manage");
   return (
     <div className="flex-1 flex flex-col">
       <AdminHeader

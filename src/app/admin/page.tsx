@@ -18,6 +18,9 @@ import Link from "next/link";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { Card, CardContent, Badge, Button, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui";
 import { getAdminDashboardMetrics } from "@/lib/db/queries";
+import { getSession } from "@/lib/auth/session";
+import { ROLE_METADATA } from "@/lib/auth/rbac";
+import { redirect } from "next/navigation";
 import { 
   Users, 
   UserPlus, 
@@ -34,6 +37,13 @@ import {
 export const revalidate = 0; // Dynamic real-time dashboard
 
 export default async function AdminDashboardPage() {
+  const session = await getSession();
+  if (!session) {
+    redirect("/admin/login?next=/admin");
+  }
+
+  const roleMeta = ROLE_METADATA[session.role] || ROLE_METADATA.super_admin;
+
   const metrics = await getAdminDashboardMetrics().catch(() => ({
     totalEvents: 0,
     totalUpcoming: 0,
@@ -83,9 +93,9 @@ export default async function AdminDashboardPage() {
   return (
     <div className="flex-1 flex flex-col">
       <AdminHeader
-        title="Administrative Command Center"
+        title={`Command Center — Welcome, ${session.fullName.split(" ")[0]}`}
         subtitle="Institutional operations, membership queue, and archival management"
-        role="Super Admin"
+        role={roleMeta.titleEn}
       />
 
       <div className="p-6 sm:p-8 space-y-8 max-w-7xl">

@@ -24,11 +24,13 @@ export const users = sqliteTable("users", {
   role: text("role", { 
     enum: [
       "super_admin",
+      "administrator",
+      "content_editor",
+      "membership_manager",
+      "event_manager",
       "president",
       "secretary",
-      "event_manager",
       "media_manager",
-      "content_editor",
       "read_only"
     ] 
   }).notNull().default("read_only"),
@@ -39,6 +41,53 @@ export const users = sqliteTable("users", {
 }, (table) => [
   index("users_role_idx").on(table.role),
   index("users_email_idx").on(table.email),
+]);
+
+// ----------------------------------------------------------------------
+// 2b. SESSIONS (Server-Managed Revocable Sessions)
+// ----------------------------------------------------------------------
+export const sessions = sqliteTable("sessions", {
+  id: text("id").primaryKey(), // secure token identifier
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  role: text("role").notNull(),
+  userEmail: text("user_email").notNull(),
+  fullName: text("full_name").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+}, (table) => [
+  index("sessions_user_idx").on(table.userId),
+  index("sessions_expires_idx").on(table.expiresAt),
+]);
+
+// ----------------------------------------------------------------------
+// 2c. PASSWORD RESET TOKENS
+// ----------------------------------------------------------------------
+export const passwordResetTokens = sqliteTable("password_reset_tokens", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  usedAt: integer("used_at", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+}, (table) => [
+  index("pwd_reset_user_idx").on(table.userId),
+  index("pwd_reset_token_idx").on(table.tokenHash),
+]);
+
+// ----------------------------------------------------------------------
+// 2d. LOGIN ATTEMPTS & RATE LIMITING
+// ----------------------------------------------------------------------
+export const loginAttempts = sqliteTable("login_attempts", {
+  id: text("id").primaryKey(),
+  ipAddress: text("ip_address").notNull(),
+  email: text("email").notNull(),
+  attemptedAt: integer("attempted_at", { mode: "timestamp" }).notNull(),
+  isSuccessful: integer("is_successful", { mode: "boolean" }).notNull(),
+}, (table) => [
+  index("login_attempts_ip_idx").on(table.ipAddress, table.attemptedAt),
+  index("login_attempts_email_idx").on(table.email, table.attemptedAt),
 ]);
 
 // ----------------------------------------------------------------------

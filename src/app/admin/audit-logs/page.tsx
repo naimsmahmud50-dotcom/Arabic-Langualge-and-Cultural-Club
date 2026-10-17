@@ -14,11 +14,22 @@ import React from "react";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { Card, CardContent, Badge, Button, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, EmptyState } from "@/components/ui";
 import { getAdminAuditLogs } from "@/lib/db/queries";
+import { getSession } from "@/lib/auth/session";
+import { assertPermission } from "@/lib/auth/rbac";
+import { redirect } from "next/navigation";
 import { History, Shield, Filter, Download } from "lucide-react";
 
 export const revalidate = 0;
 
 export default async function AdminAuditLogsPage() {
+  const session = await getSession();
+  if (!session) {
+    redirect("/admin/login?next=/admin/audit-logs");
+  }
+
+  // Enforce server-side authorization: audit:read
+  assertPermission(session.role, "audit:read");
+
   const logs = await getAdminAuditLogs(50).catch(() => []);
 
   return (

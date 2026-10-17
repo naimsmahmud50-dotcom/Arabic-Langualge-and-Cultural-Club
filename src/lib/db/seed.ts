@@ -1,4 +1,5 @@
 import { db } from "./index";
+import { hashPassword } from "../auth/password";
 import {
   siteSettings,
   users,
@@ -71,13 +72,13 @@ export async function seedDatabase() {
     { id: "pos_adv", titleEn: "Faculty Adviser", titleAr: "المشرف الأكاديمي", defaultRank: 10, category: "advisor", createdAt: now },
   ]).onConflictDoNothing();
 
-  // 3. Test Users (with hashed passwords for development: "password123")
-  const defaultPwHash = "$2b$10$epRswT.wE2aFbOx3gkHQGuMyG5vG1PzP.sEaKx9BfG4G.0G0JgW1G"; // bcrypt placeholder
+  // 3. Test Users with Scrypt hashed password ("AdminSecure2026!")
+  const securePwHash = hashPassword("AdminSecure2026!");
   await db.insert(users).values([
     {
       id: "usr_superadmin",
       email: "admin@arabicclub.org",
-      passwordHash: defaultPwHash,
+      passwordHash: securePwHash,
       fullName: "Lead Systems Administrator [DEMO]",
       role: "super_admin",
       isActive: true,
@@ -85,9 +86,49 @@ export async function seedDatabase() {
       updatedAt: now,
     },
     {
+      id: "usr_admin",
+      email: "operations@arabicclub.org",
+      passwordHash: securePwHash,
+      fullName: "General Administrator [DEMO]",
+      role: "administrator",
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "usr_editor",
+      email: "editor@arabicclub.org",
+      passwordHash: securePwHash,
+      fullName: "Content & Editorial Manager [DEMO]",
+      role: "content_editor",
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "usr_membership",
+      email: "membership@arabicclub.org",
+      passwordHash: securePwHash,
+      fullName: "Membership Officer [DEMO]",
+      role: "membership_manager",
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "usr_events",
+      email: "events@arabicclub.org",
+      passwordHash: securePwHash,
+      fullName: "Events Coordinator [DEMO]",
+      role: "event_manager",
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
       id: "usr_president",
       email: "president@arabicclub.org",
-      passwordHash: defaultPwHash,
+      passwordHash: securePwHash,
       fullName: "Executive President [DEMO]",
       role: "president",
       isActive: true,
@@ -97,7 +138,7 @@ export async function seedDatabase() {
     {
       id: "usr_media",
       email: "media@arabicclub.org",
-      passwordHash: defaultPwHash,
+      passwordHash: securePwHash,
       fullName: "Media Director [DEMO]",
       role: "media_manager",
       isActive: true,
@@ -105,6 +146,9 @@ export async function seedDatabase() {
       updatedAt: now,
     },
   ]).onConflictDoNothing();
+
+  // Ensure existing demo users are updated with the verified Scrypt hash
+  await db.update(users).set({ passwordHash: securePwHash });
 
   // 4. Founders [DEMO FIXTURES - PENDING OFFICIAL RECORDS]
   await db.insert(founders).values([

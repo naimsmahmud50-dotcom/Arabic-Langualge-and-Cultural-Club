@@ -1,10 +1,13 @@
 /**
- * @file AdminSidebar.tsx
+ * @file src/components/layout/AdminSidebar.tsx
  * @description Administrative sidebar navigation for the Arabic Club CMS.
- * Features:
- * - Module groupings: Core, Institutional Legacy, Operations, Academic/Media, System
- * - Active route highlight
- * - Direct link back to public site
+ * 
+ * FEATURES:
+ * - Module groupings: Overview, Institutional Legacy, Operations & Content, System & Governance.
+ * - Role-Based Visibility: dynamically filters accessible navigation links based on user permissions.
+ * - Active route highlighting with institutional color palette.
+ * - User identity tile with role badge, Arabic role title, and one-click Sign Out.
+ * - Direct shortcut back to public platform.
  */
 
 "use client";
@@ -28,47 +31,85 @@ import {
   Settings,
   History,
   ExternalLink,
+  LogOut,
+  User,
 } from "lucide-react";
+import { SessionUser, Permission, Role } from "@/lib/auth/types";
+import { hasPermission, ROLE_METADATA } from "@/lib/auth/rbac";
+import { logoutAction } from "@/lib/auth/actions";
+import { Badge } from "@/components/ui";
 
-export const ADMIN_MODULES = [
+interface AdminSidebarProps {
+  className?: string;
+  user?: SessionUser | null;
+}
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  permission: Permission;
+}
+
+interface NavGroup {
+  group: string;
+  items: NavItem[];
+}
+
+export const ADMIN_NAV_GROUPS: NavGroup[] = [
   {
     group: "Overview",
     items: [
-      { label: "Dashboard Metrics", href: "/admin", icon: LayoutDashboard },
+      { label: "Dashboard Metrics", href: "/admin", icon: LayoutDashboard, permission: "dashboard:view" },
     ],
   },
   {
     group: "Institutional Legacy",
     items: [
-      { label: "Founders & Origin", href: "/admin/founders", icon: Award },
-      { label: "Committees & Terms", href: "/admin/committees", icon: Users2 },
-      { label: "Member Records", href: "/admin/members", icon: UserCheck },
-      { label: "Application Queue", href: "/admin/applications", icon: UserPlus },
+      { label: "Founders & Origin", href: "/admin/founders", icon: Award, permission: "committees:manage" },
+      { label: "Committees & Terms", href: "/admin/committees", icon: Users2, permission: "committees:manage" },
+      { label: "Member Records", href: "/admin/members", icon: UserCheck, permission: "members:manage" },
+      { label: "Application Queue", href: "/admin/applications", icon: UserPlus, permission: "applications:manage" },
     ],
   },
   {
     group: "Operations & Content",
     items: [
-      { label: "Annual Plan & Events", href: "/admin/events", icon: CalendarDays },
-      { label: "Gallery & Photos", href: "/admin/gallery", icon: Image },
-      { label: "News & Notices", href: "/admin/news", icon: Bell },
-      { label: "Learning Resources", href: "/admin/resources", icon: BookOpen },
-      { label: "Publications & Awards", href: "/admin/publications", icon: Newspaper },
-      { label: "Page Content CMS", href: "/admin/pages", icon: FileText },
+      { label: "Annual Plan & Events", href: "/admin/events", icon: CalendarDays, permission: "events:manage" },
+      { label: "Gallery & Photos", href: "/admin/gallery", icon: Image, permission: "gallery:manage" },
+      { label: "News & Notices", href: "/admin/news", icon: Bell, permission: "news:manage" },
+      { label: "Learning Resources", href: "/admin/resources", icon: BookOpen, permission: "resources:manage" },
+      { label: "Publications & Awards", href: "/admin/publications", icon: Newspaper, permission: "publications:manage" },
+      { label: "Page Content CMS", href: "/admin/pages", icon: FileText, permission: "pages:manage" },
     ],
   },
   {
     group: "System & Governance",
     items: [
-      { label: "Users & Roles", href: "/admin/users", icon: ShieldCheck },
-      { label: "Site Settings & SEO", href: "/admin/settings", icon: Settings },
-      { label: "Audit Logs", href: "/admin/audit-logs", icon: History },
+      { label: "Users & Roles", href: "/admin/users", icon: ShieldCheck, permission: "users:manage" },
+      { label: "Site Settings & SEO", href: "/admin/settings", icon: Settings, permission: "settings:manage" },
+      { label: "Audit Logs", href: "/admin/audit-logs", icon: History, permission: "audit:read" },
     ],
   },
 ];
 
-export function AdminSidebar({ className }: { className?: string }) {
+export function AdminSidebar({ className, user }: AdminSidebarProps) {
   const pathname = usePathname();
+
+  // Do not render sidebar on unauthenticated entry gates or forbidden screen
+  const isAuthGateway =
+    pathname === "/admin/login" ||
+    pathname.startsWith("/admin/login/") ||
+    pathname === "/admin/forgot-password" ||
+    pathname === "/admin/reset-password" ||
+    pathname === "/admin/forbidden";
+
+  if (isAuthGateway) {
+    return null;
+  }
+
+  const role = user?.role || "super_admin";
+  const roleMeta = ROLE_METADATA[role] || ROLE_METADATA.super_admin;
 
   return (
     <aside
@@ -77,9 +118,9 @@ export function AdminSidebar({ className }: { className?: string }) {
     >
       <div className="flex flex-col h-full overflow-hidden">
         {/* Brand Header */}
-        <div className="p-5 border-b border-[var(--border-color)] flex items-center justify-between shrink-0">
+        <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between shrink-0">
           <Link href="/admin" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-[4px] bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 rounded-[4px] bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] flex items-center justify-center font-bold text-sm border border-[var(--brand-accent)]">
               ض
             </div>
             <div>
@@ -94,45 +135,79 @@ export function AdminSidebar({ className }: { className?: string }) {
         </div>
 
         {/* Scrollable Navigation Groups */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          {ADMIN_MODULES.map((group) => (
-            <div key={group.group}>
-              <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] px-2 mb-2">
-                {group.group}
+        <div className="flex-1 overflow-y-auto p-3 space-y-5">
+          {ADMIN_NAV_GROUPS.map((group) => {
+            // Filter items based on user's role permission
+            const accessibleItems = group.items.filter((item) => hasPermission(role, item.permission));
+            if (accessibleItems.length === 0) return null;
+
+            return (
+              <div key={group.group}>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] px-2 mb-1.5">
+                  {group.group}
+                </div>
+                <div className="space-y-0.5">
+                  {accessibleItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-semibold transition-colors ${
+                          isActive
+                            ? "bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] shadow-xs"
+                            : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4 shrink-0" />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="space-y-1">
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-semibold transition-colors ${
-                        isActive
-                          ? "bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] shadow-xs"
-                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]"
-                      }`}
-                    >
-                      <Icon className="w-4 h-4 shrink-0" />
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Bottom Public Link Shortcut */}
-        <div className="p-4 border-t border-[var(--border-color)] shrink-0">
-          <Link
-            href="/"
-            className="flex items-center justify-between p-2 rounded-[6px] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors border border-[var(--border-subtle)]"
-          >
-            <span>View Public Website</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </Link>
+        {/* User Identity & Logout Tile */}
+        <div className="p-3 border-t border-[var(--border-color)] bg-[var(--bg-primary)]/40 shrink-0 space-y-2">
+          {user && (
+            <div className="p-2 rounded-[6px] bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[var(--text-primary)] truncate max-w-[130px]">
+                  {user.fullName}
+                </span>
+                <Badge variant={roleMeta.badgeVariant} size="sm" className="text-[9px] py-0 px-1.5">
+                  {roleMeta.titleEn.split(" ")[0]}
+                </Badge>
+              </div>
+              <div className="text-[10px] text-[var(--text-muted)] truncate font-mono">
+                {user.email}
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-1.5">
+            <Link
+              href="/"
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-[4px] text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors border border-[var(--border-subtle)]"
+            >
+              <span>Public Site</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+
+            <form action={logoutAction} className="shrink-0">
+              <button
+                type="submit"
+                title="Sign out of administrative session"
+                className="flex items-center justify-center p-1.5 rounded-[4px] text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 border border-transparent hover:border-red-200 transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </aside>
