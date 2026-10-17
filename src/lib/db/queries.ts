@@ -393,3 +393,39 @@ export async function getAdminDashboardMetrics() {
     recentLogs,
   };
 }
+
+/**
+ * Fetch a single gallery album by slug with its media photos.
+ */
+export async function getPublicGalleryAlbumBySlug(slug: string) {
+  const [album] = await db.select()
+    .from(galleryAlbums)
+    .where(and(eq(galleryAlbums.slug, slug), eq(galleryAlbums.isPublished, true)))
+    .limit(1);
+
+  if (!album) return null;
+
+  const photos = await getAlbumMediaAssets(album.id);
+  return { ...album, photos };
+}
+
+/**
+ * Fetch membership applications for administrative review.
+ */
+export async function getAdminMembershipApplications(status: "approved" | "pending" | "rejected" | "under_review" | "withdrawn" = "pending") {
+  return await db.select()
+    .from(membershipApplications)
+    .where(eq(membershipApplications.status, status))
+    .orderBy(desc(membershipApplications.createdAt));
+}
+
+/**
+ * Fetch audit logs for security review.
+ */
+export async function getAdminAuditLogs(limit: number = 50) {
+  return await db.select()
+    .from(auditLogs)
+    .orderBy(desc(auditLogs.createdAt))
+    .limit(limit);
+}
+

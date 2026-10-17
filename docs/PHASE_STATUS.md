@@ -6,27 +6,32 @@
 | **Phase 0** | Repository Inspection & Specifications | **Completed** | 2026-10-17 | 2026-10-17 | `docs/*` (8 foundational spec files) |
 | **Phase 1** | Brand System & Premium Design System | **Completed** | 2026-10-17 | 2026-10-17 | Design tokens, 16 UI primitives, `DESIGN_SYSTEM.md` |
 | **Phase 2** | Technical Architecture & Database Schema | **Completed** | 2026-10-17 | 2026-10-17 | 21 relational tables, migrations, seed, queries |
-| **Phase 3** | Application Foundation & Auth | **Not Started** | - | - | Next.js App Router shell, RBAC auth guard |
-| **Phase 4** | Public Website Shell & Homepage | **Not Started** | - | - | 8-section storytelling flagship homepage |
-| **Phase 5** | History, Founders & Committees Archive | **Not Started** | - | - | Historical archive, term selector, member directory |
-| **Phase 6** | Annual Calendar, Events & Gallery | **Not Started** | - | - | Calendar view, registration, lightbox gallery |
-| **Phase 7** | Membership Application & Contact | **Not Started** | - | - | Application workflow, inquiry form, policies |
-| **Phase 8** | Complete Admin Dashboard & CMS | **Not Started** | - | - | Dynamic metrics, 10+ operational CMS modules |
-| **Phase 9** | Security Hardening & Audit Logs | **Not Started** | - | - | Rate limiting, upload security, immutable audit logs |
-| **Phase 10** | Bilingual (English/Arabic RTL) & SEO | **Not Started** | - | - | Language switcher, RTL layout, sitemap, meta |
-| **Phase 11** | Automated Testing & QA Audit | **Not Started** | - | - | Unit tests, integration tests, build checks |
-| **Phase 12** | Deployment, Handover & Final Acceptance | **Not Started** | - | - | Production guide, admin manual, final report |
+| **Phase 3** | Application Foundation & Routing | **Completed** | 2026-10-17 | 2026-10-17 | Layouts, 16 public routes, 15 admin modules, `ROUTE_INVENTORY.md` |
+| **Phase 4** | Authentication & Role-Based Access Control | **Not Started** | - | - | NextAuth/JWT session, RBAC middleware, protected admin routes |
+| **Phase 5** | Public Website Shell & Homepage | **Not Started** | - | - | Flagship narrative sections, dynamic showcases |
+| **Phase 6** | History, Founders & Committees Archive | **Not Started** | - | - | Archival preservation, term selector, directory |
+| **Phase 7** | Annual Calendar, Events & Gallery | **Not Started** | - | - | 12-month program, registration form, media viewer |
+| **Phase 8** | Membership Application & Inquiries | **Not Started** | - | - | Admissions pipeline, reference tracker, contact |
+| **Phase 9** | Complete Admin Dashboard & CMS | **Not Started** | - | - | CRUD actions, media uploaders, term creator |
+| **Phase 10** | Security Hardening & Audit Logs | **Not Started** | - | - | Rate limiting, upload sanitization, immutable ledger |
+| **Phase 11** | Bilingual (English/Arabic RTL) & SEO | **Not Started** | - | - | Locale persistence, `dir="rtl"`, sitemap, meta |
+| **Phase 12** | Automated Testing & QA Audit | **Not Started** | - | - | E2E tests, unit tests, Lighthouse >= 95 |
+| **Phase 13** | Deployment, Handover & Final Acceptance | **Not Started** | - | - | Production hosting guide, admin manual |
 
 ---
 
 ### Execution Summary
 - **Phase 0 (Repository Inspection & Specifications):** Completed on 2026-10-17.
 - **Phase 2 (Technical Architecture & Database Schema):** Completed on 2026-10-17 (21 tables, migrations, seed, queries).
-- **Phase 1 (Brand System & Premium Design System):** Completed on 2026-10-17.
-  - Implemented core Heritage design tokens in `src/app/globals.css` (Forest Green `#173D32`, Warm Ivory `#F5F0E5`, Antique Brass `#B18A4A`, Midnight Evergreen `#17211D`, Muted Sage `#829487`).
-  - Configured bilingual typography (Manrope, Inter, Noto Naskh Arabic with RTL support).
-  - Built 16 reusable UI components in `src/components/ui/` (Button, Card, Badge, Input, FormControls, Modal, Alert, Table, Breadcrumbs, Pagination, LoadingSpinner, EmptyState, ThemeToggle, GeometricPattern).
-  - Built interactive showcase page at `/design-system` verifying components, light/dark themes, and responsive layouts.
-  - Passed production build (`next build`) with 0 errors and 0 warnings.
-  - Documented full system in `docs/DESIGN_SYSTEM.md`.
-- **Recommended Next Prompt:** **Prompt 04 — Application foundation ও routing** (Shared layout, public header/footer, admin separate layout, route inventory).
+- **Phase 1 (Brand System & Premium Design System):** Completed on 2026-10-17 (Heritage design tokens, 16 UI primitives, showcase page at `/design-system`).
+- **Phase 3 (Application Foundation & Routing):** Completed on 2026-10-17.
+  - Implemented shared public layout (`Header`, `Footer`, `MobileNav`, `PageHeader`).
+  - Implemented dedicated administrative layout (`AdminSidebar`, `AdminHeader`).
+  - Built all 16 public routes (`/`, `/about`, `/founders`, `/history`, `/leadership`, `/members`, `/events`, `/events/[slug]`, `/gallery`, `/gallery/[slug]`, `/resources`, `/publications`, `/news`, `/membership`, `/contact`, `/policies`).
+  - Built all 15 administrative routes (`/admin`, `/admin/login`, `/admin/pages`, `/admin/founders`, `/admin/committees`, `/admin/members`, `/admin/applications`, `/admin/events`, `/admin/gallery`, `/admin/news`, `/admin/resources`, `/admin/publications`, `/admin/users`, `/admin/settings`, `/admin/audit-logs`).
+  - Built global institutional states: `loading.tsx` (suspense skeleton), `not-found.tsx` (bilingual 404), `error.tsx` (runtime boundary).
+  - Prominently added developer JSDoc headers on every component and route specifying role, parameters, and master spec requirement mapping.
+  - Documented complete route catalog in `docs/ROUTE_INVENTORY.md`.
+  - Verified 100% clean production build (`pnpm next build` completed in 707ms with 0 errors).
+  - Database test suite verified with 100% passing tests (`pnpm exec tsx src/lib/db/test-db.ts`).
+- **Recommended Next Prompt:** **Prompt 05 — Authentication & Role-Based Access Control** (Setup secure credentials/session authentication, login form handling, route middleware protecting `/admin/*`, and audit log attribution).

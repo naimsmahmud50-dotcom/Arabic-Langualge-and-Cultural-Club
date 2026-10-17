@@ -27,11 +27,22 @@ export function LoadingSpinner({ size = "md", label, className, ...props }: Load
   );
 }
 
-export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "text" | "circular" | "rectangular";
+}
+
+export function Skeleton({ variant = "rectangular", className, ...props }: SkeletonProps) {
+  const variantStyles = {
+    text: "rounded-[4px]",
+    circular: "rounded-full",
+    rectangular: "rounded-[6px]",
+  };
+
   return (
     <div
       className={cn(
-        "animate-pulse rounded bg-[var(--border-subtle)]/70",
+        "animate-pulse bg-[var(--border-subtle)]/70",
+        variantStyles[variant],
         className
       )}
       {...props}

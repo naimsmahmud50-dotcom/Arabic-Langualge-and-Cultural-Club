@@ -3,9 +3,10 @@ import { cn } from "@/lib/utils/cn";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "elevated" | "accent";
+  hoverElevate?: boolean;
 }
 
-export function Card({ className, variant = "default", children, ...props }: CardProps) {
+export function Card({ className, variant = "default", hoverElevate, children, ...props }: CardProps) {
   const variantStyles = {
     default: "bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-[var(--shadow-card)]",
     elevated: "bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] shadow-[var(--shadow-elevated)]",
@@ -17,6 +18,7 @@ export function Card({ className, variant = "default", children, ...props }: Car
       className={cn(
         "rounded-[8px] transition-colors duration-150 overflow-hidden",
         variantStyles[variant],
+        hoverElevate && "hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition-all duration-150",
         className
       )}
       {...props}

@@ -1,12 +1,16 @@
 import React from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
 import { FolderOpen } from "lucide-react";
+import { Button } from "./Button";
 
 export interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
   icon?: React.ReactNode;
   title: string;
   description?: string;
   action?: React.ReactNode;
+  actionLabel?: string;
+  actionHref?: string;
 }
 
 export function EmptyState({
@@ -14,6 +18,8 @@ export function EmptyState({
   title,
   description,
   action,
+  actionLabel,
+  actionHref,
   className,
   ...props
 }: EmptyStateProps) {
@@ -37,6 +43,13 @@ export function EmptyState({
         </p>
       )}
       {action && <div>{action}</div>}
+      {!action && actionLabel && actionHref && (
+        <Link href={actionHref}>
+          <Button variant="outline" size="sm">
+            {actionLabel}
+          </Button>
+        </Link>
+      )}
     </div>
   );
 }

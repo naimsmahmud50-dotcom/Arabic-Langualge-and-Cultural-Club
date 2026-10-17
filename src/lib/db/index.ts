@@ -8,7 +8,7 @@ import fs from "fs";
 const dbPath = process.env.DATABASE_URL || path.join(process.cwd(), "arabic_club.db");
 
 // Ensure directory exists
-const dbDir = path.dirname(path.resolve(dbPath));
+const dbDir = path.dirname(path.resolve(/*turbopackIgnore: true*/ dbPath));
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
