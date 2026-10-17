@@ -1,0 +1,31 @@
+# Dependencies
+/node_modules
+/.pnpm-store
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Build artifacts
+/.next/
+/dist/
+/out/
+/build/
+
+# IDE & OS
+.DS_Store
+*.pem
+.vscode/
+.idea/
+
+# Plan raw extraction temporary
+extracted_plan_text.txt
