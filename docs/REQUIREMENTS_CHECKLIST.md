@@ -13,12 +13,12 @@ Status definitions:
 ### Section A: Design System & Visual Identity
 | ID | Requirement Description | Priority | Responsible Phase | Acceptance Test | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **REQ-DS-01** | Heritage color tokens: `#173D32`, `#F5F0E5`, `#B18A4A`, `#17211D`, supporting sage and warm gray. | CRITICAL | Phase 1 | CSS variables/Tailwind tokens defined, checked with contrast ratio >= 4.5:1. | [ ] Not Started |
-| **REQ-DS-02** | Refined bilingual typography: Manrope (EN heading), Inter (EN body), Noto Naskh Arabic (AR heading/body). | CRITICAL | Phase 1 | Fonts render cleanly without layout shift; Arabic diacritics and ligatures verified. | [ ] Not Started |
-| **REQ-DS-03** | Light & Dark theme toggle with persistent user choice and zero white flash on reload. | HIGH | Phase 1 | Switching themes updates all components, cards, tables, and borders without visual artifacts. | [ ] Not Started |
-| **REQ-DS-04** | Restrained motion primitives & `prefers-reduced-motion` compliance. | HIGH | Phase 1 | Animations gracefully disable when reduced-motion preference is active. | [ ] Not Started |
-| **REQ-DS-05** | Subtle Arabic geometric pattern backgrounds and editorial borders. | MEDIUM | Phase 1 | Background SVGs/patterns are subtle, non-distracting, and accessible in both themes. | [ ] Not Started |
-| **REQ-DS-06** | Reusable UI Component Library: Buttons, Badges, Modals, Cards, Tables, Forms, Breadcrumbs, Empty States. | CRITICAL | Phase 1 | All shared components tested across mobile (375px), tablet (768px), and desktop (1440px). | [ ] Not Started |
+| **REQ-DS-01** | Heritage color tokens: `#173D32`, `#F5F0E5`, `#B18A4A`, `#17211D`, supporting sage and warm gray. | CRITICAL | Phase 1 | CSS variables/Tailwind tokens defined, checked with contrast ratio >= 4.5:1. | [x] Completed |
+| **REQ-DS-02** | Refined bilingual typography: Manrope (EN heading), Inter (EN body), Noto Naskh Arabic (AR heading/body). | CRITICAL | Phase 1 | Fonts render cleanly without layout shift; Arabic diacritics and ligatures verified. | [x] Completed |
+| **REQ-DS-03** | Light & Dark theme toggle with persistent user choice and zero white flash on reload. | HIGH | Phase 1 | Switching themes updates all components, cards, tables, and borders without visual artifacts. | [x] Completed |
+| **REQ-DS-04** | Restrained motion primitives & `prefers-reduced-motion` compliance. | HIGH | Phase 1 | Animations gracefully disable when reduced-motion preference is active. | [x] Completed |
+| **REQ-DS-05** | Subtle Arabic geometric pattern backgrounds and editorial borders. | MEDIUM | Phase 1 | Background SVGs/patterns are subtle, non-distracting, and accessible in both themes. | [x] Completed |
+| **REQ-DS-06** | Reusable UI Component Library: Buttons, Badges, Modals, Cards, Tables, Forms, Breadcrumbs, Empty States. | CRITICAL | Phase 1 | All shared components tested across mobile (375px), tablet (768px), and desktop (1440px). | [x] Completed |
 
 ---
 

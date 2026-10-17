@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Core Heritage Palette - Light Theme */
+    --bg-primary: #F5F0E5;       /* Warm Ivory */
+    --bg-surface: #FFFFFF;       /* Soft White */
+    --bg-surface-elevated: #FCFAF6;
+    --bg-surface-hover: #EFE9DC;
+
+    --brand-primary: #173D32;    /* Heritage Forest Green */
+    --brand-primary-hover: #0F2A22;
+    --brand-primary-fg: #F5F0E5;
+
+    --brand-accent: #B18A4A;     /* Antique Brass Gold */
+    --brand-accent-hover: #98753B;
+    --brand-accent-fg: #FFFFFF;
+
+    --brand-dark: #17211D;       /* Midnight Evergreen */
+
+    --text-primary: #202720;     /* Deep Forest Charcoal */
+    --text-secondary: #4A564F;   /* Refined Slate Green */
+    --text-muted: #77766F;       /* Warm Gray */
+
+    --border-color: #DDD8CC;     /* Fine Warm Border */
+    --border-subtle: #E8E3D7;
+
+    --state-success: #1F6B45;
+    --state-warning: #A66E1E;
+    --state-error: #962829;
+    --state-info: #173D32;
+
+    --shadow-soft: 0 4px 20px -2px rgba(23, 61, 50, 0.06);
+    --shadow-card: 0 2px 10px rgba(23, 61, 50, 0.04), 0 1px 2px rgba(23, 61, 50, 0.02);
+    --shadow-elevated: 0 10px 30px -5px rgba(23, 61, 50, 0.1);
+
+    --focus-ring: #B18A4A;
+  }
+
+  .dark {
+    /* Core Heritage Palette - Dark Theme */
+    --bg-primary: #17211D;       /* Midnight Evergreen */
+    --bg-surface: #1E2B26;       /* Elevated Evergreen Surface */
+    --bg-surface-elevated: #24352E;
+    --bg-surface-hover: #2A3C34;
+
+    --brand-primary: #B18A4A;    /* Antique Brass prominent in dark */
+    --brand-primary-hover: #C59D5A;
+    --brand-primary-fg: #17211D;
+
+    --brand-accent: #B18A4A;     /* Antique Brass */
+    --brand-accent-hover: #C59D5A;
+    --brand-accent-fg: #17211D;
+
+    --brand-dark: #101815;
+
+    --text-primary: #F5F0E5;     /* Warm Ivory text */
+    --text-secondary: #C3C9C2;   /* Soft sage text */
+    --text-muted: #8E9C92;       /* Muted sage */
+
+    --border-color: #344139;     /* Deep Evergreen Border */
+    --border-subtle: #27342D;
+
+    --state-success: #3BA56C;
+    --state-warning: #DE9B35;
+    --state-error: #CF4446;
+    --state-info: #B18A4A;
+
+    --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.25);
+    --shadow-elevated: 0 10px 30px -5px rgba(0, 0, 0, 0.45);
+
+    --focus-ring: #B18A4A;
+  }
+
+  * {
+    border-color: var(--border-color);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-inter, system-ui, -apple-system, sans-serif);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Refined Editorial Headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-manrope, system-ui, sans-serif);
+    color: var(--text-primary);
+    letter-spacing: -0.015em;
+    font-weight: 600;
+  }
+
+  /* Arabic Typography & Proper Shaping */
+  [lang="ar"], [dir="rtl"] {
+    font-family: var(--font-arabic, "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif);
+    line-height: 1.8;
+  }
+
+  /* Keyboard Visible Focus Rings (WCAG AA Compliance) */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
