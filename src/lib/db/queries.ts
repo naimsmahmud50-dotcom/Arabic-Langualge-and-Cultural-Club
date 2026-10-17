@@ -14,7 +14,8 @@ import {
   founders, 
   siteSettings,
   membershipApplications,
-  auditLogs
+  auditLogs,
+  annualPlans
 } from "./schema";
 import { eq, desc, asc, and, like, or, count, sql } from "drizzle-orm";
 
@@ -195,6 +196,20 @@ export async function getPublicEventBySlug(slug: string) {
     .limit(1);
 
   return result[0] || null;
+}
+
+/**
+ * Fetch annual plan highlights.
+ */
+export async function getPublicAnnualPlans(academicYear?: string) {
+  const conditions = [];
+  if (academicYear) {
+    conditions.push(eq(annualPlans.academicYear, academicYear));
+  }
+  return await db.select()
+    .from(annualPlans)
+    .where(and(...conditions))
+    .orderBy(asc(annualPlans.monthNumber));
 }
 
 /**

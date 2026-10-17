@@ -25,7 +25,7 @@ Status definitions:
 ### Section B: Public Website Pages & User Journeys
 | ID | Requirement Description | Priority | Responsible Phase | Acceptance Test | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **REQ-PUB-01** | Homepage with 8-part storytelling sequence (Hero, Intro, Leadership, Events, Highlights, Gallery, CTA, Footer). | CRITICAL | Phase 4 | Page loads dynamic data from CMS, all buttons have valid routes, no placeholder broken links. | [ ] Not Started |
+| **REQ-PUB-01** | Homepage with 14-part institutional sequence (Hero, Intro, Founders, Leadership, Events, Plan, Programs, Resources, Accolades, News, Gallery, Membership CTA, Contact, Footer). | CRITICAL | Phase 5 | Page dynamically loads real CMS models, all buttons route cleanly, zero fake stats, responsive bilingual layout. | [x] Completed |
 | **REQ-PUB-02** | About the Club page with mission, vision, core values, objectives, and club constitution. | HIGH | Phase 5 | Editorial layout renders structured content from database; responsive and readable. | [ ] Not Started |
 | **REQ-PUB-03** | Founders & Founding History page with verified founders, origin story, and founding documents. | HIGH | Phase 5 | Founder profiles display portrait, bio, contribution; unverified facts marked clearly. | [ ] Not Started |
 | **REQ-PUB-04** | Institutional History & Milestone Timeline page. | HIGH | Phase 5 | Chronological timeline renders milestone dates, descriptions, and media. | [ ] Not Started |
