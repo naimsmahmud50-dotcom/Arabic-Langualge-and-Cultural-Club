@@ -2510,6 +2510,326 @@ export async function getInquiryById(id: string) {
   return inquiry || null;
 }
 
+// ----------------------------------------------------------------------
+// EVENTS & ANNUAL PLANS ADMINISTRATIVE OPERATIONS (Feature 016)
+// ----------------------------------------------------------------------
+
+export interface CreateEventInput {
+  slug?: string;
+  titleEn: string;
+  titleAr?: string | null;
+  summaryEn: string;
+  summaryAr?: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  category: string;
+  startTime: Date;
+  endTime?: Date | null;
+  venue: string;
+  coverImageUrl?: string | null;
+  capacity?: number | null;
+  status?: "planned" | "confirmed" | "completed" | "postponed" | "cancelled";
+  isRegistrationOpen?: boolean;
+  isPublished?: boolean;
+}
+
+/**
+ * Fetches events for administrative management with registration counts, search, and filters.
+ */
+export async function getAdminEvents(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  category?: string;
+} = {}) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 20));
+  const offset = (page - 1) * limit;
+
+  const conditions = [];
+
+  if (params.status && params.status !== "all") {
+    conditions.push(eq(events.status, params.status as any));
+  }
+
+  if (params.category && params.category !== "all") {
+    conditions.push(eq(events.category, params.category));
+  }
+
+  if (params.search && params.search.trim()) {
+    const s = `%${params.search.trim()}%`;
+    conditions.push(or(
+      like(events.titleEn, s),
+      like(events.titleAr, s),
+      like(events.slug, s),
+      like(events.venue, s)
+    )!);
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const data = await db.select()
+    .from(events)
+    .where(whereClause)
+    .orderBy(desc(events.startTime))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ total }] = await db.select({ total: count() })
+    .from(events)
+    .where(whereClause);
+
+  // Subquery counts of active registered attendees per event
+  const regCounts = await db.select({
+    eventId: eventRegistrations.eventId,
+    registeredCount: count(),
+  })
+  .from(eventRegistrations)
+  .where(ne(eventRegistrations.status, "cancelled"))
+  .groupBy(eventRegistrations.eventId);
+
+  const regMap = new Map(regCounts.map(r => [r.eventId, r.registeredCount]));
+
+  const enriched = data.map(evt => ({
+    ...evt,
+    registeredCount: regMap.get(evt.id) || 0,
+  }));
+
+  return {
+    data: enriched,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+  };
+}
+
+/**
+ * Fetches single event details by ID with active registration count for admin view.
+ */
+export async function getAdminEventById(id: string) {
+  const [event] = await db.select().from(events).where(eq(events.id, id)).limit(1);
+  if (!event) return null;
+
+  const [regCount] = await db.select({ c: count() })
+    .from(eventRegistrations)
+    .where(and(eq(eventRegistrations.eventId, id), ne(eventRegistrations.status, "cancelled")));
+
+  return {
+    ...event,
+    registeredCount: regCount?.c || 0,
+  };
+}
+
+/**
+ * Creates a new event record with date range validation and unique slug generation.
+ */
+export async function createEvent(data: CreateEventInput) {
+  if (data.endTime && data.startTime > data.endTime) {
+    throw new Error("Invalid date range: startTime must be before or equal to endTime");
+  }
+
+  const id = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const now = new Date();
+  
+  let slug = data.slug?.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  if (!slug) {
+    slug = data.titleEn.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  // Ensure unique slug
+  const [existing] = await db.select({ id: events.id }).from(events).where(eq(events.slug, slug)).limit(1);
+  if (existing) {
+    slug = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
+  }
+
+  await db.insert(events).values({
+    id,
+    slug,
+    titleEn: data.titleEn,
+    titleAr: data.titleAr || null,
+    summaryEn: data.summaryEn,
+    summaryAr: data.summaryAr || null,
+    descriptionEn: data.descriptionEn || null,
+    descriptionAr: data.descriptionAr || null,
+    category: data.category,
+    startTime: data.startTime,
+    endTime: data.endTime || null,
+    venue: data.venue,
+    coverImageUrl: data.coverImageUrl || null,
+    capacity: data.capacity !== undefined ? data.capacity : null,
+    status: data.status || "confirmed",
+    isRegistrationOpen: !!data.isRegistrationOpen,
+    isPublished: data.isPublished !== undefined ? !!data.isPublished : true,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return id;
+}
+
+/**
+ * Updates an existing event record with date range validation and preserves historical state.
+ */
+export async function updateEvent(id: string, data: Partial<CreateEventInput>) {
+  const [existing] = await db.select().from(events).where(eq(events.id, id)).limit(1);
+  if (!existing) {
+    throw new Error("Event not found");
+  }
+
+  const startTime = data.startTime || existing.startTime;
+  const endTime = data.endTime !== undefined ? data.endTime : existing.endTime;
+
+  if (endTime && startTime > endTime) {
+    throw new Error("Invalid date range: startTime must be before or equal to endTime");
+  }
+
+  const updatePayload: any = {
+    ...data,
+    updatedAt: new Date(),
+  };
+
+  // If slug is changed, ensure uniqueness
+  if (data.slug && data.slug !== existing.slug) {
+    const slug = data.slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const [slugMatch] = await db.select({ id: events.id }).from(events).where(and(eq(events.slug, slug), ne(events.id, id))).limit(1);
+    if (slugMatch) {
+      updatePayload.slug = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
+    } else {
+      updatePayload.slug = slug;
+    }
+  }
+
+  await db.update(events)
+    .set(updatePayload)
+    .where(eq(events.id, id));
+
+  return true;
+}
+
+/**
+ * Deletes an event record and cascades to registrations.
+ */
+export async function deleteEvent(id: string) {
+  await db.delete(events).where(eq(events.id, id));
+  return true;
+}
+
+/**
+ * Fetches annual plan activities for administrative management including unpublished items.
+ */
+export async function getAdminAnnualPlans(params: {
+  academicYear?: string;
+  monthNumber?: number;
+  category?: string;
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+} = {}) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 50));
+  const offset = (page - 1) * limit;
+
+  const conditions = [];
+
+  if (params.academicYear && params.academicYear !== "all") {
+    conditions.push(eq(annualPlans.academicYear, params.academicYear));
+  }
+  if (params.monthNumber !== undefined && params.monthNumber > 0) {
+    conditions.push(eq(annualPlans.monthNumber, params.monthNumber));
+  }
+  if (params.category && params.category !== "all") {
+    conditions.push(eq(annualPlans.category, params.category));
+  }
+  if (params.status && params.status !== "all") {
+    conditions.push(eq(annualPlans.status, params.status as any));
+  }
+  if (params.search && params.search.trim()) {
+    const s = `%${params.search.trim()}%`;
+    conditions.push(or(
+      like(annualPlans.activityTitleEn, s),
+      like(annualPlans.activityTitleAr, s),
+      like(annualPlans.location, s),
+      like(annualPlans.descriptionEn, s)
+    )!);
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const data = await db.select({
+    id: annualPlans.id,
+    academicYear: annualPlans.academicYear,
+    monthNumber: annualPlans.monthNumber,
+    activityTitleEn: annualPlans.activityTitleEn,
+    activityTitleAr: annualPlans.activityTitleAr,
+    descriptionEn: annualPlans.descriptionEn,
+    descriptionAr: annualPlans.descriptionAr,
+    category: annualPlans.category,
+    status: annualPlans.status,
+    targetDate: annualPlans.targetDate,
+    time: annualPlans.time,
+    location: annualPlans.location,
+    relatedEventId: annualPlans.relatedEventId,
+    relatedEventSlug: events.slug,
+    relatedEventTitle: events.titleEn,
+    documentUrl: annualPlans.documentUrl,
+    documentTitle: annualPlans.documentTitle,
+    notes: annualPlans.notes,
+    isPublished: annualPlans.isPublished,
+    createdAt: annualPlans.createdAt,
+    updatedAt: annualPlans.updatedAt,
+  })
+  .from(annualPlans)
+  .leftJoin(events, eq(annualPlans.relatedEventId, events.id))
+  .where(whereClause)
+  .orderBy(asc(annualPlans.academicYear), asc(annualPlans.monthNumber), asc(annualPlans.targetDate))
+  .limit(limit)
+  .offset(offset);
+
+  const [{ total }] = await db.select({ total: count() })
+    .from(annualPlans)
+    .where(whereClause);
+
+  return {
+    data,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+  };
+}
+
+/**
+ * Fetches a single annual plan activity by ID.
+ */
+export async function getAnnualPlanById(id: string) {
+  const [plan] = await db.select({
+    id: annualPlans.id,
+    academicYear: annualPlans.academicYear,
+    monthNumber: annualPlans.monthNumber,
+    activityTitleEn: annualPlans.activityTitleEn,
+    activityTitleAr: annualPlans.activityTitleAr,
+    descriptionEn: annualPlans.descriptionEn,
+    descriptionAr: annualPlans.descriptionAr,
+    category: annualPlans.category,
+    status: annualPlans.status,
+    targetDate: annualPlans.targetDate,
+    time: annualPlans.time,
+    location: annualPlans.location,
+    relatedEventId: annualPlans.relatedEventId,
+    relatedEventSlug: events.slug,
+    relatedEventTitle: events.titleEn,
+    documentUrl: annualPlans.documentUrl,
+    documentTitle: annualPlans.documentTitle,
+    notes: annualPlans.notes,
+    isPublished: annualPlans.isPublished,
+    createdAt: annualPlans.createdAt,
+    updatedAt: annualPlans.updatedAt,
+  })
+  .from(annualPlans)
+  .leftJoin(events, eq(annualPlans.relatedEventId, events.id))
+  .where(eq(annualPlans.id, id))
+  .limit(1);
+
+  return plan || null;
+}
+
 
 
 

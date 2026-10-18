@@ -53,7 +53,7 @@ Status definitions:
 | **REQ-ADM-04** | Committee Terms & Officeholder Management (Preservation Rule). | CRITICAL | Phase 8 | Adding a new term (e.g. 2025-26) preserves previous terms (2024-25) intact without data loss. | [x] Completed |
 | **REQ-ADM-05** | Member Management & Status Review: search, filter, status toggles (Active, Alumni, Suspended). | HIGH | Phase 8 | Edit member roles, assign committee terms, search by name or membership ID. | [x] Completed |
 | **REQ-ADM-06** | Membership Applications Review Workflow (Pending, Approved, Rejected, Notes). | CRITICAL | Phase 8 | Reviewer can inspect application, approve/reject, add internal notes; updates status accurately. | [x] Completed |
-| **REQ-ADM-07** | Annual Plan & Event Management CMS. | CRITICAL | Phase 8 | Create/edit events, set capacity, manage registration lists, mark completed/postponed. | [ ] Not Started |
+| **REQ-ADM-07** | Annual Plan & Event Management CMS. | CRITICAL | Phase 8 | Create/edit events, set capacity, manage registration lists, mark completed/postponed. | [x] Completed |
 | **REQ-ADM-08** | Photo Gallery & Media Asset CMS: bulk photo uploads, captions, credits, cover image selector. | CRITICAL | Phase 8 | Uploads validate size/mime-type; albums and photos persist with proper storage URLs. | [ ] Not Started |
 | **REQ-ADM-09** | News & Announcements CMS: rich text editor, draft/published status, scheduled expiry. | HIGH | Phase 8 | Draft posts remain hidden from public; published posts appear immediately. | [ ] Not Started |
 | **REQ-ADM-10** | Arabic Learning Resources & Publications CMS. | HIGH | Phase 8 | Upload resource files, assign categories, publish verified learning materials. | [ ] Not Started |

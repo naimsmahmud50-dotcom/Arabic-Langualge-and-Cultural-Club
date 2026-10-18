@@ -134,5 +134,14 @@
   - Automated verification test suite passed: `src/lib/db/test-institutional-content-cms.ts`: 31/31 tests passed (100%).
   - Full cumulative regression test suite passed: 358/358 tests passed (100% across all 12 test suites).
   - Production build verified: `pnpm next build` completed with 0 errors across all 38 routes.
-- **Recommended Next Prompt:** **Phase 9 Part 3 — Activities & Media CMS Modules** (Events CMS, Annual Plan scheduler, Gallery Albums with media uploaders, News & Announcements CMS, and Arabic Learning Resources CMS).
+- **Phase 9 Part 3 (Events & Annual Plans CMS Modules - Feature 016):** Completed on 2026-10-18.
+  - Implemented dynamic administrative events console at `/admin/events` (`src/app/admin/events/page.tsx` & `AdminEventsClient.tsx`) with dual-tab architecture: **Events Management** and **Annual 12-Month Roadmaps**.
+  - Built comprehensive Event Dossier Form Modal (`EventFormModal.tsx`) with automatic slug generation, bilingual titles/descriptions, category selector (`academic`, `workshop`, `competition`, `seminar`, `cultural`, `social`), date/time validation (`startTime <= endTime`), capacity limits, and instant registration toggle.
+  - Built Attendee Roster & Attendance Verification Console (`EventAttendeesModal.tsx`) displaying registered participants, real-time search, status filter (`all`, `registered`, `confirmed`, `attended`, `cancelled`), and one-click check-in marking (`attended`).
+  - Built Month-by-Month Annual Plan Scheduler (`AnnualPlanActivityModal.tsx`) mapping activities across months 1–12 and academic years, with optional related event cross-linking and document attachments.
+  - Built secure Server Actions with server-side RBAC checks (`events:manage`, `plans:manage`) and immutable audit logging via `recordAuditLog`: `saveEventAction`, `updateEventStatusAction`, `deleteEventAction`, `updateRegistrationAttendanceAction`, `saveAnnualPlanActivityAction`, `deleteAnnualPlanActivityAction` in `src/lib/actions/events.ts`.
+  - Built automated verification test suite: `src/lib/db/test-events-annual-plans-cms.ts` passing all 5 test suites (100% success).
+  - Executed cumulative regression testing across all 12 test suites with 100% passing rate.
+  - Production build verified: `next build` completed with 0 errors across all 38 routes.
+- **Recommended Next Prompt:** **Phase 9 Part 4 — Media, News & Resources CMS Modules** (Photo Gallery & Media Asset CMS with file upload validation, News & Announcements CMS with draft/publish workflows, and Arabic Learning Resources CMS).
 
