@@ -2418,6 +2418,33 @@ export async function deleteMediaAsset(id: string) {
   return true;
 }
 
+/**
+ * Searches for duplicate media assets in an album by filename or approximate stem.
+ */
+export async function findDuplicateMediaInAlbum(albumId: string, filename: string) {
+  const assets = await db
+    .select({
+      id: mediaAssets.id,
+      fileUrl: mediaAssets.fileUrl,
+      captionEn: mediaAssets.captionEn,
+      sortOrder: mediaAssets.sortOrder,
+    })
+    .from(mediaAssets)
+    .where(eq(mediaAssets.albumId, albumId));
+
+  const cleanTargetName = filename.toLowerCase().trim();
+  const rawTargetStem = cleanTargetName.substring(0, cleanTargetName.lastIndexOf(".")) || cleanTargetName;
+
+  return assets.filter((a) => {
+    const assetFilename = (a.fileUrl.split("/").pop()?.split("?")[0] || "").toLowerCase();
+    const assetStem = assetFilename.substring(0, assetFilename.lastIndexOf(".")) || assetFilename;
+    return (
+      assetFilename === cleanTargetName ||
+      (rawTargetStem.length > 3 && assetStem.includes(rawTargetStem))
+    );
+  });
+}
+
 // ----------------------------------------------------------------------
 // 15. CONTACT SETTINGS & INQUIRIES (Institutional Relations)
 // ----------------------------------------------------------------------

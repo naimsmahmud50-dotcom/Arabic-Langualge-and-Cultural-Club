@@ -26,6 +26,7 @@ import { Card, Button, Input, Badge, Table, TableHeader, TableRow, TableHead, Ta
 import { AdminConfirmModal } from "@/components/admin";
 import { AlbumFormModal, AlbumRecord as ModalAlbumRecord } from "./AlbumFormModal";
 import { MediaAssetModal } from "./MediaAssetModal";
+import { BulkImportModal } from "./BulkImportModal";
 import { deleteGalleryAlbumAction, toggleGalleryAlbumArchiveAction } from "@/lib/actions/content-cms";
 import { 
   Images, 
@@ -42,7 +43,8 @@ import {
   Archive,
   ArchiveRestore,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  UploadCloud
 } from "lucide-react";
 import Link from "next/link";
 
@@ -119,6 +121,9 @@ export function AdminGalleryClient({
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [selectedAlbumForMedia, setSelectedAlbumForMedia] = useState<AlbumRecord | null>(null);
 
+  const [isBulkImportModalOpen, setIsBulkImportModalOpen] = useState(false);
+  const [bulkImportTargetAlbumId, setBulkImportTargetAlbumId] = useState<string | null>(null);
+
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -168,6 +173,11 @@ export function AdminGalleryClient({
   const handleOpenCreateAlbum = () => {
     setAlbumToEdit(null);
     setIsAlbumModalOpen(true);
+  };
+
+  const handleOpenBulkImport = (albumId?: string) => {
+    setBulkImportTargetAlbumId(albumId || null);
+    setIsBulkImportModalOpen(true);
   };
 
   const handleOpenEditAlbum = (alb: AlbumRecord) => {
@@ -232,14 +242,25 @@ export function AdminGalleryClient({
           </p>
         </div>
 
-        <Button
-          variant="accent"
-          size="sm"
-          onClick={handleOpenCreateAlbum}
-          leftIcon={<Plus className="w-3.5 h-3.5" />}
-        >
-          Create New Album
-        </Button>
+        <div className="flex items-center gap-2.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleOpenBulkImport()}
+            leftIcon={<UploadCloud className="w-3.5 h-3.5 text-[var(--brand-primary)]" />}
+          >
+            Batch Import Photos
+          </Button>
+
+          <Button
+            variant="accent"
+            size="sm"
+            onClick={handleOpenCreateAlbum}
+            leftIcon={<Plus className="w-3.5 h-3.5" />}
+          >
+            Create New Album
+          </Button>
+        </div>
       </div>
 
       {/* Filter Bar */}
@@ -427,6 +448,16 @@ export function AdminGalleryClient({
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => handleOpenBulkImport(alb.id)}
+                          title="Batch import historical photos into this album"
+                          className="h-7 w-7 p-0"
+                        >
+                          <UploadCloud className="w-3.5 h-3.5 text-[var(--brand-accent)]" />
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleOpenMediaAssets(alb)}
                           title="Manage media assets"
                           className="h-7 w-7 p-0"
@@ -566,6 +597,18 @@ export function AdminGalleryClient({
         message={confirmModal.message}
         confirmLabel={confirmModal.confirmLabel}
         isDestructive={confirmModal.isDestructive}
+      />
+
+      {/* 4. Batch Historical Photo Import Modal */}
+      <BulkImportModal
+        isOpen={isBulkImportModalOpen}
+        onClose={() => setIsBulkImportModalOpen(false)}
+        onSuccess={() => {
+          router.refresh();
+        }}
+        albums={initialAlbums}
+        preselectedAlbumId={bulkImportTargetAlbumId}
+        albumAssetsMap={albumAssetsMap}
       />
     </div>
   );

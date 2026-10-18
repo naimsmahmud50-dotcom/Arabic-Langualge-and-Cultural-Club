@@ -14,6 +14,7 @@
     "test:admin": "tsx src/lib/db/test-super-admin-auth.ts",
     "test:gallery": "tsx src/lib/db/test-gallery-cms.ts",
     "test:storage": "tsx src/lib/db/test-persistent-storage.ts",
+    "test:import": "tsx src/lib/db/test-historical-import.ts",
     "test": "tsx src/lib/db/test-e2e-comprehensive.ts",
     "test:all": "tsx src/lib/db/test-e2e-comprehensive.ts"
   },
