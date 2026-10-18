@@ -71,6 +71,29 @@ function checkApplicationRateLimit(identifier: string): { allowed: boolean; retr
   return { allowed: true, retryAfterSeconds: 0 };
 }
 
+// Anti-enumeration tracking rate limiter (15 status lookups per 10 minutes per IP)
+const TRACKING_RATE_WINDOW_MS = 10 * 60 * 1000;
+const MAX_TRACKING_PER_WINDOW = 15;
+const trackingRateLimitStore = new Map<string, RateRecord>();
+
+function checkTrackingRateLimit(identifier: string): { allowed: boolean; retryAfterSeconds: number } {
+  const now = Date.now();
+  const windowStart = now - TRACKING_RATE_WINDOW_MS;
+
+  const record = trackingRateLimitStore.get(identifier) || { timestamps: [] };
+  const activeTimestamps = record.timestamps.filter(t => t > windowStart);
+
+  if (activeTimestamps.length >= MAX_TRACKING_PER_WINDOW) {
+    const oldestInWindow = activeTimestamps[0];
+    const retryAfterSeconds = Math.max(1, Math.ceil((oldestInWindow + TRACKING_RATE_WINDOW_MS - now) / 1000));
+    return { allowed: false, retryAfterSeconds };
+  }
+
+  activeTimestamps.push(now);
+  trackingRateLimitStore.set(identifier, { timestamps: activeTimestamps });
+  return { allowed: true, retryAfterSeconds: 0 };
+}
+
 // ----------------------------------------------------------------------
 // ZOD VALIDATION SCHEMAS
 // ----------------------------------------------------------------------
@@ -248,6 +271,19 @@ export interface StatusTrackingResult {
 export async function trackApplicationStatusAction(
   rawInput: unknown
 ): Promise<StatusTrackingResult> {
+  // 1. IP Rate Limiting Check to prevent brute-force Reference ID enumeration
+  const reqHeaders = await headers();
+  const forwardedFor = reqHeaders.get("x-forwarded-for");
+  const clientIp = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
+
+  const rateCheck = checkTrackingRateLimit(`app_track_${clientIp}`);
+  if (!rateCheck.allowed) {
+    return {
+      success: false,
+      error: `Too many lookup attempts from this connection. For institutional security, please wait ${rateCheck.retryAfterSeconds} seconds before trying again.`,
+    };
+  }
+
   const parseResult = StatusTrackingSchema.safeParse(rawInput);
   if (!parseResult.success) {
     return {
