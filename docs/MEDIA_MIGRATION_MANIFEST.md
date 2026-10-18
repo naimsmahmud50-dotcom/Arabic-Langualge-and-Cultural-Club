@@ -1,6 +1,6 @@
 # MEDIA REPOSITORY INVENTORY AND MIGRATION MANIFEST
 **Arabic Language & Cultural Club — Kabi Nazrul Government College, Dhaka**
-**Generated at:** 2026-10-18T13:43:08.983Z
+**Generated at:** 2026-10-18T13:53:50.135Z
 **Classification:** Archival Data Governance Documentation
 
 ---
@@ -25,8 +25,8 @@ This document registers all media assets discovered within the repository filesy
 | Relative Path | Size | Detected MIME | SHA-256 (First 12 chars) | DB Status |
 | :--- | :--- | :--- | :--- | :--- |
 | `Website Master Plan_files/mh.png` | 1.2 KB | `image/png` | `15941c822f0f...` | Unreferenced / Discovered |
-| `public/uploads/gallery/2023-2024/historical-exhibition-test-1792330988960/1792330988965_1niggi_historical_calligraphy_stage_01.jpg` | 0.0 KB | `image/jpeg` | `538ec8cfcbf4...` | Referenced (2) |
-| `public/uploads/gallery/2023-2024/historical-exhibition-test-1792330988960/1792330988966_cvwxem_historical_calligraphy_stage_02.png` | 0.0 KB | `image/png` | `bf2f0ca3935e...` | Referenced (1) |
+| `public/uploads/gallery/2023-2024/historical-exhibition-test-1792331630113/1792331630118_qn12pr_historical_calligraphy_stage_01.jpg` | 0.0 KB | `image/jpeg` | `538ec8cfcbf4...` | Referenced (2) |
+| `public/uploads/gallery/2023-2024/historical-exhibition-test-1792331630113/1792331630119_oghuw6_historical_calligraphy_stage_02.png` | 0.0 KB | `image/png` | `bf2f0ca3935e...` | Referenced (1) |
 
 ---
 
@@ -49,14 +49,14 @@ The following database references represent active or staged media assets in `me
 | `med_04_02` | `alb_04` | `/assets/placeholders/codicology-binding.webp` | Traditional goatskin leather flap restoration demonstration using wheat starch paste. |
 | `med_05_01` | `alb_05` | `/assets/placeholders/gala-stage.webp` | The incoming Executive Committee receiving official leadership credentials during handover ceremony. |
 | `med_draft_01` | `alb_06_draft` | `/assets/placeholders/secret-draft-photo.webp` | Unpublished confidential photo for testing security boundary isolation. |
-| `med_1792330988965_4reb3` | `alb_1792330988960_z2qaa` | `/uploads/gallery/2023-2024/historical-exhibition-test-1792330988960/1792330988965_1niggi_historical_calligraphy_stage_01.jpg` | Master calligrapher demonstrating monumental Thuluth script |
-| `med_1792330988966_bij5k` | `alb_1792330988960_z2qaa` | `/uploads/gallery/2023-2024/historical-exhibition-test-1792330988960/1792330988966_cvwxem_historical_calligraphy_stage_02.png` | Students practicing reed pen cutting and proportion measurement |
+| `med_1792331630118_680tl` | `alb_1792331630114_6fpg3` | `/uploads/gallery/2023-2024/historical-exhibition-test-1792331630113/1792331630118_qn12pr_historical_calligraphy_stage_01.jpg` | Master calligrapher demonstrating monumental Thuluth script |
+| `med_1792331630119_x10fh` | `alb_1792331630114_6fpg3` | `/uploads/gallery/2023-2024/historical-exhibition-test-1792331630113/1792331630119_oghuw6_historical_calligraphy_stage_02.png` | Students practicing reed pen cutting and proportion measurement |
 | `cover_alb_01` | `alb_01` | `/assets/placeholders/gallery-debate-cover.webp` | Cover for National Arabic Debate Championship 2024 [DEMO] |
 | `cover_alb_02` | `alb_02` | `/assets/placeholders/gallery-calligraphy-cover.webp` | Cover for Classical Arabic Calligraphy Vernissage & Exhibition [DEMO] |
 | `cover_alb_03` | `alb_03` | `/assets/placeholders/gallery-symposium-cover.webp` | Cover for International Arabic Language Day Colloquium [DEMO] |
 | `cover_alb_04` | `alb_04` | `/assets/placeholders/gallery-codicology-cover.webp` | Cover for Codicology & Rare Manuscript Restoration Masterclass [DEMO] |
 | `cover_alb_05` | `alb_05` | `/assets/placeholders/gallery-gala-cover.webp` | Cover for Annual Honors Gala & Executive Induction 2023 [DEMO] |
-| `cover_alb_1792330988960_z2qaa` | `alb_1792330988960_z2qaa` | `/uploads/gallery/2023-2024/historical-exhibition-test-1792330988960/1792330988965_1niggi_historical_calligraphy_stage_01.jpg` | Cover for Foundational Arabic Calligraphy Exhibition 2023 |
+| `cover_alb_1792331630114_6fpg3` | `alb_1792331630114_6fpg3` | `/uploads/gallery/2023-2024/historical-exhibition-test-1792331630113/1792331630118_qn12pr_historical_calligraphy_stage_01.jpg` | Cover for Foundational Arabic Calligraphy Exhibition 2023 |
 
 ---
 
