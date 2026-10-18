@@ -323,7 +323,7 @@ export const announcements = sqliteTable("announcements", {
 ]);
 
 // ----------------------------------------------------------------------
-// 13. GALLERY ALBUMS
+// 13. GALLERY ALBUMS (Event-Linked & Curated Photographic Collections)
 // ----------------------------------------------------------------------
 export const galleryAlbums = sqliteTable("gallery_albums", {
   id: text("id").primaryKey(),
@@ -335,7 +335,10 @@ export const galleryAlbums = sqliteTable("gallery_albums", {
   coverImageUrl: text("cover_image_url"),
   eventDate: text("event_date"), // YYYY-MM-DD
   academicYear: text("academic_year").notNull(),
-  category: text("category").notNull().default("cultural"),
+  category: text("category").notNull().default("cultural"), // symposia, debates, calligraphy, workshops, ceremonies, cultural
+  relatedEventId: text("related_event_id").references(() => events.id, { onDelete: "set null" }),
+  photographerCredit: text("photographer_credit"),
+  location: text("location"),
   isFeatured: integer("is_featured", { mode: "boolean" }).notNull().default(false),
   isPublished: integer("is_published", { mode: "boolean" }).notNull().default(true),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
@@ -344,16 +347,20 @@ export const galleryAlbums = sqliteTable("gallery_albums", {
   index("albums_slug_idx").on(table.slug),
   index("albums_published_idx").on(table.isPublished),
   index("albums_year_idx").on(table.academicYear),
+  index("albums_category_idx").on(table.category),
+  index("albums_event_idx").on(table.relatedEventId),
 ]);
 
 // ----------------------------------------------------------------------
-// 14. MEDIA ASSETS (Photos inside Albums)
+// 14. MEDIA ASSETS (Photos and Videos inside Albums)
 // ----------------------------------------------------------------------
 export const mediaAssets = sqliteTable("media_assets", {
   id: text("id").primaryKey(),
   albumId: text("album_id").notNull().references(() => galleryAlbums.id, { onDelete: "cascade" }),
   fileUrl: text("file_url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
+  mediaType: text("media_type", { enum: ["image", "video"] }).notNull().default("image"),
+  videoUrl: text("video_url"),
   captionEn: text("caption_en"),
   captionAr: text("caption_ar"),
   credit: text("credit"),
@@ -365,6 +372,7 @@ export const mediaAssets = sqliteTable("media_assets", {
 }, (table) => [
   index("media_album_idx").on(table.albumId),
   index("media_sort_idx").on(table.sortOrder),
+  index("media_published_idx").on(table.isPublished),
 ]);
 
 // ----------------------------------------------------------------------

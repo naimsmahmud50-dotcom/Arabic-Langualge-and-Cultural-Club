@@ -34,7 +34,7 @@ Status definitions:
 | **REQ-PUB-07** | Member Directory with privacy protection filters. | MEDIUM | Phase 6 | Only displays approved public member profiles; hides phone numbers, student IDs, and private emails. | [x] Completed |
 | **REQ-PUB-08** | Annual Calendar & 12-Month Plan (Month-by-month list and calendar views). | CRITICAL | Phase 7 | Displays planned, confirmed, completed, and postponed activities with status indicators. | [x] Completed |
 | **REQ-PUB-09** | Event Details & Interactive Registration. | CRITICAL | Phase 7 | Displays event logistics; validated registration form enforces capacity and prevents duplicate entries. | [x] Completed |
-| **REQ-PUB-10** | Photo & Media Gallery with Albums, Categories, and Fullscreen Lightbox. | CRITICAL | Phase 6 | Responsive grid renders event albums; clicking open lightbox with keyboard navigation (Esc, Arrow keys). | [ ] Not Started |
+| **REQ-PUB-10** | Photo & Media Gallery with Albums, Categories, and Fullscreen Lightbox. | CRITICAL | Phase 7 | Responsive grid renders event albums; clicking open lightbox with keyboard navigation (Esc, Arrow keys). | [x] Completed |
 | **REQ-PUB-11** | Arabic Learning & Educational Resources Hub. | HIGH | Phase 6 | Categorized by Nahw/Sarf/Vocabulary; downloadable PDFs and readable guides with proper Arabic shaping. | [x] Completed |
 | **REQ-PUB-12** | Achievements & Official Publications page. | HIGH | Phase 6 | Showcases competition awards, achievements, newsletters, and annual magazine downloads. | [x] Completed |
 | **REQ-PUB-13** | Membership Information & Multi-Step Online Application Form. | CRITICAL | Phase 7 | Form validates all inputs on server, persists application, generates unique Reference ID. | [ ] Not Started |
@@ -73,7 +73,7 @@ Status definitions:
 | **REQ-SEC-02** | Server-Side Authorization: every API route and Server Action checks role permissions. | CRITICAL | Phase 4 | Edge middleware + assertPermission() checks. Direct URL requests return 403 Forbidden. | [x] Completed |
 | **REQ-SEC-03** | Input Sanitization, SQL Injection prevention, XSS protection, CSRF mitigation. | CRITICAL | Phase 4 | Strict Zod validation, parameterized Drizzle queries, signed cookies. | [x] Completed |
 | **REQ-SEC-04** | Rate Limiting on authentication & submission forms. | HIGH | Phase 4 | Sliding window rate limiter locks brute-force attempts after 5 failures. | [x] Completed |
-| **REQ-SEC-05** | Media Upload Security: file type validation (JPEG/PNG/WebP/PDF), max size caps, safe storage keys. | HIGH | Phase 9 | Uploading executable or script files is rejected with safe validation error. | [ ] Not Started |
+| **REQ-SEC-05** | Media Upload Security: file type validation (JPEG/PNG/WebP/PDF/MP4), max size caps, safe storage keys. | HIGH | Phase 7 | Uploading executable or script files is rejected with safe validation error; validated in test suite. | [x] Completed |
 
 ---
 

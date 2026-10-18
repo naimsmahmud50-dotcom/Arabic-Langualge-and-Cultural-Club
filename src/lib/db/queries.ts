@@ -418,24 +418,84 @@ export async function getAnnualPlanYears(): Promise<string[]> {
 }
 
 /**
- * Fetch photo gallery albums with pagination.
+ * ============================================================================
+ * PHOTO & MEDIA GALLERY ARCHIVE QUERIES
+ * TARGET ROUTE: /gallery and /gallery/[slug]
+ * DEVELOPER ONBOARDING NOTE:
+ * - Queries below retrieve verified, published photo albums and media assets.
+ * - Enforces Strix-Supabase data security: Unpublished albums (`isPublished === false`)
+ *   and draft assets are strictly omitted from public views.
+ * - Subqueries calculate exact media asset counts for each album without N+1 queries.
+ * - Joins related club events so visitors can navigate between the photo album
+ *   and the official event dossier.
+ * ============================================================================
  */
-export async function getPublicGalleryAlbums(params: { page?: number; limit?: number; year?: string } = {}) {
+
+export interface GetPublicGalleryAlbumsParams {
+  page?: number;
+  limit?: number;
+  year?: string;
+  category?: string;
+  search?: string;
+}
+
+/**
+ * Fetch photo gallery albums with pagination, category filtering, search, and event linking.
+ */
+export async function getPublicGalleryAlbums(params: GetPublicGalleryAlbumsParams = {}) {
   const page = Math.max(1, params.page || 1);
   const limit = Math.min(50, Math.max(1, params.limit || 12));
   const offset = (page - 1) * limit;
 
   const conditions = [eq(galleryAlbums.isPublished, true)];
+
   if (params.year && params.year !== "all") {
     conditions.push(eq(galleryAlbums.academicYear, params.year));
   }
 
-  const data = await db.select()
-    .from(galleryAlbums)
-    .where(and(...conditions))
-    .orderBy(desc(galleryAlbums.eventDate), desc(galleryAlbums.createdAt))
-    .limit(limit)
-    .offset(offset);
+  if (params.category && params.category !== "all") {
+    conditions.push(eq(galleryAlbums.category, params.category));
+  }
+
+  if (params.search && params.search.trim()) {
+    const s = `%${params.search.trim()}%`;
+    conditions.push(or(
+      like(galleryAlbums.titleEn, s),
+      like(galleryAlbums.titleAr, s),
+      like(galleryAlbums.descriptionEn, s),
+      like(galleryAlbums.descriptionAr, s),
+      like(galleryAlbums.location, s)
+    )!);
+  }
+
+  const data = await db.select({
+    id: galleryAlbums.id,
+    slug: galleryAlbums.slug,
+    titleEn: galleryAlbums.titleEn,
+    titleAr: galleryAlbums.titleAr,
+    descriptionEn: galleryAlbums.descriptionEn,
+    descriptionAr: galleryAlbums.descriptionAr,
+    coverImageUrl: galleryAlbums.coverImageUrl,
+    eventDate: galleryAlbums.eventDate,
+    academicYear: galleryAlbums.academicYear,
+    category: galleryAlbums.category,
+    relatedEventId: galleryAlbums.relatedEventId,
+    relatedEventSlug: events.slug,
+    relatedEventTitle: events.titleEn,
+    photographerCredit: galleryAlbums.photographerCredit,
+    location: galleryAlbums.location,
+    isFeatured: galleryAlbums.isFeatured,
+    isPublished: galleryAlbums.isPublished,
+    createdAt: galleryAlbums.createdAt,
+    updatedAt: galleryAlbums.updatedAt,
+    mediaCount: sql<number>`(SELECT COUNT(*) FROM media_assets WHERE media_assets.album_id = ${galleryAlbums.id} AND media_assets.is_published = 1)`.mapWith(Number),
+  })
+  .from(galleryAlbums)
+  .leftJoin(events, eq(galleryAlbums.relatedEventId, events.id))
+  .where(and(...conditions))
+  .orderBy(desc(galleryAlbums.eventDate), desc(galleryAlbums.createdAt))
+  .limit(limit)
+  .offset(offset);
 
   const [{ total }] = await db.select({ total: count() })
     .from(galleryAlbums)
@@ -449,12 +509,27 @@ export async function getPublicGalleryAlbums(params: { page?: number; limit?: nu
 
 /**
  * Fetch all media assets inside an album.
+ * Security: Filters `mediaAssets.isPublished = true` and orders by `sortOrder` ASC.
  */
 export async function getAlbumMediaAssets(albumId: string) {
   return await db.select()
     .from(mediaAssets)
     .where(and(eq(mediaAssets.albumId, albumId), eq(mediaAssets.isPublished, true)))
-    .orderBy(asc(mediaAssets.sortOrder));
+    .orderBy(asc(mediaAssets.sortOrder), asc(mediaAssets.createdAt));
+}
+
+/**
+ * Fetch distinct academic years represented in published gallery albums.
+ */
+export async function getPublicGalleryYears(): Promise<string[]> {
+  const results = await db.selectDistinct({
+    academicYear: galleryAlbums.academicYear,
+  })
+  .from(galleryAlbums)
+  .where(eq(galleryAlbums.isPublished, true))
+  .orderBy(desc(galleryAlbums.academicYear));
+
+  return results.map(r => r.academicYear);
 }
 
 /**
@@ -821,18 +896,47 @@ export async function getAdminDashboardMetrics() {
 }
 
 /**
- * Fetch a single gallery album by slug with its media photos.
+ * Fetch a single gallery album by slug with its media photos and associated event details.
+ * Security: Returns null if album is draft or unpublished (Strix-Supabase isolation).
  */
 export async function getPublicGalleryAlbumBySlug(slug: string) {
-  const [album] = await db.select()
-    .from(galleryAlbums)
-    .where(and(eq(galleryAlbums.slug, slug), eq(galleryAlbums.isPublished, true)))
-    .limit(1);
+  const [album] = await db.select({
+    id: galleryAlbums.id,
+    slug: galleryAlbums.slug,
+    titleEn: galleryAlbums.titleEn,
+    titleAr: galleryAlbums.titleAr,
+    descriptionEn: galleryAlbums.descriptionEn,
+    descriptionAr: galleryAlbums.descriptionAr,
+    coverImageUrl: galleryAlbums.coverImageUrl,
+    eventDate: galleryAlbums.eventDate,
+    academicYear: galleryAlbums.academicYear,
+    category: galleryAlbums.category,
+    relatedEventId: galleryAlbums.relatedEventId,
+    relatedEventSlug: events.slug,
+    relatedEventTitle: events.titleEn,
+    photographerCredit: galleryAlbums.photographerCredit,
+    location: galleryAlbums.location,
+    isFeatured: galleryAlbums.isFeatured,
+    isPublished: galleryAlbums.isPublished,
+    createdAt: galleryAlbums.createdAt,
+    updatedAt: galleryAlbums.updatedAt,
+  })
+  .from(galleryAlbums)
+  .leftJoin(events, eq(galleryAlbums.relatedEventId, events.id))
+  .where(and(eq(galleryAlbums.slug, slug), eq(galleryAlbums.isPublished, true)))
+  .limit(1);
 
   if (!album) return null;
 
   const photos = await getAlbumMediaAssets(album.id);
-  return { ...album, photos };
+  return { 
+    ...album, 
+    photos,
+    media: photos,
+    mediaCount: photos.length,
+    photoCount: photos.filter(p => p.mediaType === "image").length,
+    videoCount: photos.filter(p => p.mediaType === "video").length,
+  };
 }
 
 /**
@@ -1492,6 +1596,143 @@ export async function deleteAchievement(id: string) {
   await db.delete(achievements).where(eq(achievements.id, id));
   return true;
 }
+
+// ----------------------------------------------------------------------
+// GALLERY ALBUMS & MEDIA ASSETS ADMIN CRUD OPERATIONS
+// ----------------------------------------------------------------------
+
+export interface CreateGalleryAlbumInput {
+  id?: string;
+  slug: string;
+  titleEn: string;
+  titleAr?: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  coverImageUrl?: string | null;
+  eventDate?: string | null;
+  academicYear: string;
+  category?: string;
+  relatedEventId?: string | null;
+  photographerCredit?: string | null;
+  location?: string | null;
+  isFeatured?: boolean;
+  isPublished?: boolean;
+}
+
+/**
+ * Creates a new curated archival photo/media album.
+ */
+export async function createGalleryAlbum(data: CreateGalleryAlbumInput) {
+  const now = new Date();
+  const id = data.id || `alb_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  await db.insert(galleryAlbums).values({
+    id,
+    slug: data.slug,
+    titleEn: data.titleEn,
+    titleAr: data.titleAr ?? null,
+    descriptionEn: data.descriptionEn ?? null,
+    descriptionAr: data.descriptionAr ?? null,
+    coverImageUrl: data.coverImageUrl ?? null,
+    eventDate: data.eventDate ?? null,
+    academicYear: data.academicYear,
+    category: data.category ?? "cultural",
+    relatedEventId: data.relatedEventId ?? null,
+    photographerCredit: data.photographerCredit ?? null,
+    location: data.location ?? null,
+    isFeatured: data.isFeatured ?? false,
+    isPublished: data.isPublished ?? true,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return id;
+}
+
+/**
+ * Updates metadata or publication status for an archival album.
+ */
+export async function updateGalleryAlbum(id: string, data: Partial<CreateGalleryAlbumInput>) {
+  await db.update(galleryAlbums)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(galleryAlbums.id, id));
+
+  return true;
+}
+
+/**
+ * Permanently removes a gallery album (media assets cascade-delete).
+ */
+export async function deleteGalleryAlbum(id: string) {
+  await db.delete(galleryAlbums).where(eq(galleryAlbums.id, id));
+  return true;
+}
+
+export interface CreateMediaAssetInput {
+  id?: string;
+  albumId: string;
+  fileUrl: string;
+  thumbnailUrl?: string | null;
+  mediaType?: "image" | "video";
+  videoUrl?: string | null;
+  captionEn?: string | null;
+  captionAr?: string | null;
+  credit?: string | null;
+  width?: number | null;
+  height?: number | null;
+  sortOrder?: number;
+  isPublished?: boolean;
+}
+
+/**
+ * Ingests a validated photograph or video asset into a designated album.
+ */
+export async function createMediaAsset(data: CreateMediaAssetInput) {
+  const now = new Date();
+  const id = data.id || `med_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  await db.insert(mediaAssets).values({
+    id,
+    albumId: data.albumId,
+    fileUrl: data.fileUrl,
+    thumbnailUrl: data.thumbnailUrl ?? null,
+    mediaType: data.mediaType ?? "image",
+    videoUrl: data.videoUrl ?? null,
+    captionEn: data.captionEn ?? null,
+    captionAr: data.captionAr ?? null,
+    credit: data.credit ?? null,
+    width: data.width ?? null,
+    height: data.height ?? null,
+    sortOrder: data.sortOrder ?? 0,
+    isPublished: data.isPublished ?? true,
+    createdAt: now,
+  });
+
+  return id;
+}
+
+/**
+ * Updates captions, credit, or sort order for a media asset.
+ */
+export async function updateMediaAsset(id: string, data: Partial<CreateMediaAssetInput>) {
+  await db.update(mediaAssets)
+    .set(data)
+    .where(eq(mediaAssets.id, id));
+
+  return true;
+}
+
+/**
+ * Deletes a media asset from an album.
+ */
+export async function deleteMediaAsset(id: string) {
+  await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
+  return true;
+}
+
 
 
 

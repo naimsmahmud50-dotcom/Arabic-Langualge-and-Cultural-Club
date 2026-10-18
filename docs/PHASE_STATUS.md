@@ -10,7 +10,7 @@
 | **Phase 4** | Authentication & Role-Based Access Control | **Completed** | 2026-10-17 | 2026-10-17 | Scrypt hashing, HMAC session tokens, RBAC matrix, Edge middleware, 403 Forbidden, 58 tests |
 | **Phase 5** | Public Website Shell & Homepage | **Completed** | 2026-10-17 | 2026-10-17 | Complete 14-section dynamic homepage, zero fake stats, responsive bilingual layout |
 | **Phase 6** | History, Founders & Committees Archive | **Completed** | 2026-10-17 | 2026-10-17 | Verified Founders, Term-by-term preservation, Multi-term service, Privacy-safe Member Directory |
-| **Phase 7** | Annual Calendar, Events & Gallery | **In Progress** | 2026-10-18 | - | 12-Month Master Plan & Calendar (27/27 tests); Event Dossiers & Registration (45/45 tests); Gallery next |
+| **Phase 7** | Annual Calendar, Events & Gallery | **Completed** | 2026-10-18 | 2026-10-18 | Annual Plan (27 tests); Events & Reg (45 tests); Gallery Archive & Lightbox (47 tests) |
 | **Phase 8** | Membership Application & Inquiries | **Not Started** | - | - | Admissions pipeline, reference tracker, contact |
 | **Phase 9** | Complete Admin Dashboard & CMS | **Not Started** | - | - | CRUD actions, media uploaders, term creator |
 | **Phase 10** | Security Hardening & Audit Logs | **Not Started** | - | - | Rate limiting, upload sanitization, immutable ledger |
@@ -82,4 +82,17 @@
   - Added administrative CRUD operations for all three content domains in `src/lib/db/queries.ts`.
   - Automated test suite passed: `src/lib/db/test-public-content-modules.ts`: 43/43 tests passed (100%).
   - Production build verified: `pnpm next build` completed with 0 errors across all 37 routes.
-- **Recommended Next Prompt:** **Phase 7 Part 3 — Photo & Media Gallery System** (Implement `/gallery` album grid and `/gallery/[slug]` album details with responsive layout, image captions, credits, and fullscreen keyboard-accessible lightbox [Esc, Arrow keys, swipe]).
+- **Phase 7 Part 3 (Photo & Media Gallery and Lightbox Archive):** Completed on 2026-10-18.
+  - Implemented `/gallery` archival catalog (`src/app/(public)/gallery/page.tsx`) with category filters (`debates`, `calligraphy`, `symposia`, `workshops`, `ceremonies`), academic year selector, search input, and institutional album cards with media count badges.
+  - Implemented `/gallery/[slug]` album dossier (`src/app/(public)/gallery/[slug]/page.tsx`) with verified dates, locations, photographer attributions, dynamic OpenGraph SEO metadata, and official Event Association banner cross-linking to `/events/[slug]`.
+  - Built interactive, accessible fullscreen lightbox `MediaLightbox.tsx` with full keyboard navigation (`Esc` to dismiss, `ArrowLeft` / `ArrowRight` navigation), background scroll locking, photo counter, bilingual captions, and HTML5 video player.
+  - Created client grid `AlbumMediaGrid.tsx` preserving clean React Server Component boundaries and SEO rendering while providing instant client lightbox interactivity.
+  - Built safe storage validator engine `src/lib/utils/media-storage.ts` enforcing strict MIME type checking (JPEG, PNG, WebP, AVIF, MP4), max size limits (15MB photos, 100MB video), directory traversal immunity, and zero storage credential leaks.
+  - Added migration `0004_gallery_enhancements.sql` adding `related_event_id`, `photographer_credit`, `location` to `gallery_albums`, and `media_type`, `video_url` to `media_assets`.
+  - Added admin CRUD mutations in `src/lib/db/queries.ts`: `createGalleryAlbum`, `updateGalleryAlbum`, `deleteGalleryAlbum`, `createMediaAsset`, `updateMediaAsset`, `deleteMediaAsset`.
+  - Seeded 5 authentic historic albums and 13 media assets (including video record), plus 1 draft album fixture for security testing.
+  - Automated test suite passed: `src/lib/db/test-gallery-media-archive.ts`: 47/47 tests passed (100%).
+  - Full regression test suite passed: 246/246 tests passed (100% across all 7 test suites).
+  - Production build verified: `pnpm next build` completed with 0 errors across all 35 routes.
+- **Recommended Next Prompt:** **Phase 8 — Membership Application & Inquiries System** (Implement `/membership` multi-step admissions form with server validation, unique reference ID generation, status tracker, and `/contact` inquiry form with rate limiting).
+
