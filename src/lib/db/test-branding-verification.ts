@@ -93,8 +93,9 @@ async function verifyBranding() {
   console.log("");
 
   // Track 5: Live Server HTTP Response Verification
-  console.log("TRACK 5: Live Production Server Verification (http://localhost:3000)");
-  const res = await fetch("http://localhost:3000/");
+  const testUrl = process.env.TEST_SERVER_URL || "http://localhost:3005";
+  console.log(`TRACK 5: Live Production Server Verification (${testUrl})`);
+  const res = await fetch(`${testUrl}/`);
   assert(res.status === 200, "Live homepage responds with HTTP 200 OK");
   const html = await res.text();
 
