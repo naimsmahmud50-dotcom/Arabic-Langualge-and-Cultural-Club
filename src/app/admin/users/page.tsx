@@ -53,6 +53,7 @@ export default async function AdminUsersPage() {
         <UsersManagerClient
           usersList={usersList}
           currentRole={session.role}
+          currentUserId={session.id}
         />
       </div>
     </div>

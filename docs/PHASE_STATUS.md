@@ -12,8 +12,8 @@
 | **Phase 6** | History, Founders & Committees Archive | **Completed** | 2026-10-17 | 2026-10-17 | Verified Founders, Term-by-term preservation, Multi-term service, Privacy-safe Member Directory |
 | **Phase 7** | Annual Calendar, Events & Gallery | **Completed** | 2026-10-18 | 2026-10-18 | Annual Plan (27 tests); Events & Reg (45 tests); Gallery Archive & Lightbox (47 tests) |
 | **Phase 8** | Membership Application & Inquiries | **Completed** | 2026-10-18 | 2026-10-18 | Admissions pipeline, reference tracker, contact inbox (47 tests) |
-| **Phase 9** | Complete Admin Dashboard & CMS | **In Progress** | 2026-10-18 | - | Admin shell, mobile drawer, user profile menu, real metrics, reusable admin UI blocks (34 tests) |
-| **Phase 10** | Security Hardening & Audit Logs | **Not Started** | - | - | Rate limiting, upload sanitization, immutable ledger |
+| **Phase 9** | Complete Admin Dashboard & CMS | **Completed** | 2026-10-18 | 2026-10-18 | Admin shell, CMS for all content domains, RBAC users, settings, audit trail, cryptographic backups (400+ tests) |
+| **Phase 10** | Security Hardening & Audit Logs | **Completed** | 2026-10-18 | 2026-10-18 | Rate limiting, upload sanitization, immutable ledger, backup engine |
 | **Phase 11** | Bilingual (English/Arabic RTL) & SEO | **Not Started** | - | - | Locale persistence, `dir="rtl"`, sitemap, meta |
 | **Phase 12** | Automated Testing & QA Audit | **Not Started** | - | - | E2E tests, unit tests, Lighthouse >= 95 |
 | **Phase 13** | Deployment, Handover & Final Acceptance | **Not Started** | - | - | Production hosting guide, admin manual |
@@ -153,5 +153,16 @@
   - Built automated verification test suite: `src/lib/db/test-media-news-resources-cms.ts` covering 6 comprehensive test suites (News, Resources, Publications, Gallery & Assets, Upload Security, and RBAC Audit Logging) with 100% passing rate.
   - Executed cumulative regression testing across all 13 test suites (`src/lib/db/test-*.ts`) with 100% passing rate.
   - Verified clean Next.js production build (`pnpm exec next build`) with 0 errors across all 38 routes.
-- **Recommended Next Prompt:** **Phase 9 Part 5 — Site Settings, Global SEO & Database Backup Tools** (Implement `/admin/settings` for institutional identity, contact coordinates, social media links, global SEO metadata, and administrative database backup/export utilities).
+- **Phase 9 Part 5 (Admin Governance, Settings, Audit Logs & Backup Tools - Feature 018):** Completed on 2026-10-18.
+  - Implemented Admin User Management at `/admin/users` (`UsersManagerClient.tsx`, `page.tsx`) with user creation, status suspension/activation toggling, role assignment modal, password reset, and strict anti-self-lockout / anti-privilege-escalation boundaries.
+  - Implemented Website Settings Manager at `/admin/settings` (`SettingsManagerClient.tsx`, `page.tsx`) organized into 6 tabs: General & Identity, Contact Information, Social Links, Global SEO Metadata, System Defaults (Theme, Language, Direction), and Database Backups & Recovery.
+  - Implemented live Cryptographic Database Snapshot Engine (`src/lib/utils/db-backup.ts`, `/api/admin/backup/export`, `generateDatabaseBackupAction`) taking atomic snapshots across all 22 relational tables, scrubbing sensitive password hashes, computing SHA-256 integrity hashes, and persisting to disk.
+  - Implemented Security Audit Trail Console at `/admin/audit-logs` (`AuditLogsClient.tsx`, `page.tsx`, `/api/admin/audit-logs/export`) with action/entity dropdown filters, live search, JSON payload inspector modal, and secure JSON export.
+  - Implemented Operator Profile & Security Portal at `/admin/profile` (`ProfileSettingsClient.tsx`, `page.tsx`) with Scrypt password verification, password strength rules, and immutable audit logging.
+  - Authored comprehensive Disaster Recovery Runbook in `docs/BACKUP_AND_DISASTER_RECOVERY.md`.
+  - Automated verification test suite passed: `src/lib/db/test-admin-governance-settings.ts`: 5/5 test suites passed (100%).
+  - Full cumulative regression test suite passed: 14/14 test suites passed with 100% passing rate.
+  - Production build verified: `pnpm exec next build` compiled and generated all 41 routes with 0 errors.
+- **Recommended Next Prompt:** **Phase 10 (or Prompt 20): English–Arabic Bilingual Support, RTL Layout Engine & Localization** (Implement full public and administrative English-Arabic bilingual switching, persistent language selector, RTL layout directionality, Arabic typography formatting, and localized metadata).
+
 

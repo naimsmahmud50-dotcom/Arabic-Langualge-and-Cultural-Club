@@ -218,6 +218,16 @@ export function AdminHeader({
                 {/* Quick Menu Shortcuts */}
                 <div className="p-1 space-y-0.5 border-b border-[var(--border-subtle)]">
                   <Link
+                    href="/admin/profile"
+                    onClick={() => setIsProfileOpen(false)}
+                    role="menuitem"
+                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-[5px] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors"
+                  >
+                    <User className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                    <span>My Profile & Security</span>
+                  </Link>
+
+                  <Link
                     href="/admin/audit-logs"
                     onClick={() => setIsProfileOpen(false)}
                     role="menuitem"

@@ -59,8 +59,8 @@ Status definitions:
 | **REQ-ADM-10** | Arabic Learning Resources & Publications CMS. | HIGH | Phase 8 | Upload resource files, assign categories, publish verified learning materials. | [x] Completed |
 | **REQ-ADM-11** | User Accounts & Granular Role Permissions (RBAC). | CRITICAL | Phase 4 | Super Admin can assign roles; restricted roles (e.g. Media Manager, Content Editor) cannot access User Management. | [x] Completed |
 | **REQ-ADM-12** | Immutable Audit Logs for sensitive operations. | HIGH | Phase 4 | Records actor, action type, target entity ID, and timestamp on login/failed login/reset/provisioning. | [x] Completed |
-| **REQ-ADM-13** | Site Settings & Global SEO Configuration. | HIGH | Phase 9 | Update club title, contact email, social media links, and meta tags directly from dashboard. | [ ] Not Started |
-| **REQ-ADM-14** | Database Backup & Disaster Recovery documentation/tools. | MEDIUM | Phase 9 | Backup script or export utility documented and tested for reproducible recovery. | [ ] Not Started |
+| **REQ-ADM-13** | Site Settings & Global SEO Configuration. | HIGH | Phase 9 | Update club title, contact email, social media links, and meta tags directly from dashboard. | [x] Completed |
+| **REQ-ADM-14** | Database Backup & Disaster Recovery documentation/tools. | MEDIUM | Phase 9 | Backup script or export utility documented and tested for reproducible recovery. | [x] Completed |
 
 ---
 

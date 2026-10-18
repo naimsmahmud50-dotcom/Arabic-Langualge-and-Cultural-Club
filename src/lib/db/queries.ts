@@ -18,7 +18,8 @@ import {
   annualPlans,
   editablePages,
   pageSections,
-  contactInquiries
+  contactInquiries,
+  users
 } from "./schema";
 import { eq, ne, desc, asc, and, like, or, count, sql } from "drizzle-orm";
 
@@ -1351,14 +1352,78 @@ export async function getAdminMembershipApplications(options: {
   .orderBy(desc(membershipApplications.createdAt));
 }
 
+export interface AdminAuditLogsFilterParams {
+  action?: string;
+  targetEntity?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
 /**
  * Fetch audit logs for security review.
+ * Supports either legacy number limit or comprehensive filter/pagination params.
  */
-export async function getAdminAuditLogs(limit: number = 50) {
-  return await db.select()
+export async function getAdminAuditLogs(
+  paramsOrLimit: number | AdminAuditLogsFilterParams = 50
+) {
+  if (typeof paramsOrLimit === "number") {
+    return await db
+      .select()
+      .from(auditLogs)
+      .orderBy(desc(auditLogs.createdAt))
+      .limit(paramsOrLimit);
+  }
+
+  const { action, targetEntity, search, page = 1, limit = 20 } = paramsOrLimit;
+  const conditions = [];
+
+  if (action && action !== "all") {
+    conditions.push(eq(auditLogs.action, action));
+  }
+
+  if (targetEntity && targetEntity !== "all") {
+    conditions.push(eq(auditLogs.targetEntity, targetEntity));
+  }
+
+  if (search && search.trim()) {
+    const s = `%${search.trim()}%`;
+    conditions.push(
+      or(
+        like(auditLogs.action, s),
+        like(auditLogs.targetEntity, s),
+        like(auditLogs.targetId, s),
+        like(auditLogs.userEmail, s),
+        like(auditLogs.detailsJson, s)
+      )!
+    );
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const totalRes = await db
+    .select({ total: count() })
     .from(auditLogs)
+    .where(whereClause);
+  const total = totalRes[0]?.total || 0;
+
+  const data = await db
+    .select()
+    .from(auditLogs)
+    .where(whereClause)
     .orderBy(desc(auditLogs.createdAt))
-    .limit(limit);
+    .limit(limit)
+    .offset((page - 1) * limit);
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    },
+  };
 }
 
 // ----------------------------------------------------------------------
@@ -3196,8 +3261,130 @@ export async function getAdminAlbumWithAssets(albumId: string) {
   };
 }
 
+// ----------------------------------------------------------------------
+// SITE SETTINGS & GOVERNANCE QUERIES
+// ----------------------------------------------------------------------
 
+export interface SiteSettingEntry {
+  key: string;
+  valueEn?: string | null;
+  valueAr?: string | null;
+  category?: string;
+}
 
+/**
+ * Fetch all raw site settings from SQLite transformed into an administrative dictionary.
+ */
+export async function getAdminSiteSettings() {
+  const rows = await db.select().from(siteSettings);
+  const settingsMap: Record<string, { valueEn: string; valueAr: string; category: string }> = {};
+  
+  for (const row of rows) {
+    settingsMap[row.key] = {
+      valueEn: row.valueEn || "",
+      valueAr: row.valueAr || "",
+      category: row.category || "general",
+    };
+  }
+  return settingsMap;
+}
 
+/**
+ * Upsert site settings entries with validation and timestamp tracking.
+ */
+export async function updateSiteSettings(entries: SiteSettingEntry[]) {
+  const now = new Date();
+  for (const entry of entries) {
+    const existing = await db
+      .select({ id: siteSettings.id })
+      .from(siteSettings)
+      .where(eq(siteSettings.key, entry.key))
+      .limit(1);
 
+    if (existing.length > 0) {
+      await db
+        .update(siteSettings)
+        .set({
+          valueEn: entry.valueEn ?? null,
+          valueAr: entry.valueAr ?? null,
+          category: entry.category || "general",
+          updatedAt: now,
+        })
+        .where(eq(siteSettings.key, entry.key));
+    } else {
+      await db.insert(siteSettings).values({
+        id: `set_${entry.key.toLowerCase().replace(/[^a-z0-9_]/g, "_")}_${Date.now()}`,
+        key: entry.key,
+        valueEn: entry.valueEn ?? null,
+        valueAr: entry.valueAr ?? null,
+        category: entry.category || "general",
+        updatedAt: now,
+      });
+    }
+  }
+  return true;
+}
 
+/**
+ * Update administrative user role with least-privilege checks.
+ */
+export async function updateUserRole(userId: string, role: string) {
+  await db
+    .update(users)
+    .set({
+      role: role as any,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId));
+  return true;
+}
+
+/**
+ * Update user account status (active vs suspended).
+ */
+export async function updateUserStatus(userId: string, isActive: boolean) {
+  await db
+    .update(users)
+    .set({
+      isActive,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId));
+  return true;
+}
+
+/**
+ * Get single user record by ID.
+ */
+export async function getUserById(userId: string) {
+  const res = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      fullName: users.fullName,
+      role: users.role,
+      isActive: users.isActive,
+      passwordHash: users.passwordHash,
+      lastLoginAt: users.lastLoginAt,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  return res[0] || null;
+}
+
+/**
+ * Update user password hash.
+ */
+export async function updateUserPassword(userId: string, passwordHash: string) {
+  await db
+    .update(users)
+    .set({
+      passwordHash,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId));
+  return true;
+}
