@@ -68,6 +68,8 @@ export function GalleryPreviewSection({ albums }: GalleryPreviewSectionProps) {
                       <img
                         src={album.coverImageUrl}
                         alt={album.titleEn}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       />
                     ) : (

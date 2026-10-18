@@ -10,9 +10,23 @@
  */
 
 import React from "react";
+import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge } from "@/components/ui";
 import { Shield, Eye, FileText, CheckCircle2 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Governance Charters & Policies | Arabic Language & Cultural Club",
+  description: "Official institutional charters governing member privacy safeguards, digital media publication consent, archival preservation, and WCAG 2.2 AA accessibility standards.",
+  openGraph: {
+    title: "Governance Charters & Policies — Arabic Language & Cultural Club",
+    description: "Review our institutional privacy policy, data protection rules, media consent protocols, and accessibility commitment.",
+    url: "/policies",
+  },
+  alternates: {
+    canonical: "/policies",
+  },
+};
 
 export default function PoliciesPage() {
   const breadcrumbs = [

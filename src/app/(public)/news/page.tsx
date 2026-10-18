@@ -20,6 +20,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge, EmptyState, Button } from "@/components/ui";
 import { getPublicAnnouncements } from "@/lib/db/queries";
@@ -30,13 +31,26 @@ import {
   Search, 
   ArrowRight, 
   User, 
-  Sparkles, 
+  Award, 
   ChevronLeft, 
   ChevronRight,
   FileText
 } from "lucide-react";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Gazettes, Bulletins & Notices | Arabic Language & Cultural Club",
+  description: "Official notices from the executive council, administrative decrees, election notifications, symposia communiqués, and academic press releases.",
+  openGraph: {
+    title: "Gazettes, Bulletins & Notices — Arabic Language & Cultural Club",
+    description: "Read official announcements and academic press releases from the Arabic Language & Cultural Club.",
+    url: "/news",
+  },
+  alternates: {
+    canonical: "/news",
+  },
+};
 
 interface NewsPageProps {
   searchParams: Promise<{ category?: string; q?: string; page?: string }>;

@@ -20,6 +20,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge, EmptyState, Button } from "@/components/ui";
 import { getPublicLearningResources } from "@/lib/db/queries";
@@ -30,13 +31,26 @@ import {
   Search, 
   Filter, 
   GraduationCap, 
-  Sparkles, 
+  Compass, 
   ChevronLeft, 
   ChevronRight,
   BookmarkCheck
 } from "lucide-react";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Arabic Learning Resource Center | Arabic Language & Cultural Club",
+  description: "Curated classical Arabic linguistic guides, grammar cheat sheets (Nahw & Sarf), rhetorical treatises (Balaghah), and vocabulary reference lists for students and scholars.",
+  openGraph: {
+    title: "Arabic Learning Resource Center — Arabic Language & Cultural Club",
+    description: "Access open scholarly guides, grammar treatises, and vocabulary compendiums for classical Arabic learning.",
+    url: "/resources",
+  },
+  alternates: {
+    canonical: "/resources",
+  },
+};
 
 interface ResourcesPageProps {
   searchParams: Promise<{ category?: string; level?: string; q?: string; page?: string }>;

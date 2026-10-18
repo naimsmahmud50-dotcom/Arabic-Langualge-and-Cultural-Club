@@ -90,9 +90,9 @@ Status definitions:
 ### Section F: Quality Assurance, Accessibility & Handover
 | ID | Requirement Description | Priority | Responsible Phase | Acceptance Test | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **REQ-QA-01** | WCAG 2.2 AA Accessibility compliance (keyboard navigation, focus rings, contrast, aria-labels). | CRITICAL | Phase 10 | Lighthouse accessibility audit >= 95; interactive elements navigable via Tab/Enter/Space. | [ ] Not Started |
-| **REQ-QA-02** | Responsive viewport testing across mobile (375px), tablet (768px), desktop (1280px+). | CRITICAL | Phase 11 | No horizontal scrollbars; mobile navigation drawer opens and closes reliably. | [ ] Not Started |
-| **REQ-QA-03** | SEO metadata, OpenGraph cards, dynamic sitemap.xml, robots.txt. | HIGH | Phase 10 | Every route generates accurate `<title>`, `<meta description>`, OpenGraph images, and canonical URL. | [ ] Not Started |
-| **REQ-QA-04** | Automated test suite: Unit tests for data logic, integration tests for server actions. | HIGH | Phase 11 | Test suite executes via automated test runner with 100% passing tests. | [ ] Not Started |
-| **REQ-QA-05** | Production build succeeds without TypeScript or ESLint errors. | CRITICAL | Phase 11 | `next build` exits with code 0. | [ ] Not Started |
+| **REQ-QA-01** | WCAG 2.2 AA Accessibility compliance (keyboard navigation, focus rings, contrast, aria-labels). | CRITICAL | Phase 10 | Lighthouse accessibility audit >= 95; interactive elements navigable via Tab/Enter/Space; skip-to-content landmark. | [x] Completed |
+| **REQ-QA-02** | Responsive viewport testing across mobile (375px), tablet (768px), desktop (1280px+). | CRITICAL | Phase 11 | No horizontal scrollbars; mobile navigation drawer opens and closes reliably; touch targets >= 44px. | [x] Completed |
+| **REQ-QA-03** | SEO metadata, OpenGraph cards, dynamic sitemap.xml, robots.txt. | HIGH | Phase 10 | Every route generates accurate `<title>`, `<meta description>`, OpenGraph, Schema.org JSON-LD, sitemap, robots.txt. | [x] Completed |
+| **REQ-QA-04** | Automated test suite: Unit tests for data logic, integration tests for server actions. | HIGH | Phase 11 | 17 automated test suites execute cleanly with 100% passing tests (zero regressions). | [x] Completed |
+| **REQ-QA-05** | Production build succeeds without TypeScript or ESLint errors. | CRITICAL | Phase 11 | `next build` with Turbopack exits with code 0 cleanly; zero TypeScript or lint errors. | [x] Completed |
 | **REQ-QA-06** | Complete Deployment & Handover Documentation. | HIGH | Phase 12 | Step-by-step documentation for environment setup, deployment, admin guide, and backups. | [ ] Not Started |

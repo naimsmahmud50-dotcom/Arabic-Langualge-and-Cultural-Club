@@ -65,9 +65,9 @@ export function AdminShell({ user, children }: AdminShellProps) {
         />
 
         {/* Main Administrative Workspace */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <main id="main-content" tabIndex={-1} className="flex-1 flex flex-col min-w-0 overflow-y-auto outline-none">
           {children}
-        </div>
+        </main>
       </div>
     </AdminContext.Provider>
   );

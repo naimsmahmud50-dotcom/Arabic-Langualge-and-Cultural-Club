@@ -271,6 +271,8 @@ export default async function LeadershipPage({ searchParams }: LeadershipPagePro
                           <img 
                             src={officer.photoUrl} 
                             alt={officer.fullNameEn} 
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover rounded-[6px]" 
                           />
                         ) : (

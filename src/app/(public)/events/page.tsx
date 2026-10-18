@@ -23,13 +23,27 @@
 
 import React from "react";
 import Link from "next/link";
+import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge, Button } from "@/components/ui";
 import { getPublicEvents, getPublicAnnualPlans, getAnnualPlanYears } from "@/lib/db/queries";
 import { AnnualPlanCalendarClient } from "./AnnualPlanCalendarClient";
-import { Calendar, MapPin, Clock, ArrowRight, Sparkles, BookOpen } from "lucide-react";
+import { Calendar, MapPin, Clock, ArrowRight, Award, BookOpen } from "lucide-react";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Academic Calendar & Annual Plan | Arabic Language & Cultural Club",
+  description: "Official schedule of symposia, oratorical tournaments, calligraphy exhibitions, and 12-month annual roadmap of the Arabic Language & Cultural Club.",
+  openGraph: {
+    title: "Academic Calendar & Annual Plan — Arabic Language & Cultural Club",
+    description: "Explore upcoming events, symposia, and academic workshops organized by the Arabic Language & Cultural Club.",
+    url: "/events",
+  },
+  alternates: {
+    canonical: "/events",
+  },
+};
 
 interface EventsPageProps {
   searchParams: Promise<{ year?: string; category?: string; view?: string }>;
@@ -86,7 +100,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="w-4 h-4 text-[var(--brand-accent)]" />
+                  <Award className="w-4 h-4 text-[var(--brand-accent)]" />
                   <span className="text-xs uppercase tracking-widest font-mono font-semibold text-[var(--brand-accent)]">
                     Featured Major Gatherings
                   </span>

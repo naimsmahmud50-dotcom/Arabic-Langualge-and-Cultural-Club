@@ -177,6 +177,8 @@ export default async function MembersPage({ searchParams }: MembersPageProps) {
                           <img
                             src={member.photoUrl}
                             alt={member.fullNameEn}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover rounded-[6px]"
                           />
                         ) : (

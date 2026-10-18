@@ -155,6 +155,8 @@ export default async function FoundersPage() {
                           <img 
                             src={founder.portraitUrl} 
                             alt={founder.nameEn} 
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover rounded-[6px]" 
                           />
                         ) : (

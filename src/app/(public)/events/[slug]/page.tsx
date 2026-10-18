@@ -23,6 +23,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge, Button } from "@/components/ui";
@@ -46,6 +47,35 @@ export const revalidate = 60;
 
 interface EventDetailPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: EventDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const event = await getPublicEventBySlug(slug).catch(() => null);
+
+  if (!event) {
+    return {
+      title: "Event Not Found | Arabic Language & Cultural Club",
+      description: "The requested academic event or symposium could not be located in our records.",
+    };
+  }
+
+  const title = `${event.titleEn} | Arabic Language & Cultural Club`;
+  const description = event.summaryEn || event.descriptionEn?.slice(0, 160) || "Academic symposium and cultural event organized by the Arabic Language & Cultural Club.";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `/events/${event.slug}`,
+      images: event.coverImageUrl ? [{ url: event.coverImageUrl }] : undefined,
+    },
+    alternates: {
+      canonical: `/events/${event.slug}`,
+    },
+  };
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {

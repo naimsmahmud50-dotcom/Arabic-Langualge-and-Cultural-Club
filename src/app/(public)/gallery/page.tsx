@@ -24,6 +24,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge, EmptyState, Button } from "@/components/ui";
 import { getPublicGalleryAlbums, getPublicGalleryYears } from "@/lib/db/queries";
@@ -41,6 +42,19 @@ import {
 } from "lucide-react";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Photo & Media Gallery Archive | Arabic Language & Cultural Club",
+  description: "Official visual repository preserving photographic and audiovisual records of club milestones, oratorical tournaments, calligraphy vernissages, and academic symposia.",
+  openGraph: {
+    title: "Photo & Media Gallery Archive — Arabic Language & Cultural Club",
+    description: "Browse photographic albums and archival recordings documenting the heritage of the Arabic Language & Cultural Club.",
+    url: "/gallery",
+  },
+  alternates: {
+    canonical: "/gallery",
+  },
+};
 
 interface GalleryPageProps {
   searchParams: Promise<{ category?: string; year?: string; q?: string; page?: string }>;
@@ -185,6 +199,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
                         src={album.coverImageUrl}
                         alt={album.titleEn}
                         loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
                     ) : (

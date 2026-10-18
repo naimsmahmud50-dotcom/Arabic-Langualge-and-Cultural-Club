@@ -18,6 +18,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge, EmptyState, Button } from "@/components/ui";
 import { getPublicPublications, getPublicAchievements } from "@/lib/db/queries";
@@ -27,13 +28,26 @@ import {
   Download, 
   Calendar, 
   FileText, 
-  Sparkles, 
+  GraduationCap, 
   ShieldCheck, 
   ExternalLink,
   Layers
 } from "lucide-react";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Publications & Roll of Honor | Arabic Language & Cultural Club",
+  description: "Official periodicals, literary magazines (Al-Bayan), scholarly monographs, and distinction awards earned by club fellows in regional and international tournaments.",
+  openGraph: {
+    title: "Publications & Roll of Honor — Arabic Language & Cultural Club",
+    description: "Read official magazines, academic treatises, and explore the institutional roll of honor.",
+    url: "/publications",
+  },
+  alternates: {
+    canonical: "/publications",
+  },
+};
 
 interface PublicationsPageProps {
   searchParams: Promise<{ type?: string; achievementCategory?: string }>;
