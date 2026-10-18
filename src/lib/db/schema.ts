@@ -116,26 +116,39 @@ export const members = sqliteTable("members", {
 ]);
 
 // ----------------------------------------------------------------------
-// 4. MEMBERSHIP APPLICATIONS
+// 4. MEMBERSHIP APPLICATIONS (Confidential Admissions Dossier)
 // ----------------------------------------------------------------------
 export const membershipApplications = sqliteTable("membership_applications", {
   id: text("id").primaryKey(),
   referenceNo: text("reference_no").notNull().unique(), // e.g. APP-2026-9812
   applicantName: text("applicant_name").notNull(),
+  applicantNameAr: text("applicant_name_ar"),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
+  studentId: text("student_id"),
+  department: text("department"),
+  faculty: text("faculty"),
+  academicLevel: text("academic_level"),
   category: text("category").notNull().default("general_student"),
+  arabicProficiency: text("arabic_proficiency", { 
+    enum: ["beginner", "intermediate", "advanced", "native"] 
+  }).default("intermediate"),
   motivation: text("motivation").notNull(),
+  consentAgreed: integer("consent_agreed", { mode: "boolean" }).notNull().default(true),
+  directoryConsent: integer("directory_consent", { mode: "boolean" }).notNull().default(false),
   status: text("status", { 
     enum: ["pending", "under_review", "approved", "rejected", "withdrawn"] 
   }).notNull().default("pending"),
   reviewerNotes: text("reviewer_notes"),
   reviewedById: text("reviewed_by_id").references(() => users.id),
+  reviewedAt: integer("reviewed_at", { mode: "timestamp" }),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 }, (table) => [
   index("applications_status_idx").on(table.status),
   index("applications_ref_idx").on(table.referenceNo),
+  index("applications_email_idx").on(table.email),
+  index("applications_student_id_idx").on(table.studentId),
 ]);
 
 // ----------------------------------------------------------------------

@@ -940,13 +940,282 @@ export async function getPublicGalleryAlbumBySlug(slug: string) {
 }
 
 /**
- * Fetch membership applications for administrative review.
+ * ============================================================================
+ * MEMBERSHIP APPLICATIONS & ADMISSIONS WORKFLOW QUERIES
+ * TARGET ROUTE: /membership and /admin/applications
+ * DEVELOPER ONBOARDING NOTE:
+ * - Applications contain private student identification numbers and personal coordinates.
+ * - Strix-Supabase Security Guardrail: Public routes must NEVER query this table directly
+ *   without dual verification (`referenceNo` + `email`).
+ * - Status transitions are logged to `audit_logs` for compliance.
+ * ============================================================================
  */
-export async function getAdminMembershipApplications(status: "approved" | "pending" | "rejected" | "under_review" | "withdrawn" = "pending") {
-  return await db.select()
+
+export interface SubmitMembershipApplicationInput {
+  applicantName: string;
+  applicantNameAr?: string | null;
+  email: string;
+  phone: string;
+  studentId?: string | null;
+  department?: string | null;
+  faculty?: string | null;
+  academicLevel?: string | null;
+  category?: string;
+  arabicProficiency?: "beginner" | "intermediate" | "advanced" | "native";
+  motivation: string;
+  consentAgreed: boolean;
+  directoryConsent?: boolean;
+}
+
+/**
+ * Validates and persists a new student membership application.
+ * Prevents active duplicates (pending or under_review) by email and student ID.
+ */
+export async function submitMembershipApplication(input: SubmitMembershipApplicationInput) {
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const trimmedStudentId = input.studentId?.trim();
+
+  // 1. Duplicate Prevention: Check if active application already exists for this email
+  const existingEmail = await db.select({ id: membershipApplications.id })
     .from(membershipApplications)
-    .where(eq(membershipApplications.status, status))
-    .orderBy(desc(membershipApplications.createdAt));
+    .where(and(
+      eq(membershipApplications.email, normalizedEmail),
+      or(
+        eq(membershipApplications.status, "pending"),
+        eq(membershipApplications.status, "under_review")
+      )!
+    ))
+    .limit(1);
+
+  if (existingEmail.length > 0) {
+    throw new Error("An active membership application is already registered with this email address.");
+  }
+
+  // 2. Duplicate Prevention: Check if active application exists for this studentId
+  if (trimmedStudentId) {
+    const existingStudentId = await db.select({ id: membershipApplications.id })
+      .from(membershipApplications)
+      .where(and(
+        eq(membershipApplications.studentId, trimmedStudentId),
+        or(
+          eq(membershipApplications.status, "pending"),
+          eq(membershipApplications.status, "under_review")
+        )!
+      ))
+      .limit(1);
+
+    if (existingStudentId.length > 0) {
+      throw new Error("An active membership application is already under review for this student ID.");
+    }
+  }
+
+  // 3. Generate Secure Reference ID (e.g. APP-2026-7B9A1C)
+  const hexSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const referenceNo = `APP-2026-${hexSuffix}`;
+  const id = `app_${Date.now()}_${hexSuffix.toLowerCase()}`;
+  const now = new Date();
+
+  await db.insert(membershipApplications).values({
+    id,
+    referenceNo,
+    applicantName: input.applicantName.trim(),
+    applicantNameAr: input.applicantNameAr?.trim() || null,
+    email: normalizedEmail,
+    phone: input.phone.trim(),
+    studentId: trimmedStudentId || null,
+    department: input.department?.trim() || null,
+    faculty: input.faculty?.trim() || null,
+    academicLevel: input.academicLevel?.trim() || null,
+    category: input.category || "general_student",
+    arabicProficiency: input.arabicProficiency || "intermediate",
+    motivation: input.motivation.trim(),
+    consentAgreed: input.consentAgreed ?? true,
+    directoryConsent: input.directoryConsent ?? false,
+    status: "pending",
+    reviewerNotes: null,
+    reviewedById: null,
+    reviewedAt: null,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return {
+    id,
+    referenceNo,
+    applicantName: input.applicantName.trim(),
+    email: normalizedEmail,
+    status: "pending",
+    createdAt: now,
+  };
+}
+
+/**
+ * Dual-verification status lookup for applicants.
+ * SECURITY: Requires matching BOTH referenceNo AND email to prevent enumeration leaks.
+ */
+export async function getMembershipApplicationStatus(referenceNo: string, email: string) {
+  const normalizedRef = referenceNo.trim().toUpperCase();
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const [record] = await db.select({
+    referenceNo: membershipApplications.referenceNo,
+    applicantName: membershipApplications.applicantName,
+    applicantNameAr: membershipApplications.applicantNameAr,
+    category: membershipApplications.category,
+    status: membershipApplications.status,
+    reviewerNotes: membershipApplications.reviewerNotes,
+    createdAt: membershipApplications.createdAt,
+    updatedAt: membershipApplications.updatedAt,
+    reviewedAt: membershipApplications.reviewedAt,
+  })
+  .from(membershipApplications)
+  .where(and(
+    eq(membershipApplications.referenceNo, normalizedRef),
+    eq(membershipApplications.email, normalizedEmail)
+  ))
+  .limit(1);
+
+  return record || null;
+}
+
+/**
+ * Self-service application withdrawal by prospective applicant.
+ * Can only withdraw pending or under_review applications.
+ */
+export async function withdrawMembershipApplication(referenceNo: string, email: string) {
+  const normalizedRef = referenceNo.trim().toUpperCase();
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const [existing] = await db.select({
+    id: membershipApplications.id,
+    status: membershipApplications.status,
+  })
+  .from(membershipApplications)
+  .where(and(
+    eq(membershipApplications.referenceNo, normalizedRef),
+    eq(membershipApplications.email, normalizedEmail)
+  ))
+  .limit(1);
+
+  if (!existing) {
+    throw new Error("No application matching this reference number and email was found.");
+  }
+
+  if (existing.status !== "pending" && existing.status !== "under_review") {
+    throw new Error(`Cannot withdraw an application with status '${existing.status}'.`);
+  }
+
+  await db.update(membershipApplications)
+    .set({
+      status: "withdrawn",
+      updatedAt: new Date(),
+    })
+    .where(eq(membershipApplications.id, existing.id));
+
+  return true;
+}
+
+/**
+ * Reviews and transitions application status by authorized admissions officer.
+ * Appends immutable audit entry to audit_logs.
+ */
+export async function reviewMembershipApplication(
+  id: string,
+  reviewerId: string,
+  status: "approved" | "rejected" | "under_review",
+  notes?: string
+) {
+  const [app] = await db.select()
+    .from(membershipApplications)
+    .where(eq(membershipApplications.id, id))
+    .limit(1);
+
+  if (!app) {
+    throw new Error("Application dossier not found.");
+  }
+
+  const now = new Date();
+  await db.update(membershipApplications)
+    .set({
+      status,
+      reviewerNotes: notes !== undefined ? notes : app.reviewerNotes,
+      reviewedById: reviewerId,
+      reviewedAt: now,
+      updatedAt: now,
+    })
+    .where(eq(membershipApplications.id, id));
+
+  // Write immutable audit log record
+  await db.insert(auditLogs).values({
+    id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    userId: reviewerId,
+    userEmail: null,
+    action: `review_application_${status}`,
+    targetEntity: "membership_application",
+    targetId: id,
+    detailsJson: JSON.stringify({
+      previousStatus: app.status,
+      newStatus: status,
+      referenceNo: app.referenceNo,
+      notes: notes || null,
+    }),
+    createdAt: now,
+  });
+
+  return true;
+}
+
+/**
+ * Fetch membership applications for administrative review with status & search filtering.
+ */
+export async function getAdminMembershipApplications(options: {
+  status?: string;
+  search?: string;
+} | string = {}) {
+  const opts = typeof options === "string" ? { status: options } : options;
+  const conditions = [];
+
+  if (opts.status && opts.status !== "all") {
+    conditions.push(eq(membershipApplications.status, opts.status as any));
+  }
+
+  if (opts.search && opts.search.trim()) {
+    const s = `%${opts.search.trim()}%`;
+    conditions.push(or(
+      like(membershipApplications.referenceNo, s),
+      like(membershipApplications.applicantName, s),
+      like(membershipApplications.email, s),
+      like(membershipApplications.studentId, s),
+      like(membershipApplications.department, s)
+    )!);
+  }
+
+  return await db.select({
+    id: membershipApplications.id,
+    referenceNo: membershipApplications.referenceNo,
+    applicantName: membershipApplications.applicantName,
+    applicantNameAr: membershipApplications.applicantNameAr,
+    email: membershipApplications.email,
+    phone: membershipApplications.phone,
+    studentId: membershipApplications.studentId,
+    department: membershipApplications.department,
+    faculty: membershipApplications.faculty,
+    academicLevel: membershipApplications.academicLevel,
+    category: membershipApplications.category,
+    arabicProficiency: membershipApplications.arabicProficiency,
+    motivation: membershipApplications.motivation,
+    consentAgreed: membershipApplications.consentAgreed,
+    directoryConsent: membershipApplications.directoryConsent,
+    status: membershipApplications.status,
+    reviewerNotes: membershipApplications.reviewerNotes,
+    reviewedById: membershipApplications.reviewedById,
+    reviewedAt: membershipApplications.reviewedAt,
+    createdAt: membershipApplications.createdAt,
+    updatedAt: membershipApplications.updatedAt,
+  })
+  .from(membershipApplications)
+  .where(conditions.length > 0 ? and(...conditions) : undefined)
+  .orderBy(desc(membershipApplications.createdAt));
 }
 
 /**

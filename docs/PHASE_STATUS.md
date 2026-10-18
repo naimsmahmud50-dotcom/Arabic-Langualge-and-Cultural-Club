@@ -11,7 +11,7 @@
 | **Phase 5** | Public Website Shell & Homepage | **Completed** | 2026-10-17 | 2026-10-17 | Complete 14-section dynamic homepage, zero fake stats, responsive bilingual layout |
 | **Phase 6** | History, Founders & Committees Archive | **Completed** | 2026-10-17 | 2026-10-17 | Verified Founders, Term-by-term preservation, Multi-term service, Privacy-safe Member Directory |
 | **Phase 7** | Annual Calendar, Events & Gallery | **Completed** | 2026-10-18 | 2026-10-18 | Annual Plan (27 tests); Events & Reg (45 tests); Gallery Archive & Lightbox (47 tests) |
-| **Phase 8** | Membership Application & Inquiries | **Not Started** | - | - | Admissions pipeline, reference tracker, contact |
+| **Phase 8** | Membership Application & Inquiries | **In Progress** | 2026-10-18 | - | Admissions pipeline, reference tracker, audit queue |
 | **Phase 9** | Complete Admin Dashboard & CMS | **Not Started** | - | - | CRUD actions, media uploaders, term creator |
 | **Phase 10** | Security Hardening & Audit Logs | **Not Started** | - | - | Rate limiting, upload sanitization, immutable ledger |
 | **Phase 11** | Bilingual (English/Arabic RTL) & SEO | **Not Started** | - | - | Locale persistence, `dir="rtl"`, sitemap, meta |
@@ -94,5 +94,15 @@
   - Automated test suite passed: `src/lib/db/test-gallery-media-archive.ts`: 47/47 tests passed (100%).
   - Full regression test suite passed: 246/246 tests passed (100% across all 7 test suites).
   - Production build verified: `pnpm next build` completed with 0 errors across all 35 routes.
-- **Recommended Next Prompt:** **Phase 8 — Membership Application & Inquiries System** (Implement `/membership` multi-step admissions form with server validation, unique reference ID generation, status tracker, and `/contact` inquiry form with rate limiting).
+- **Phase 8 Part 1 (Membership Application & Admissions Workflow - Feature 012):** Completed on 2026-10-18.
+  - Implemented `/membership` admissions portal (`src/app/(public)/membership/page.tsx`) with SEO metadata, institutional eligibility guidelines, member privileges, review timelines, and tabbed view switching between Admissions Form and Dual-Factor Status Tracker (`MembershipPortalView.tsx`).
+  - Implemented interactive admissions form (`MembershipApplicationForm.tsx`) with server-side validation, duplicate prevention (email & student ID), sliding-window IP rate limiting (5 attempts per 15 mins), zero PII leaks, and tamper-resistant confirmation voucher (`APP-2026-XXXX`).
+  - Implemented dual-factor status lookup (`ApplicationStatusTracker.tsx`) requiring both Reference Number and registered Email (anti-enumeration protection) with self-service withdrawal action for pending applications.
+  - Created migration `0005_membership_applications_enhancements.sql` adding `applicant_name_ar`, `student_id`, `department`, `faculty`, `academic_level`, `arabic_proficiency`, `consent_agreed`, `directory_consent`, and `reviewed_at` to `membership_applications`.
+  - Implemented secure Server Actions in `src/lib/actions/membership-application.ts` (`submitMembershipApplicationAction`, `trackApplicationStatusAction`, `withdrawApplicationAction`, `reviewMembershipApplicationAction`) with strict RBAC assertions (`applications:manage`).
+  - Built administrative admissions queue (`src/app/admin/applications/page.tsx` & `AdminApplicationsClient.tsx`) with status filter tabs (`all`, `pending`, `under_review`, `approved`, `rejected`, `withdrawn`), live counts, instant search, and full dossier adjudication modal (`ApplicationReviewModal.tsx`) with immutable audit logging into `audit_logs`.
+  - Automated test suite passed: `src/lib/db/test-membership-application-workflow.ts`: 22/22 tests passed (100%).
+  - Full regression test suites passed: 268/268 tests passed (100% across all 8 test suites).
+  - Production build verified: `pnpm next build` completed with 0 errors across all 37 routes.
+- **Recommended Next Prompt:** **Phase 8 Part 2 — Contact & Inquiries System with Privacy & Compliance Policies** (Implement `/contact` validated inquiry form with rate limiting, email delivery/inbox logging, and `/policies` institutional privacy charter, photo consent protocol, and WCAG AA accessibility statement).
 

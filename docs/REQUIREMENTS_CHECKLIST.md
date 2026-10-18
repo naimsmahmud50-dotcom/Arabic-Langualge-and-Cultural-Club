@@ -37,7 +37,7 @@ Status definitions:
 | **REQ-PUB-10** | Photo & Media Gallery with Albums, Categories, and Fullscreen Lightbox. | CRITICAL | Phase 7 | Responsive grid renders event albums; clicking open lightbox with keyboard navigation (Esc, Arrow keys). | [x] Completed |
 | **REQ-PUB-11** | Arabic Learning & Educational Resources Hub. | HIGH | Phase 6 | Categorized by Nahw/Sarf/Vocabulary; downloadable PDFs and readable guides with proper Arabic shaping. | [x] Completed |
 | **REQ-PUB-12** | Achievements & Official Publications page. | HIGH | Phase 6 | Showcases competition awards, achievements, newsletters, and annual magazine downloads. | [x] Completed |
-| **REQ-PUB-13** | Membership Information & Multi-Step Online Application Form. | CRITICAL | Phase 7 | Form validates all inputs on server, persists application, generates unique Reference ID. | [ ] Not Started |
+| **REQ-PUB-13** | Membership Information & Multi-Step Online Application Form. | CRITICAL | Phase 7 | Form validates all inputs on server, persists application, generates unique Reference ID. | [x] Completed |
 | **REQ-PUB-14** | News & Official Announcements Hub. | HIGH | Phase 6 | Filterable announcements by category; pagination and detail pages with SEO metadata. | [x] Completed |
 | **REQ-PUB-15** | Partners & Contact Page with validated inquiry form. | HIGH | Phase 7 | Contact form validates server-side with rate limiting; verified contact info rendered. | [ ] Not Started |
 | **REQ-PUB-16** | Policies, Privacy, Photo Consent, and Accessibility Statement. | HIGH | Phase 7 | Clear data handling terms, consent policy, takedown contact route, and WCAG AA statement. | [ ] Not Started |
@@ -52,7 +52,7 @@ Status definitions:
 | **REQ-ADM-03** | Founders & History CMS: CRUD for founder records, milestones, and archival notes. | HIGH | Phase 8 | Form persists records to DB; updates appear on public `/founders` and `/history` pages. | [ ] Not Started |
 | **REQ-ADM-04** | Committee Terms & Officeholder Management (Preservation Rule). | CRITICAL | Phase 8 | Adding a new term (e.g. 2025-26) preserves previous terms (2024-25) intact without data loss. | [ ] Not Started |
 | **REQ-ADM-05** | Member Management & Status Review: search, filter, status toggles (Active, Alumni, Suspended). | HIGH | Phase 8 | Edit member roles, assign committee terms, search by name or membership ID. | [ ] Not Started |
-| **REQ-ADM-06** | Membership Applications Review Workflow (Pending, Approved, Rejected, Notes). | CRITICAL | Phase 8 | Reviewer can inspect application, approve/reject, add internal notes; updates status accurately. | [ ] Not Started |
+| **REQ-ADM-06** | Membership Applications Review Workflow (Pending, Approved, Rejected, Notes). | CRITICAL | Phase 8 | Reviewer can inspect application, approve/reject, add internal notes; updates status accurately. | [x] Completed |
 | **REQ-ADM-07** | Annual Plan & Event Management CMS. | CRITICAL | Phase 8 | Create/edit events, set capacity, manage registration lists, mark completed/postponed. | [ ] Not Started |
 | **REQ-ADM-08** | Photo Gallery & Media Asset CMS: bulk photo uploads, captions, credits, cover image selector. | CRITICAL | Phase 8 | Uploads validate size/mime-type; albums and photos persist with proper storage URLs. | [ ] Not Started |
 | **REQ-ADM-09** | News & Announcements CMS: rich text editor, draft/published status, scheduled expiry. | HIGH | Phase 8 | Draft posts remain hidden from public; published posts appear immediately. | [ ] Not Started |
