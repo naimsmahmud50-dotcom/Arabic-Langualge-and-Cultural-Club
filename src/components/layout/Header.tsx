@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/components/layout/Header.tsx
+ * Updated masthead brand identity to Kabi Nazrul Government College, Dhaka / كلية كابي نذرول الحكومية.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/components/layout/Header.tsx
  * @description Public institutional navigation header for the Arabic Language & Cultural Club.
  * 
@@ -59,11 +64,14 @@ export function Header() {
               </div>
               
               <div className="flex flex-col text-start">
-                <span className="font-bold text-base sm:text-lg leading-tight tracking-tight text-[var(--text-primary)] group-hover:text-[var(--brand-accent)] transition-colors">
+                <span className="font-bold text-sm sm:text-base leading-tight tracking-tight text-[var(--text-primary)] group-hover:text-[var(--brand-accent)] transition-colors">
                   Arabic Language & Cultural Club
                 </span>
-                <span className="font-arabic text-xs text-[var(--brand-accent)] font-medium leading-none mt-1" dir="rtl">
-                  نادي اللغة والثقافة العربية
+                <span className="text-[11px] sm:text-xs font-medium text-[var(--text-secondary)] leading-tight mt-0.5">
+                  Kabi Nazrul Government College, Dhaka
+                </span>
+                <span className="font-arabic text-[11px] sm:text-xs text-[var(--brand-accent)] font-medium leading-none mt-1" dir="rtl">
+                  نادي اللغة والثقافة العربية - كلية كابي نذرول الحكومية
                 </span>
               </div>
             </Link>

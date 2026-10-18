@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/app/(public)/policies/page.tsx
+ * Updated page title, SEO metadata, and privacy contact email to reflect Kabi Nazrul Government College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/app/(public)/policies/page.tsx
  * @route /policies
  * @description Institutional Privacy, Data Protection, Media Consent & Accessibility Charters.
@@ -16,11 +21,11 @@ import { Card, CardContent, Badge } from "@/components/ui";
 import { Shield, Eye, FileText, CheckCircle2 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Governance Charters & Policies | Arabic Language & Cultural Club",
-  description: "Official institutional charters governing member privacy safeguards, digital media publication consent, archival preservation, and WCAG 2.2 AA accessibility standards.",
+  title: "Governance Charters & Policies | Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
+  description: "Official institutional charters governing member privacy safeguards, digital media publication consent, archival preservation, and WCAG 2.2 AA accessibility standards at Kabi Nazrul Government College, Dhaka.",
   openGraph: {
-    title: "Governance Charters & Policies — Arabic Language & Cultural Club",
-    description: "Review our institutional privacy policy, data protection rules, media consent protocols, and accessibility commitment.",
+    title: "Governance Charters & Policies — Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
+    description: "Review our institutional privacy policy, data protection rules, media consent protocols, and accessibility commitment at Kabi Nazrul Government College, Dhaka.",
     url: "/policies",
   },
   alternates: {
@@ -81,7 +86,7 @@ export default function PoliciesPage() {
               Photographs captured during official club assemblies, Arabic calligraphy workshops, debate competitions, and public symposia form part of the club's permanent historical archive.
             </p>
             <p className="text-xs">
-              <strong>Right to Revocation:</strong> Any member or event participant holds the institutional right to request the redaction or removal of specific individual portraits from public gallery albums by writing directly to <span className="font-mono text-[var(--brand-accent)]">privacy@arabicclub.edu</span>.
+              <strong>Right to Revocation:</strong> Any member or event participant holds the institutional right to request the redaction or removal of specific individual portraits from public gallery albums by writing directly to <span className="font-mono text-[var(--brand-accent)]">arabicclubkngc2025@gmail.com</span>.
             </p>
           </Card>
         </section>

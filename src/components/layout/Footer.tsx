@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/components/layout/Footer.tsx
+ * Updated institutional footer identity block and copyright bar to Kabi Nazrul Government College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file Footer.tsx
  * @description Comprehensive institutional footer for the Arabic Language & Cultural Club.
  * Features:
@@ -33,8 +38,11 @@ export function Footer() {
                 <h4 className="font-bold text-lg text-white leading-tight">
                   Arabic Language & Cultural Club
                 </h4>
-                <p className="font-arabic text-sm text-[var(--brand-accent)]" dir="rtl">
-                  نادي اللغة والثقافة العربية
+                <p className="text-xs text-[#E3D9C4] font-medium mt-0.5">
+                  Kabi Nazrul Government College, Dhaka
+                </p>
+                <p className="font-arabic text-xs text-[var(--brand-accent)] mt-0.5" dir="rtl">
+                  نادي اللغة والثقافة العربية - كلية كابي نذرول الحكومية، دكا
                 </p>
               </div>
             </div>
@@ -163,7 +171,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8E9C92]">
           <div>
-            © {new Date().getFullYear()} Arabic Language & Cultural Club. All institutional rights reserved.
+            © {new Date().getFullYear()} Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka. All institutional rights reserved.
           </div>
           <div className="flex items-center gap-4">
             <span>Preserving Heritage Since Inception</span>

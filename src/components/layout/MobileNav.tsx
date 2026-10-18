@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/components/layout/MobileNav.tsx
+ * Updated mobile drawer header identity to Kabi Nazrul Govt. College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/components/layout/MobileNav.tsx
  * @description Accessible slide-over drawer navigation for mobile and tablet screens.
  * 
@@ -97,8 +102,11 @@ export function MobileNav({ isOpen, onClose, links }: MobileNavProps) {
                 <span className="font-bold text-sm text-[var(--text-primary)]">
                   {t("nav.home", "Arabic Club")}
                 </span>
+                <span className="text-[10px] text-[var(--text-secondary)] font-medium leading-tight">
+                  Kabi Nazrul Govt. College, Dhaka
+                </span>
                 <span className="text-[10px] text-[var(--brand-accent)] font-arabic" dir="rtl">
-                  نادي اللغة والثقافة العربية
+                  نادي اللغة والثقافة العربية - كلية كابي نذرول
                 </span>
               </div>
             </div>

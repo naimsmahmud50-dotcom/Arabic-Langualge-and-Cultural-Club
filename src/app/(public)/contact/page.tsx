@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/app/(public)/contact/page.tsx
+ * Updated page title and SEO metadata to reflect Kabi Nazrul Government College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/app/(public)/contact/page.tsx
  * @route /contact
  * @description Official Inquiries, Correspondence, and Institutional Partnerships Portal.
@@ -34,11 +39,11 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Contact & Institutional Relations | Arabic Language & Cultural Club",
-  description: "Official correspondence desk for university inquiries, academic partnerships, inter-collegiate debate invitations, and membership questions.",
+  title: "Contact & Institutional Relations | Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
+  description: "Official correspondence desk for inquiries, academic partnerships, inter-collegiate debate invitations, and membership questions at Kabi Nazrul Government College, Dhaka.",
   openGraph: {
-    title: "Contact & Inquiries | Arabic Language & Cultural Club",
-    description: "Connect with the Arabic Language & Cultural Club Secretariat for academic, debate, and institutional inquiries.",
+    title: "Contact & Inquiries — Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
+    description: "Connect with the Arabic Language & Cultural Club Secretariat at Kabi Nazrul Government College, Dhaka for academic, debate, and institutional inquiries.",
   },
 };
 

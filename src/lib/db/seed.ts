@@ -1,3 +1,11 @@
+/**
+ * DEVELOPER NOTE:
+ * Page/Component: src/lib/db/seed.ts
+ * Updated seed fixtures with official Kabi Nazrul Government College, Dhaka branding,
+ * intended admin contact email (arabicclubkngc2025@gmail.com), and official headquarters address.
+ * Strictly human vibe; zero AI emojis.
+ */
+
 import { db } from "./index";
 import { hashPassword } from "../auth/password";
 import {
@@ -32,8 +40,8 @@ export async function seedDatabase() {
     {
       id: "set_title",
       key: "club_name",
-      valueEn: "Arabic Language & Cultural Club",
-      valueAr: "نادي اللغة والثقافة العربية",
+      valueEn: "Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka",
+      valueAr: "نادي اللغة والثقافة العربية، كلية كابي نذرول الحكومية، دكا",
       category: "general",
       updatedAt: now,
     },
@@ -48,16 +56,16 @@ export async function seedDatabase() {
     {
       id: "set_contact_email",
       key: "contact_email",
-      valueEn: "contact@arabicclub.internal",
-      valueAr: "contact@arabicclub.internal",
+      valueEn: "arabicclubkngc2025@gmail.com",
+      valueAr: "arabicclubkngc2025@gmail.com",
       category: "contact",
       updatedAt: now,
     },
     {
       id: "set_hq_address",
       key: "headquarters_address",
-      valueEn: "Faculty of Arts & Humanities Complex, Student Activity Building, Room 402, Central Campus",
-      valueAr: "مجمع كلية الآداب والعلوم الإنسانية، مبنى الأنشطة الطلابية، قاعة 402، الحرم الجامعي المركزي",
+      valueEn: "Department of Arabic & Islamic Studies, Kabi Nazrul Government College, Laxmibazar, Dhaka-1100, Bangladesh",
+      valueAr: "قسم اللغة العربية والدراسات الإسلامية، كلية كابي نذرول الحكومية، لکشمي بازار، دكا-1100، بنغلاديش",
       category: "contact",
       updatedAt: now,
     },

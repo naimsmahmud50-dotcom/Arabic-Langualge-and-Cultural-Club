@@ -1,4 +1,10 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/components/home/VerifiedContactSection.tsx
+ * Updated branding to Kabi Nazrul Government College, Dhaka with official headquarters coordinates
+ * and administrative contact email fallback (arabicclubkngc2025@gmail.com).
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/components/home/VerifiedContactSection.tsx
  * @description Verified Institutional Contact Information & Headquarters Coordinates.
  * 
@@ -22,7 +28,7 @@ interface VerifiedContactSectionProps {
 }
 
 export function VerifiedContactSection({ settings = {} }: VerifiedContactSectionProps) {
-  const contactEmail = settings["contact_email"]?.en || "contact@arabicclub.internal";
+  const contactEmail = settings["contact_email"]?.en || "arabicclubkngc2025@gmail.com";
   const clubName = settings["club_name"]?.en || "Arabic Language & Cultural Club";
 
   return (
@@ -54,8 +60,8 @@ export function VerifiedContactSection({ settings = {} }: VerifiedContactSection
                     Campus Secretariat
                   </h4>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
-                    Student Activities Building, Level 3<br />
-                    Central University Campus
+                    Department of Arabic & Islamic Studies<br />
+                    Kabi Nazrul Government College, Laxmibazar, Dhaka-1100
                   </p>
                 </div>
               </div>

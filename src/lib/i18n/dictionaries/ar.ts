@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/lib/i18n/dictionaries/ar.ts
+ * Updated Arabic translations with official college branding (كلية كابي نذرول الحكومية، دكا).
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/lib/i18n/dictionaries/ar.ts
  * @description Master Arabic translation dictionary for the Arabic Language & Cultural Club.
  * 
@@ -60,18 +65,18 @@ export const ar: TranslationDictionary = {
     location: "المقر أو القاعة",
   },
   home: {
-    heroBadge: "جمعية أكاديمية جامعية معتمدة",
+    heroBadge: "الجمعية الأكاديمية الرسمية • كلية كابي نذرول الحكومية، دكا",
     heroHeadline: "صون التراث وإحياء البيان العربي الأصيل",
-    heroSubheadline: "الجمعية الطلابية الرائدة المكرسة لعلوم اللسان العربي، والفقه اللغوي الكلاسيكي، والمناظرات البلاغية، ودراسات الحضارة الإسلامية.",
+    heroSubheadline: "الجمعية الطلابية الرائدة بكلية كابي نذرول الحكومية بدكا، المكرسة لعلوم اللسان العربي، والفقه اللغوي، والمناظرات البلاغية، والدراسات الثقافية.",
     explorePrograms: "استكشف البرامج",
     membershipCTA: "التقدم بطلب العضوية",
     academicYear: "العام الجامعي ٢٠٢٤–٢٠٢٥",
     corePillarsHeading: "الأركان الأكاديمية الأربعة التأسيسية",
-    preservationNote: "جميع المحاضر والقرارات موثقة ومحفوظة بموجب ميثاق الأرشيف الجامعي.",
+    preservationNote: "جميع المحاضر والقرارات موثقة ومحفوظة بموجب ميثاق أرشيف الكلية.",
   },
   about: {
     title: "عن الجمعية ونشأتها",
-    subtitle: "هيئة أكاديمية طلابية ذات دستور معتمد تُعنى بالتمكين اللغوي والبحث التراثي الأصيل.",
+    subtitle: "الجمعية الأكاديمية الرسمية لكلية كابي نذرول الحكومية بدكا، تُعنى بالتمكين اللغوي والبحث التراثي الأصيل.",
     mission: "رسالتنا الأكاديمية",
     vision: "رؤيتنا للدراسات اللغوية",
     values: "القيم المؤسسية الراسخة",

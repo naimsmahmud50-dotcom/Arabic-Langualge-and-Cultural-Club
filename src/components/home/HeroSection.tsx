@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/components/home/HeroSection.tsx
+ * Updated hero collegiate badge, Arabic bismillah heading, and editorial narrative to reflect Kabi Nazrul Government College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/components/home/HeroSection.tsx
  * @description Institutional Hero Section for the Arabic Language & Cultural Club Homepage.
  * 
@@ -46,7 +51,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
           <div className="lg:col-span-8 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[5px] bg-white/10 border border-white/20 text-xs font-semibold text-[var(--brand-accent)] uppercase tracking-wider">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Official University Student Society & Academic Archive</span>
+              <span>Official Collegiate Society • Kabi Nazrul Govt. College, Dhaka</span>
             </div>
 
             {/* Bilingual Typography Header */}
@@ -56,7 +61,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
                 dir="rtl"
                 lang="ar"
               >
-                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ • نَادِي اللُّغَةِ وَالثَّقَافَةِ الْعَرَبِيَّةِ
+                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ • نَادِي اللُّغَةِ وَالثَّقَافَةِ الْعَرَبِيَّةِ - كُلِّيَّةُ كَابِي نَذْرُول الْحُكُومِيَّة
               </p>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight font-serif">
@@ -65,7 +70,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
             </div>
 
             <p className="text-lg sm:text-xl text-[#D8DFD7] leading-relaxed max-w-2xl font-light">
-              An enduring academic forum and student community dedicated to classical Arabic scholarship, rhetorical mastery, competitive debate, and intellectual fellowship.
+              An enduring collegiate forum at Kabi Nazrul Government College, Dhaka, dedicated to classical Arabic scholarship, rhetorical mastery, competitive debate, and intellectual fellowship.
             </p>
 
             {/* Primary Meaningful Calls to Action */}

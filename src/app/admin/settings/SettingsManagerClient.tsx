@@ -1,4 +1,10 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/app/admin/settings/SettingsManagerClient.tsx
+ * Updated administrative settings defaults to Kabi Nazrul Government College, Dhaka
+ * and official contact email (arabicclubkngc2025@gmail.com).
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/app/admin/settings/SettingsManagerClient.tsx
  * @description Interactive Client Console for Site Settings, SEO, and Database Recovery.
  * 
@@ -221,7 +227,7 @@ export function SettingsManagerClient({
                 label="Official General Email"
                 name="contact_email"
                 type="email"
-                defaultValue={getVal("contact_email", "en") || "contact@arabicclub.internal"}
+                defaultValue={getVal("contact_email", "en") || "arabicclubkngc2025@gmail.com"}
                 required
                 helperText="Must be a valid email format."
               />
@@ -237,12 +243,12 @@ export function SettingsManagerClient({
               <Input
                 label="Secretariat Physical Address (English)"
                 name="headquarters_address_en"
-                defaultValue={getVal("headquarters_address", "en") || "Faculty of Arts & Humanities Complex, Room 402, Central Campus"}
+                defaultValue={getVal("headquarters_address", "en") || "Department of Arabic & Islamic Studies, Kabi Nazrul Government College, Laxmibazar, Dhaka-1100, Bangladesh"}
               />
               <Input
                 label="عنوان المقر الرئيسي (Arabic Address)"
                 name="headquarters_address_ar"
-                defaultValue={getVal("headquarters_address", "ar") || "مجمع كلية الآداب والعلوم الإنسانية، قاعة 402، الحرم الجامعي المركزي"}
+                defaultValue={getVal("headquarters_address", "ar") || "قسم اللغة العربية والدراسات الإسلامية، كلية كابي نذرول الحكومية، لکشمي بازار، دكا-1100، بنغلاديش"}
                 dir="rtl"
               />
             </div>

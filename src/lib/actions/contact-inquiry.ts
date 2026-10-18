@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/lib/actions/contact-inquiry.ts
+ * Updated administrative contact email fallback to arabicclubkngc2025@gmail.com for Kabi Nazrul Govt. College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/lib/actions/contact-inquiry.ts
  * @description Secure Server Actions for Public Inquiries, Rate Limiting, and Honest Delivery Fallback.
  * 
@@ -211,7 +216,7 @@ export async function submitContactInquiryAction(
   } catch (err: any) {
     return {
       success: false,
-      error: "An unexpected error occurred while persisting your inquiry. Please try again later or reach out directly to contact@arabicclub.internal.",
+      error: "An unexpected error occurred while persisting your inquiry. Please try again later or reach out directly to arabicclubkngc2025@gmail.com.",
     };
   }
 }

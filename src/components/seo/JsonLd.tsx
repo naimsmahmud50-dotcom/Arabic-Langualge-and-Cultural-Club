@@ -1,4 +1,10 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/components/seo/JsonLd.tsx
+ * Updated Schema.org JSON-LD structured data with official Kabi Nazrul Government College, Dhaka
+ * affiliation, campus address coordinates, and multi-language alternate names.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/components/seo/JsonLd.tsx
  * @description Schema.org JSON-LD Structured Data Component.
  * 
@@ -22,11 +28,26 @@ export function JsonLd({ customSchema }: JsonLdProps) {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
     "@id": `${baseUrl}/#organization`,
-    name: "Arabic Language & Cultural Club",
-    alternateName: "نادي اللغة والثقافة العربية",
+    name: "Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka",
+    alternateName: [
+      "نادي اللغة والثقافة العربية، كلية كابي نذرول الحكومية",
+      "কবি নজরুল সরকারি কলেজ আরবি ভাষা ও সংস্কৃতি সংসদ"
+    ],
     url: baseUrl,
     logo: `${baseUrl}/logo.png`,
-    description: "An academic and cultural society dedicated to preserving classical Arabic eloquence, literary arts, and scholarly leadership.",
+    description: "An academic and cultural society at Kabi Nazrul Government College, Dhaka dedicated to preserving classical Arabic eloquence, literary arts, and scholarly leadership.",
+    parentOrganization: {
+      "@type": "CollegeOrUniversity",
+      name: "Kabi Nazrul Government College, Dhaka",
+      alternateName: "কবি নজরুল সরকারি কলেজ, ঢাকা"
+    },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Department of Arabic & Islamic Studies, Kabi Nazrul Government College, Laxmibazar",
+      addressLocality: "Dhaka",
+      postalCode: "1100",
+      addressCountry: "BD"
+    },
     knowsLanguage: ["ar", "en", "bn"],
     sameAs: [
       "https://facebook.com/arabicclub",
@@ -40,8 +61,8 @@ export function JsonLd({ customSchema }: JsonLdProps) {
     "@type": "WebSite",
     "@id": `${baseUrl}/#website`,
     url: baseUrl,
-    name: "Arabic Language & Cultural Club",
-    alternateName: "نادي اللغة والثقافة العربية",
+    name: "Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka",
+    alternateName: "نادي اللغة والثقافة العربية، كلية كابي نذرول الحكومية",
     publisher: {
       "@id": `${baseUrl}/#organization`,
     },

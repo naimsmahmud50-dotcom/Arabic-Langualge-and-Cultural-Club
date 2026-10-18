@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/lib/i18n/dictionaries/en.ts
+ * Updated English translations with official college branding (Kabi Nazrul Govt. College, Dhaka).
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/lib/i18n/dictionaries/en.ts
  * @description Master English translation dictionary for the Arabic Language & Cultural Club.
  * 
@@ -59,18 +64,18 @@ export const en: TranslationDictionary = {
     location: "Location",
   },
   home: {
-    heroBadge: "Accredited University Academic Society",
+    heroBadge: "Official Collegiate Society • Kabi Nazrul Govt. College, Dhaka",
     heroHeadline: "Preserving Heritage, Advancing Classical Eloquence",
-    heroSubheadline: "The university's premier collegiate society dedicated to Arabic linguistics, classical philology, competitive rhetoric, and Islamic civilization scholarship.",
+    heroSubheadline: "The premier collegiate society of Kabi Nazrul Government College, Dhaka, dedicated to Arabic linguistics, classical philology, competitive rhetoric, and cultural scholarship.",
     explorePrograms: "Explore Programs",
     membershipCTA: "Apply for Fellowship",
     academicYear: "Academic Session 2024–2025",
     corePillarsHeading: "Four Foundational Academic Pillars",
-    preservationNote: "All proceedings and historical milestones permanently archived under University Charter.",
+    preservationNote: "All proceedings and historical milestones permanently archived under College Charter.",
   },
   about: {
     title: "About Our Society",
-    subtitle: "A constitutionally governed collegiate body fostering classical scholarship and linguistic mastery.",
+    subtitle: "The official collegiate society of Kabi Nazrul Government College, Dhaka, fostering classical scholarship and linguistic mastery.",
     mission: "Our Institutional Mission",
     vision: "Vision for Arabic Scholarship",
     values: "Core Foundational Values",

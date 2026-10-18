@@ -1,9 +1,14 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/components/home/IntroductionSection.tsx
+ * Updated collegiate society identity to Kabi Nazrul Government College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/components/home/IntroductionSection.tsx
  * @description Introduction to the Arabic Club: Mission, Vision, and Four Pillars.
  * 
  * ARCHITECTURAL ROLE:
- * - Introduces the foundational ethos of the Arabic Language & Cultural Club.
+ * - Introduces the foundational ethos of the Arabic Language & Cultural Club at Kabi Nazrul Government College, Dhaka.
  * - Outlines the Four Pillars: Linguistic Eloquence, Historical Preservation,
  *   Ethical Leadership, and Scholarly Engagement.
  * - Meets Requirement SPEC-HOM-02 and SPEC-ABT-01.
@@ -52,10 +57,10 @@ export function IntroductionSection() {
             The Purpose & Four Pillars of Our Society
           </h2>
           <p className="font-arabic text-base text-[var(--brand-accent)] font-medium" dir="rtl">
-            «إِنَّ مِنَ الْبَيَانِ لَسِحْرًا» • أربعة أركان تقوم عليها مسيرتنا الأكاديمية
+            «إِنَّ مِنَ الْبَيَانِ لَسِحْرًا» • أربعة أركان تقوم عليها مسيرتنا في كلية كابي نذرول الحكومية
           </p>
           <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-            Founded as an autonomous collegiate society, the Arabic Language & Cultural Club provides an intellectually rigorous sanctuary for the mastery, celebration, and dissemination of classical Arabic letters.
+            Founded as the premier collegiate society at Kabi Nazrul Government College, Dhaka, the Arabic Language & Cultural Club provides an intellectually rigorous sanctuary for the mastery, celebration, and dissemination of classical Arabic letters.
           </p>
         </div>
 

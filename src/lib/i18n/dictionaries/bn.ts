@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/lib/i18n/dictionaries/bn.ts
+ * Updated Bengali translations with official college branding (কবি নজরুল সরকারি কলেজ, ঢাকা).
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/lib/i18n/dictionaries/bn.ts
  * @description Bengali foundational translation dictionary for the Arabic Language & Cultural Club.
  * 
@@ -59,18 +64,18 @@ export const bn: TranslationDictionary = {
     location: "স্থান",
   },
   home: {
-    heroBadge: "স্বীকৃত বিশ্ববিদ্যালয় শিক্ষায়তনিক সমিতি",
+    heroBadge: "স্বীকৃত শিক্ষায়তনিক সংগঠন • কবি নজরুল সরকারি কলেজ, ঢাকা",
     heroHeadline: "ঐতিহ্য সংরক্ষণ এবং প্রাতিষ্ঠানিক আরবি চর্চা",
-    heroSubheadline: "আরবি ভাষাতত্ত্ব, ধ্রুপদী ব্যাকরণ, যুক্তি-বিতর্ক ও সাংস্কৃতিক গবেষণায় নিবেদিত অগ্রণী শিক্ষায়তনিক সংগঠন।",
+    heroSubheadline: "কবি নজরুল সরকারি কলেজ, ঢাকার শীর্ষস্থানীয় শিক্ষায়তনিক সংগঠন; যা আরবি ভাষাতত্ত্ব, ধ্রুপদী ব্যাকরণ, যুক্তি-বিতর্ক ও সাংস্কৃতিক গবেষণায় নিবেদিত।",
     explorePrograms: "কর্মসূচি অন্বেষণ করুন",
     membershipCTA: "সদস্যপদের জন্য আবেদন করুন",
     academicYear: "শিক্ষাবর্ষ ২০২৪–২০২৫",
     corePillarsHeading: "চারটি মৌলিক শিক্ষায়তনিক স্তম্ভ",
-    preservationNote: "সকল কার্যক্রম এবং ঐতিহাসিক মাইলফলক বিশ্ববিদ্যালয়ের সংরক্ষণাগারে স্থায়ীভাবে সংরক্ষিত।",
+    preservationNote: "সকল কার্যক্রম এবং ঐতিহাসিক মাইলফলক কলেজের সংরক্ষণাগারে স্থায়ীভাবে সংরক্ষিত।",
   },
   about: {
     title: "আমাদের সংগঠন সম্পর্কে",
-    subtitle: "সংবিধান-পরিচালিত একটি শিক্ষায়তনিক সমাজ, যা ভাষাগত দক্ষতা ও পাণ্ডিত্য বিকাশে নিয়োজিত।",
+    subtitle: "কবি নজরুল সরকারি কলেজ, ঢাকার সংবিধান-পরিচালিত শিক্ষায়তনিক সমাজ; যা ভাষাগত দক্ষতা ও পাণ্ডিত্য বিকাশে নিয়োজিত।",
     mission: "প্রাতিষ্ঠানিক লক্ষ্য ও উদ্দেশ্য",
     vision: "আরবি সাহিত্য ও গবেষণা সংক্রান্ত রূপকল্প",
     values: "মৌলিক সাংগঠনিক মূল্যবোধ",

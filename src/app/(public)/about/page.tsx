@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/app/(public)/about/page.tsx
+ * Updated page title and SEO metadata to reflect Kabi Nazrul Government College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * ==============================================================================
  * PAGE COMPONENT: About the Club (Institutional Narrative, Mission, Vision, Values, Constitution)
  * ==============================================================================
@@ -50,11 +55,11 @@ import { getPageWithSections, SectionContentItem } from "@/lib/db/queries";
 export const revalidate = 60; // Incremental Static Regeneration every 60s
 
 export const metadata: Metadata = {
-  title: "About the Club | Arabic Language & Cultural Club",
-  description: "An enduring academic society founded to preserve the classical eloquence of the Arabic language, foster intellectual discourse, and cultivate cultural scholarship.",
+  title: "About the Club | Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
+  description: "An enduring academic society at Kabi Nazrul Government College, Dhaka, founded to preserve the classical eloquence of the Arabic language, foster intellectual discourse, and cultivate cultural scholarship.",
   openGraph: {
-    title: "About Us — Arabic Language & Cultural Club",
-    description: "Discover our institutional mission, vision, core values, and constitutional charter for Arabophone scholarship.",
+    title: "About Us — Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
+    description: "Discover our institutional mission, vision, core values, and constitutional charter for Arabophone scholarship at Kabi Nazrul Government College, Dhaka.",
   },
 };
 

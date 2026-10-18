@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/app/layout.tsx
+ * Updated root SEO metadata, page title templates, and branding to Kabi Nazrul Government College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/app/layout.tsx
  * @description Master Root Layout wrapping all public and administrative routes.
  * 
@@ -22,10 +27,10 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://arabicclub.org";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Arabic Language & Cultural Club | نادي اللغة والثقافة العربية",
-    template: "%s | Arabic Language & Cultural Club",
+    default: "Arabic Language & Cultural Club | Kabi Nazrul Govt. College, Dhaka",
+    template: "%s | Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
   },
-  description: "Preserving Classical Arabic Heritage, Advancing Eloquence, Cultivating Scholarly Leadership.",
+  description: "Preserving Classical Arabic Heritage, Advancing Eloquence, Cultivating Scholarly Leadership at Kabi Nazrul Government College, Dhaka.",
   keywords: [
     "Arabic Language",
     "Cultural Club",
@@ -36,9 +41,11 @@ export const metadata: Metadata = {
     "Islamic Heritage",
     "Arabic Learning",
     "Arabic Eloquence",
+    "Kabi Nazrul Government College",
+    "KNGC Arabic Club",
   ],
-  authors: [{ name: "Arabic Language & Cultural Club" }],
-  creator: "Arabic Language & Cultural Club",
+  authors: [{ name: "Arabic Language & Cultural Club, Kabi Nazrul Govt. College" }],
+  creator: "Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
   alternates: {
     canonical: "/",
   },
@@ -46,22 +53,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "/",
-    siteName: "Arabic Language & Cultural Club",
-    title: "Arabic Language & Cultural Club | نادي اللغة والثقافة العربية",
-    description: "Preserving Classical Arabic Heritage, Advancing Eloquence, Cultivating Scholarly Leadership.",
+    siteName: "Arabic Language & Cultural Club, Kabi Nazrul Govt. College, Dhaka",
+    title: "Arabic Language & Cultural Club | Kabi Nazrul Govt. College, Dhaka",
+    description: "Preserving Classical Arabic Heritage, Advancing Eloquence, Cultivating Scholarly Leadership at Kabi Nazrul Government College, Dhaka.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Arabic Language & Cultural Club",
+        alt: "Arabic Language & Cultural Club, Kabi Nazrul Govt. College, Dhaka",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Arabic Language & Cultural Club | نادي اللغة والثقافة العربية",
-    description: "Preserving Classical Arabic Heritage, Advancing Eloquence, Cultivating Scholarly Leadership.",
+    title: "Arabic Language & Cultural Club | Kabi Nazrul Govt. College, Dhaka",
+    description: "Preserving Classical Arabic Heritage, Advancing Eloquence, Cultivating Scholarly Leadership at Kabi Nazrul Government College, Dhaka.",
     images: ["/og-image.jpg"],
   },
   robots: {

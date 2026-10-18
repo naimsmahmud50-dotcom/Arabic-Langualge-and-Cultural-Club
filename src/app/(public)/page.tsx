@@ -1,4 +1,9 @@
 /**
+ * DEVELOPER NOTE:
+ * Page/Component: src/app/(public)/page.tsx
+ * Updated flagship homepage SEO metadata and branding to Kabi Nazrul Government College, Dhaka.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/app/(public)/page.tsx
  * @route /
  * @description Master Flagship Institutional Homepage for the Arabic Language & Cultural Club.
@@ -65,19 +70,19 @@ import {
 export const revalidate = 60; // Refresh dynamic queries every 60 seconds
 
 export const metadata: Metadata = {
-  title: "Arabic Language & Cultural Club — Preserving Heritage, Advancing Eloquence",
-  description: "Official institutional digital platform of the Arabic Language & Cultural Club. An academic forum and student society dedicated to classical Arabic scholarship, rhetorical mastery, competitive debate, and cultural legacy.",
+  title: "Arabic Language & Cultural Club — Kabi Nazrul Govt. College, Dhaka",
+  description: "Official institutional digital platform of the Arabic Language & Cultural Club at Kabi Nazrul Government College, Dhaka. An academic forum and student society dedicated to classical Arabic scholarship, rhetorical mastery, competitive debate, and cultural legacy.",
   openGraph: {
-    title: "Arabic Language & Cultural Club — Official Platform",
-    description: "Preserving Heritage, Advancing Eloquence, Cultivating Leadership.",
+    title: "Arabic Language & Cultural Club — Kabi Nazrul Govt. College, Dhaka",
+    description: "Preserving Heritage, Advancing Eloquence, Cultivating Leadership at Kabi Nazrul Government College, Dhaka.",
     type: "website",
     locale: "en_US",
     alternateLocale: "ar_SA",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Arabic Language & Cultural Club",
-    description: "Preserving Heritage, Advancing Eloquence, Cultivating Leadership.",
+    title: "Arabic Language & Cultural Club — Kabi Nazrul Govt. College, Dhaka",
+    description: "Preserving Heritage, Advancing Eloquence, Cultivating Leadership at Kabi Nazrul Government College, Dhaka.",
   },
 };
 
