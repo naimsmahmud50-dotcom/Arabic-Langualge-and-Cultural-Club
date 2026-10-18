@@ -1,13 +1,19 @@
 /**
+ * DEVELOPER NOTE:
  * @file src/app/admin/gallery/page.tsx
  * @route /admin/gallery
- * @description Master Photo Gallery & Archival Media Management Console (Feature 017).
+ * @description Master Photo Gallery & Archival Media Management Console (Phase 5).
  * 
- * DEVELOPER USAGE NOTE:
+ * INSTITUTIONAL CONTEXT:
+ * - Institution: Kabi Nazrul Government College, Dhaka
+ * - Society: Arabic Language & Cultural Club
+ * 
+ * CORE CAPABILITIES:
  * - Server component protecting the gallery CMS with session verification.
  * - Queries gallery_albums and media_assets directly from SQLite via Drizzle ORM.
+ * - Ingests complete administrative asset inventory (both published and draft items) via getAdminAlbumMediaAssets.
  * - Supplies academic years, event associations, and asset rosters to AdminGalleryClient.
- * - Human-crafted UI: strictly zero AI emojis; uses authentic typography and Lucide SVG icons.
+ * - Strictly zero AI emojis.
  */
 
 import React from "react";
@@ -16,7 +22,7 @@ import {
   getAdminGalleryAlbums, 
   getAnnualPlanYears, 
   getAdminEvents,
-  getAlbumMediaAssets 
+  getAdminAlbumMediaAssets 
 } from "@/lib/db/queries";
 import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
@@ -39,11 +45,11 @@ export default async function AdminGalleryPage() {
   const eventsResult = await getAdminEvents({ limit: 100 });
   const eventsList = eventsResult.data.map((e) => ({ id: e.id, titleEn: e.titleEn }));
 
-  // Fetch assets map for each album
+  // Fetch complete admin assets map for each album (including unpublished drafts)
   const albumAssetsMap: Record<string, any[]> = {};
   await Promise.all(
     albums.map(async (alb) => {
-      albumAssetsMap[alb.id] = await getAlbumMediaAssets(alb.id);
+      albumAssetsMap[alb.id] = await getAdminAlbumMediaAssets(alb.id);
     })
   );
 
@@ -59,7 +65,7 @@ export default async function AdminGalleryPage() {
       />
 
       <AdminGalleryClient
-        initialAlbums={albums}
+        initialAlbums={albums as any}
         academicYears={academicYears}
         eventsList={eventsList}
         albumAssetsMap={albumAssetsMap}

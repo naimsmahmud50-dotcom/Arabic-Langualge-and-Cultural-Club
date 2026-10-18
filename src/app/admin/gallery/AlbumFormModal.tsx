@@ -1,11 +1,18 @@
 /**
+ * DEVELOPER NOTE:
  * @file src/app/admin/gallery/AlbumFormModal.tsx
- * @description Accessible Modal for Creating and Editing Photo Gallery Albums (Feature 017).
+ * @description Accessible Modal for Creating and Editing Photo Gallery Albums (Phase 5).
  * 
- * DEVELOPER USAGE NOTE:
+ * INSTITUTIONAL CONTEXT:
+ * - Institution: Kabi Nazrul Government College, Dhaka
+ * - Society: Arabic Language & Cultural Club
+ * 
+ * CORE CAPABILITIES:
  * - Manages photographic albums for exhibitions, debate tournaments, symposia, and annual galas.
  * - Supports academic year assignment, category selection, photographer credits, and event linking.
- * - Adheres to Strix Privacy Protocol: Unreleased albums remain unpublished drafts until reviewed.
+ * - Historical date notes (dateNotes) for circa/approximate dates without fabricating precision.
+ * - 3-tier publication status: Published, Draft, and Archived.
+ * - Adheres to Strix Privacy Protocol: Unreleased and archived albums remain isolated from public views.
  * - Human-crafted UI: strictly zero AI emojis; uses authentic typography and Lucide SVG icons.
  */
 
@@ -16,7 +23,7 @@ import { Button, Input, Badge } from "@/components/ui";
 import { X, Images, Calendar, MapPin, Camera, Link as LinkIcon, AlertCircle, CheckCircle2 } from "lucide-react";
 import { saveGalleryAlbumAction } from "@/lib/actions/content-cms";
 
-interface AlbumRecord {
+export interface AlbumRecord {
   id?: string;
   slug?: string;
   titleEn: string;
@@ -25,6 +32,7 @@ interface AlbumRecord {
   descriptionAr?: string | null;
   coverImageUrl?: string | null;
   eventDate?: string | null;
+  dateNotes?: string | null;
   academicYear: string;
   category: string;
   relatedEventId?: string | null;
@@ -32,6 +40,7 @@ interface AlbumRecord {
   location?: string | null;
   isFeatured?: boolean;
   isPublished?: boolean;
+  isArchived?: boolean;
 }
 
 interface AlbumFormModalProps {
@@ -70,13 +79,14 @@ export function AlbumFormModal({
     descriptionAr: "",
     coverImageUrl: "",
     eventDate: new Date().toISOString().split("T")[0],
+    dateNotes: "",
     academicYear: academicYears[0] || "2026–2027",
     category: "cultural",
     relatedEventId: "",
     photographerCredit: "",
     location: "",
     isFeatured: false,
-    isPublished: true,
+    publicationStatus: "published", // "published" | "draft" | "archived"
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -84,6 +94,13 @@ export function AlbumFormModal({
 
   useEffect(() => {
     if (albumToEdit) {
+      let status = "published";
+      if (albumToEdit.isArchived) {
+        status = "archived";
+      } else if (!albumToEdit.isPublished) {
+        status = "draft";
+      }
+
       setFormData({
         titleEn: albumToEdit.titleEn || "",
         titleAr: albumToEdit.titleAr || "",
@@ -92,13 +109,14 @@ export function AlbumFormModal({
         descriptionAr: albumToEdit.descriptionAr || "",
         coverImageUrl: albumToEdit.coverImageUrl || "",
         eventDate: albumToEdit.eventDate || new Date().toISOString().split("T")[0],
+        dateNotes: albumToEdit.dateNotes || "",
         academicYear: albumToEdit.academicYear || academicYears[0] || "2026–2027",
         category: albumToEdit.category || "cultural",
         relatedEventId: albumToEdit.relatedEventId || "",
         photographerCredit: albumToEdit.photographerCredit || "",
         location: albumToEdit.location || "",
         isFeatured: albumToEdit.isFeatured ?? false,
-        isPublished: albumToEdit.isPublished ?? true,
+        publicationStatus: status,
       });
     } else {
       setFormData({
@@ -109,13 +127,14 @@ export function AlbumFormModal({
         descriptionAr: "",
         coverImageUrl: "",
         eventDate: new Date().toISOString().split("T")[0],
+        dateNotes: "",
         academicYear: academicYears[0] || "2026–2027",
         category: "cultural",
         relatedEventId: "",
         photographerCredit: "",
         location: "",
         isFeatured: false,
-        isPublished: true,
+        publicationStatus: "published",
       });
     }
     setErrorMessage(null);
@@ -140,6 +159,9 @@ export function AlbumFormModal({
     setIsLoading(true);
 
     try {
+      const isPublished = formData.publicationStatus === "published";
+      const isArchived = formData.publicationStatus === "archived";
+
       const res = await saveGalleryAlbumAction({
         id: albumToEdit?.id,
         slug: formData.slug.trim() || undefined,
@@ -149,13 +171,15 @@ export function AlbumFormModal({
         descriptionAr: formData.descriptionAr.trim() || null,
         coverImageUrl: formData.coverImageUrl.trim() || null,
         eventDate: formData.eventDate || null,
+        dateNotes: formData.dateNotes.trim() || null,
         academicYear: formData.academicYear,
         category: formData.category,
         relatedEventId: formData.relatedEventId || null,
         photographerCredit: formData.photographerCredit.trim() || null,
         location: formData.location.trim() || null,
         isFeatured: formData.isFeatured,
-        isPublished: formData.isPublished,
+        isPublished,
+        isArchived,
       });
 
       if (!res.success) {
@@ -288,6 +312,19 @@ export function AlbumFormModal({
             </div>
           </div>
 
+          {/* Approximate Date / Historical Notes */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-[var(--text-primary)] flex items-center justify-between">
+              <span>Historical Date Notes (Optional)</span>
+              <span className="text-2xs text-[var(--text-muted)] font-normal">Use when exact date is unknown or approximate</span>
+            </label>
+            <Input
+              value={formData.dateNotes}
+              onChange={(e) => setFormData({ ...formData, dateNotes: e.target.value })}
+              placeholder="e.g. Circa Autumn 2024, or Academic Year Foundation Period"
+            />
+          </div>
+
           {/* Cover Image URL & Related Event Selector */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
@@ -296,10 +333,10 @@ export function AlbumFormModal({
                 Cover Image URL
               </label>
               <Input
-                type="url"
+                type="text"
                 value={formData.coverImageUrl}
                 onChange={(e) => setFormData({ ...formData, coverImageUrl: e.target.value })}
-                placeholder="https://images.unsplash.com/photo-..."
+                placeholder="/uploads/gallery/... or https://..."
               />
             </div>
 
@@ -361,29 +398,34 @@ export function AlbumFormModal({
             />
           </div>
 
-          {/* Toggles */}
-          <div className="flex flex-wrap items-center gap-6 pt-2 border-t border-[var(--border-subtle)]">
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[var(--text-primary)]">
-              <input
-                type="checkbox"
-                checked={formData.isPublished}
-                onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
-                className="w-4 h-4 rounded text-[var(--brand-primary)] border-[var(--border-color)] focus:ring-[var(--brand-accent)]"
+          {/* Status & Visibility */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[var(--border-subtle)]">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-[var(--text-primary)]">
+                Publication Status
+              </label>
+              <select
+                value={formData.publicationStatus}
+                onChange={(e) => setFormData({ ...formData, publicationStatus: e.target.value })}
+                className="w-full h-9 px-3 text-xs rounded-[6px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
               >
-              </input>
-              <span>Publish Album to Public Gallery</span>
-            </label>
+                <option value="published">Published (Visible on Public Gallery)</option>
+                <option value="draft">Draft (Restricted to Administrators)</option>
+                <option value="archived">Archived (Preserved in Historical Archive)</option>
+              </select>
+            </div>
 
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[var(--text-primary)]">
-              <input
-                type="checkbox"
-                checked={formData.isFeatured}
-                onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                className="w-4 h-4 rounded text-[var(--brand-primary)] border-[var(--border-color)] focus:ring-[var(--brand-accent)]"
-              >
-              </input>
-              <span>Spotlight as Featured Collection</span>
-            </label>
+            <div className="flex items-center pt-6">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[var(--text-primary)]">
+                <input
+                  type="checkbox"
+                  checked={formData.isFeatured}
+                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                  className="w-4 h-4 rounded text-[var(--brand-primary)] border-[var(--border-color)] focus:ring-[var(--brand-accent)]"
+                />
+                <span>Spotlight as Featured Collection</span>
+              </label>
+            </div>
           </div>
 
           {/* Footer Actions */}

@@ -66,7 +66,7 @@ export function AlbumMediaGrid({
               <div className="relative aspect-4/3 bg-[var(--brand-dark)] flex items-center justify-center overflow-hidden border-b border-[var(--border-color)]">
                 <img
                   src={displayUrl}
-                  alt={item.captionEn || `${albumTitleEn} photo ${index + 1}`}
+                  alt={item.altText || item.captionEn || `${albumTitleEn} photo ${index + 1}`}
                   loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 />

@@ -212,11 +212,18 @@ export function generateSafeStoragePath(
     .replace(/[–—]/g, "-")
     .replace(/[^0-9-]/g, "")
     .substring(0, 10) || "archive";
+
+  // Defense in depth: sanitize filename to completely strip directory traversal, slashes, and control chars
+  const cleanFilename = sanitizedFilename
+    .replace(/[\/\\]/g, "")
+    .replace(/\.\.+/g, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .substring(0, 60) || "media.jpg";
   
   const timestamp = Date.now();
   const randomHex = Math.random().toString(36).substring(2, 8);
 
-  return `gallery/${safeYear}/${safeSlug}/${timestamp}_${randomHex}_${sanitizedFilename}`;
+  return `gallery/${safeYear}/${safeSlug}/${timestamp}_${randomHex}_${cleanFilename}`;
 }
 
 /**

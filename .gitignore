@@ -22,6 +22,7 @@
 /build/
 *.tsbuildinfo
 /backups/
+/public/uploads/
 
 # IDE & OS
 .DS_Store

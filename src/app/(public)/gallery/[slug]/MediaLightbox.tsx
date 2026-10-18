@@ -44,6 +44,7 @@ export interface LightboxMediaItem {
   videoUrl?: string | null;
   captionEn?: string | null;
   captionAr?: string | null;
+  altText?: string | null;
   credit?: string | null;
   width?: number | null;
   height?: number | null;
@@ -203,7 +204,7 @@ export function MediaLightbox({
           <div className="relative max-w-5xl max-h-[75vh] flex items-center justify-center">
             <img
               src={currentItem.fileUrl}
-              alt={currentItem.captionEn || albumTitleEn}
+              alt={currentItem.altText || currentItem.captionEn || albumTitleEn}
               className="max-w-full max-h-[75vh] w-auto h-auto object-contain rounded-md shadow-2xl select-none"
             />
           </div>

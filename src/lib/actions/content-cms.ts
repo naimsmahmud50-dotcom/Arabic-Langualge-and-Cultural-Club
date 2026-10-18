@@ -41,7 +41,9 @@ import {
   deleteGalleryAlbum,
   createMediaAsset,
   updateMediaAsset,
-  deleteMediaAsset
+  deleteMediaAsset,
+  bulkUpdateMediaAssets,
+  reorderMediaAssets
 } from "@/lib/db/queries";
 import { 
   validateMediaUpload, 
@@ -618,6 +620,7 @@ const GalleryAlbumSchema = z.object({
   descriptionAr: z.string().max(1000).optional().nullable(),
   coverImageUrl: z.string().url("Valid cover image URL required").optional().nullable().or(z.literal("")),
   eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format: YYYY-MM-DD").optional().nullable().or(z.literal("")),
+  dateNotes: z.string().max(250).optional().nullable(),
   academicYear: z.string().min(4, "Academic year required (e.g. 2024–2025)").max(30),
   category: z.string().min(2, "Category is required").max(50).default("cultural"),
   relatedEventId: z.string().optional().nullable().or(z.literal("")),
@@ -625,6 +628,7 @@ const GalleryAlbumSchema = z.object({
   location: z.string().max(150).optional().nullable(),
   isFeatured: z.boolean().default(false),
   isPublished: z.boolean().default(true),
+  isArchived: z.boolean().default(false),
 });
 
 export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumSchema>) {
@@ -658,6 +662,7 @@ export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumS
         descriptionAr: parsed.data.descriptionAr || null,
         coverImageUrl: parsed.data.coverImageUrl || null,
         eventDate: parsed.data.eventDate || null,
+        dateNotes: parsed.data.dateNotes || null,
         academicYear: parsed.data.academicYear,
         category: parsed.data.category,
         relatedEventId: parsed.data.relatedEventId || null,
@@ -665,6 +670,7 @@ export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumS
         location: parsed.data.location || null,
         isFeatured: parsed.data.isFeatured,
         isPublished: parsed.data.isPublished,
+        isArchived: parsed.data.isArchived,
       });
 
       await recordAuditLog({
@@ -673,7 +679,7 @@ export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumS
         action: "GALLERY_ALBUM_UPDATE",
         targetEntity: "gallery_albums",
         targetId: albumId,
-        details: { titleEn: parsed.data.titleEn, isPublished: parsed.data.isPublished, adminEmail: session.email },
+        details: { titleEn: parsed.data.titleEn, isPublished: parsed.data.isPublished, isArchived: parsed.data.isArchived, adminEmail: session.email },
       });
     } else {
       albumId = await createGalleryAlbum({
@@ -684,6 +690,7 @@ export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumS
         descriptionAr: parsed.data.descriptionAr || null,
         coverImageUrl: parsed.data.coverImageUrl || null,
         eventDate: parsed.data.eventDate || null,
+        dateNotes: parsed.data.dateNotes || null,
         academicYear: parsed.data.academicYear,
         category: parsed.data.category,
         relatedEventId: parsed.data.relatedEventId || null,
@@ -691,6 +698,7 @@ export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumS
         location: parsed.data.location || null,
         isFeatured: parsed.data.isFeatured,
         isPublished: parsed.data.isPublished,
+        isArchived: parsed.data.isArchived,
       });
 
       await recordAuditLog({
@@ -711,6 +719,38 @@ export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumS
     return { success: true, id: albumId };
   } catch (err: any) {
     return { success: false, error: err.message || "Failed to save gallery album." };
+  }
+}
+
+export async function toggleGalleryAlbumArchiveAction(albumId: string, isArchived: boolean) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized: Active administrative session required." };
+  }
+
+  if (!hasPermission(session.role, "gallery:manage")) {
+    return { success: false, error: "Forbidden: You lack 'gallery:manage' permissions." };
+  }
+
+  try {
+    await updateGalleryAlbum(albumId, { isArchived });
+
+    await recordAuditLog({
+      userId: session.id,
+      userEmail: session.email,
+      action: isArchived ? "GALLERY_ALBUM_ARCHIVE" : "GALLERY_ALBUM_UNARCHIVE",
+      targetEntity: "gallery_albums",
+      targetId: albumId,
+      details: { albumId, isArchived, adminEmail: session.email },
+    });
+
+    revalidatePath("/admin/gallery");
+    revalidatePath("/gallery");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to update album archive status." };
   }
 }
 
@@ -759,6 +799,7 @@ const MediaAssetSchema = z.object({
   videoUrl: z.string().url("Valid video link required").optional().nullable().or(z.literal("")),
   captionEn: z.string().max(300).optional().nullable(),
   captionAr: z.string().max(300).optional().nullable(),
+  altText: z.string().max(250).optional().nullable(),
   credit: z.string().max(100).optional().nullable(),
   width: z.number().int().optional().nullable(),
   height: z.number().int().optional().nullable(),
@@ -793,6 +834,7 @@ export async function saveMediaAssetAction(input: z.infer<typeof MediaAssetSchem
         videoUrl: parsed.data.videoUrl || null,
         captionEn: parsed.data.captionEn || null,
         captionAr: parsed.data.captionAr || null,
+        altText: parsed.data.altText || null,
         credit: parsed.data.credit || null,
         width: parsed.data.width || null,
         height: parsed.data.height || null,
@@ -817,6 +859,7 @@ export async function saveMediaAssetAction(input: z.infer<typeof MediaAssetSchem
         videoUrl: parsed.data.videoUrl || null,
         captionEn: parsed.data.captionEn || null,
         captionAr: parsed.data.captionAr || null,
+        altText: parsed.data.altText || null,
         credit: parsed.data.credit || null,
         width: parsed.data.width || null,
         height: parsed.data.height || null,
@@ -841,6 +884,81 @@ export async function saveMediaAssetAction(input: z.infer<typeof MediaAssetSchem
     return { success: true, id: assetId };
   } catch (err: any) {
     return { success: false, error: err.message || "Failed to save media asset." };
+  }
+}
+
+export async function bulkUpdateMediaAssetsAction(
+  assetIds: string[],
+  action: "publish" | "unpublish" | "delete",
+  albumId?: string
+) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized: Active administrative session required." };
+  }
+
+  if (!hasPermission(session.role, "gallery:manage") && !hasPermission(session.role, "media:manage")) {
+    return { success: false, error: "Forbidden: You lack 'gallery:manage' permissions." };
+  }
+
+  if (!assetIds || assetIds.length === 0) {
+    return { success: false, error: "No media assets selected." };
+  }
+
+  try {
+    await bulkUpdateMediaAssets(assetIds, action);
+
+    await recordAuditLog({
+      userId: session.id,
+      userEmail: session.email,
+      action: `MEDIA_ASSETS_BULK_${action.toUpperCase()}`,
+      targetEntity: "media_assets",
+      targetId: albumId || "bulk",
+      details: { assetIds, action, count: assetIds.length, albumId, adminEmail: session.email },
+    });
+
+    revalidatePath("/admin/gallery");
+    revalidatePath("/gallery");
+    revalidatePath("/");
+
+    return { success: true, count: assetIds.length };
+  } catch (err: any) {
+    return { success: false, error: err.message || `Failed to perform bulk ${action}.` };
+  }
+}
+
+export async function reorderMediaAssetsAction(albumId: string, orderedAssetIds: string[]) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized: Active administrative session required." };
+  }
+
+  if (!hasPermission(session.role, "gallery:manage") && !hasPermission(session.role, "media:manage")) {
+    return { success: false, error: "Forbidden: You lack 'gallery:manage' permissions." };
+  }
+
+  if (!albumId || !orderedAssetIds || orderedAssetIds.length === 0) {
+    return { success: false, error: "Invalid reorder parameters." };
+  }
+
+  try {
+    await reorderMediaAssets(albumId, orderedAssetIds);
+
+    await recordAuditLog({
+      userId: session.id,
+      userEmail: session.email,
+      action: "MEDIA_ASSETS_REORDER",
+      targetEntity: "gallery_albums",
+      targetId: albumId,
+      details: { albumId, orderedAssetIds, count: orderedAssetIds.length, adminEmail: session.email },
+    });
+
+    revalidatePath("/admin/gallery");
+    revalidatePath("/gallery");
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to reorder media assets." };
   }
 }
 

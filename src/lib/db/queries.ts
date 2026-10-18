@@ -21,7 +21,7 @@ import {
   contactInquiries,
   users
 } from "./schema";
-import { eq, ne, desc, asc, and, like, or, count, sql } from "drizzle-orm";
+import { eq, ne, desc, asc, and, like, or, count, sql, inArray } from "drizzle-orm";
 
 // ----------------------------------------------------------------------
 // PUBLIC QUERIES (Zero Sensitive Data Exposure)
@@ -448,8 +448,10 @@ export async function getPublicGalleryAlbums(params: GetPublicGalleryAlbumsParam
   const page = Math.max(1, params.page || 1);
   const limit = Math.min(50, Math.max(1, params.limit || 12));
   const offset = (page - 1) * limit;
-
-  const conditions = [eq(galleryAlbums.isPublished, true)];
+  const conditions = [
+    eq(galleryAlbums.isPublished, true),
+    eq(galleryAlbums.isArchived, false),
+  ];
 
   if (params.year && params.year !== "all") {
     conditions.push(eq(galleryAlbums.academicYear, params.year));
@@ -521,6 +523,16 @@ export async function getAlbumMediaAssets(albumId: string) {
 }
 
 /**
+ * Fetch all media assets inside an album for admin management (includes drafts and unpublished).
+ */
+export async function getAdminAlbumMediaAssets(albumId: string) {
+  return await db.select()
+    .from(mediaAssets)
+    .where(eq(mediaAssets.albumId, albumId))
+    .orderBy(asc(mediaAssets.sortOrder), desc(mediaAssets.createdAt));
+}
+
+/**
  * Fetch distinct academic years represented in published gallery albums.
  */
 export async function getPublicGalleryYears(): Promise<string[]> {
@@ -528,7 +540,7 @@ export async function getPublicGalleryYears(): Promise<string[]> {
     academicYear: galleryAlbums.academicYear,
   })
   .from(galleryAlbums)
-  .where(eq(galleryAlbums.isPublished, true))
+  .where(and(eq(galleryAlbums.isPublished, true), eq(galleryAlbums.isArchived, false)))
   .orderBy(desc(galleryAlbums.academicYear));
 
   return results.map(r => r.academicYear);
@@ -1057,7 +1069,11 @@ export async function getPublicGalleryAlbumBySlug(slug: string) {
   })
   .from(galleryAlbums)
   .leftJoin(events, eq(galleryAlbums.relatedEventId, events.id))
-  .where(and(eq(galleryAlbums.slug, slug), eq(galleryAlbums.isPublished, true)))
+  .where(and(
+    eq(galleryAlbums.slug, slug),
+    eq(galleryAlbums.isPublished, true),
+    eq(galleryAlbums.isArchived, false)
+  ))
   .limit(1);
 
   if (!album) return null;
@@ -2273,6 +2289,7 @@ export interface CreateGalleryAlbumInput {
   descriptionAr?: string | null;
   coverImageUrl?: string | null;
   eventDate?: string | null;
+  dateNotes?: string | null;
   academicYear: string;
   category?: string;
   relatedEventId?: string | null;
@@ -2280,6 +2297,7 @@ export interface CreateGalleryAlbumInput {
   location?: string | null;
   isFeatured?: boolean;
   isPublished?: boolean;
+  isArchived?: boolean;
 }
 
 /**
@@ -2298,6 +2316,7 @@ export async function createGalleryAlbum(data: CreateGalleryAlbumInput) {
     descriptionAr: data.descriptionAr ?? null,
     coverImageUrl: data.coverImageUrl ?? null,
     eventDate: data.eventDate ?? null,
+    dateNotes: data.dateNotes ?? null,
     academicYear: data.academicYear,
     category: data.category ?? "cultural",
     relatedEventId: data.relatedEventId ?? null,
@@ -2305,6 +2324,7 @@ export async function createGalleryAlbum(data: CreateGalleryAlbumInput) {
     location: data.location ?? null,
     isFeatured: data.isFeatured ?? false,
     isPublished: data.isPublished ?? true,
+    isArchived: data.isArchived ?? false,
     createdAt: now,
     updatedAt: now,
   });
@@ -2343,6 +2363,7 @@ export interface CreateMediaAssetInput {
   videoUrl?: string | null;
   captionEn?: string | null;
   captionAr?: string | null;
+  altText?: string | null;
   credit?: string | null;
   width?: number | null;
   height?: number | null;
@@ -2366,6 +2387,7 @@ export async function createMediaAsset(data: CreateMediaAssetInput) {
     videoUrl: data.videoUrl ?? null,
     captionEn: data.captionEn ?? null,
     captionAr: data.captionAr ?? null,
+    altText: data.altText ?? null,
     credit: data.credit ?? null,
     width: data.width ?? null,
     height: data.height ?? null,
@@ -3157,9 +3179,11 @@ export async function getAdminGalleryAlbums(params: {
     conditions.push(eq(galleryAlbums.category, params.category));
   }
   if (params.status === "published") {
-    conditions.push(eq(galleryAlbums.isPublished, true));
+    conditions.push(and(eq(galleryAlbums.isPublished, true), eq(galleryAlbums.isArchived, false)));
   } else if (params.status === "draft") {
-    conditions.push(eq(galleryAlbums.isPublished, false));
+    conditions.push(and(eq(galleryAlbums.isPublished, false), eq(galleryAlbums.isArchived, false)));
+  } else if (params.status === "archived") {
+    conditions.push(eq(galleryAlbums.isArchived, true));
   }
   if (params.search && params.search.trim()) {
     const s = `%${params.search.trim()}%`;
@@ -3183,6 +3207,7 @@ export async function getAdminGalleryAlbums(params: {
       descriptionAr: galleryAlbums.descriptionAr,
       coverImageUrl: galleryAlbums.coverImageUrl,
       eventDate: galleryAlbums.eventDate,
+      dateNotes: galleryAlbums.dateNotes,
       academicYear: galleryAlbums.academicYear,
       category: galleryAlbums.category,
       relatedEventId: galleryAlbums.relatedEventId,
@@ -3191,6 +3216,7 @@ export async function getAdminGalleryAlbums(params: {
       location: galleryAlbums.location,
       isFeatured: galleryAlbums.isFeatured,
       isPublished: galleryAlbums.isPublished,
+      isArchived: galleryAlbums.isArchived,
       createdAt: galleryAlbums.createdAt,
       updatedAt: galleryAlbums.updatedAt,
       mediaCount: count(mediaAssets.id),
@@ -3231,6 +3257,7 @@ export async function getAdminAlbumWithAssets(albumId: string) {
       descriptionAr: galleryAlbums.descriptionAr,
       coverImageUrl: galleryAlbums.coverImageUrl,
       eventDate: galleryAlbums.eventDate,
+      dateNotes: galleryAlbums.dateNotes,
       academicYear: galleryAlbums.academicYear,
       category: galleryAlbums.category,
       relatedEventId: galleryAlbums.relatedEventId,
@@ -3239,6 +3266,7 @@ export async function getAdminAlbumWithAssets(albumId: string) {
       location: galleryAlbums.location,
       isFeatured: galleryAlbums.isFeatured,
       isPublished: galleryAlbums.isPublished,
+      isArchived: galleryAlbums.isArchived,
       createdAt: galleryAlbums.createdAt,
       updatedAt: galleryAlbums.updatedAt,
     })
@@ -3259,6 +3287,44 @@ export async function getAdminAlbumWithAssets(albumId: string) {
     ...album,
     assets,
   };
+}
+
+/**
+ * Bulk updates publication status or deletes multiple media assets safely.
+ */
+export async function bulkUpdateMediaAssets(
+  assetIds: string[],
+  action: "publish" | "unpublish" | "delete"
+) {
+  if (!assetIds || assetIds.length === 0) return true;
+
+  if (action === "publish") {
+    await db.update(mediaAssets)
+      .set({ isPublished: true })
+      .where(inArray(mediaAssets.id, assetIds));
+  } else if (action === "unpublish") {
+    await db.update(mediaAssets)
+      .set({ isPublished: false })
+      .where(inArray(mediaAssets.id, assetIds));
+  } else if (action === "delete") {
+    await db.delete(mediaAssets)
+      .where(inArray(mediaAssets.id, assetIds));
+  }
+  return true;
+}
+
+/**
+ * Reorders media assets within an album using an array of asset IDs in order.
+ */
+export async function reorderMediaAssets(albumId: string, orderedAssetIds: string[]) {
+  if (!orderedAssetIds || orderedAssetIds.length === 0) return true;
+
+  for (let i = 0; i < orderedAssetIds.length; i++) {
+    await db.update(mediaAssets)
+      .set({ sortOrder: i })
+      .where(and(eq(mediaAssets.id, orderedAssetIds[i]), eq(mediaAssets.albumId, albumId)));
+  }
+  return true;
 }
 
 // ----------------------------------------------------------------------

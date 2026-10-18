@@ -34,7 +34,7 @@ import { assertPermission, hasPermission, ROLE_PERMISSIONS } from "../auth/rbac"
 import { validateMediaUpload } from "../utils/media-storage";
 import { getSafeInternalRedirect } from "../auth/redirect";
 
-const BASE_URL = process.env.TEST_SERVER_URL || "http://localhost:3000";
+const BASE_URL = process.env.TEST_SERVER_URL || "http://localhost:3005";
 
 function assert(condition: boolean, message: string): void {
   if (!condition) {

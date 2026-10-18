@@ -1,3 +1,11 @@
+/**
+ * DEVELOPER NOTE:
+ * @file src/lib/db/schema.ts
+ * @description Master Drizzle ORM Database Schema for Arabic Language & Cultural Club.
+ * Institution: Kabi Nazrul Government College, Dhaka
+ * Strictly zero AI emojis.
+ */
+
 import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
@@ -352,13 +360,16 @@ export const galleryAlbums = sqliteTable("gallery_albums", {
   relatedEventId: text("related_event_id").references(() => events.id, { onDelete: "set null" }),
   photographerCredit: text("photographer_credit"),
   location: text("location"),
+  dateNotes: text("date_notes"),
   isFeatured: integer("is_featured", { mode: "boolean" }).notNull().default(false),
   isPublished: integer("is_published", { mode: "boolean" }).notNull().default(true),
+  isArchived: integer("is_archived", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 }, (table) => [
   index("albums_slug_idx").on(table.slug),
   index("albums_published_idx").on(table.isPublished),
+  index("albums_archived_idx").on(table.isArchived),
   index("albums_year_idx").on(table.academicYear),
   index("albums_category_idx").on(table.category),
   index("albums_event_idx").on(table.relatedEventId),
@@ -376,6 +387,7 @@ export const mediaAssets = sqliteTable("media_assets", {
   videoUrl: text("video_url"),
   captionEn: text("caption_en"),
   captionAr: text("caption_ar"),
+  altText: text("alt_text"),
   credit: text("credit"),
   width: integer("width"),
   height: integer("height"),
