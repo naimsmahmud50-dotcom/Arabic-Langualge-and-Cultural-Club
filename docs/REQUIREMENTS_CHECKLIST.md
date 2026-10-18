@@ -80,10 +80,10 @@ Status definitions:
 ### Section E: Internationalization & Localization (English & Arabic)
 | ID | Requirement Description | Priority | Responsible Phase | Acceptance Test | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **REQ-LANG-01** | Language Switcher with instantaneous state persistence. | CRITICAL | Phase 10 | Toggling between English and Arabic updates UI strings without breaking current path. | [ ] Not Started |
-| **REQ-LANG-02** | Right-to-Left (RTL) Layout engine: `dir="rtl"` applied dynamically to `<html>`. | CRITICAL | Phase 10 | Page layout, grids, padding, and alignments mirror correctly in Arabic without overflowing. | [ ] Not Started |
-| **REQ-LANG-03** | Arabic Typography rendering: correct diacritic placement, baseline consistency, no font clipping. | HIGH | Phase 10 | Headings and Quranic/literary quotes render with proper Arabic ligatures and font weights. | [ ] Not Started |
-| **REQ-LANG-04** | Bilingual content models in database for key CMS items (title_en, title_ar, bio_en, bio_ar). | HIGH | Phase 10 | CMS supports entering both English and Arabic content for events, leadership, and announcements. | [ ] Not Started |
+| **REQ-LANG-01** | Language Switcher with instantaneous state persistence. | CRITICAL | Phase 10 | Toggling between English and Arabic updates UI strings without breaking current path. | [x] Completed |
+| **REQ-LANG-02** | Right-to-Left (RTL) Layout engine: `dir="rtl"` applied dynamically to `<html>`. | CRITICAL | Phase 10 | Page layout, grids, padding, and alignments mirror correctly in Arabic without overflowing. | [x] Completed |
+| **REQ-LANG-03** | Arabic Typography rendering: correct diacritic placement, baseline consistency, no font clipping. | HIGH | Phase 10 | Headings and Quranic/literary quotes render with proper Arabic ligatures and font weights. | [x] Completed |
+| **REQ-LANG-04** | Bilingual content models in database for key CMS items (title_en, title_ar, bio_en, bio_ar). | HIGH | Phase 10 | CMS supports entering both English and Arabic content for events, leadership, and announcements. | [x] Completed |
 
 ---
 

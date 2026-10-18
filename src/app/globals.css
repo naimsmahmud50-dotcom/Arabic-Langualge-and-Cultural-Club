@@ -95,9 +95,27 @@
   }
 
   /* Arabic Typography & Proper Shaping */
+  :root {
+    --font-arabic-body: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif;
+    --font-arabic-heading: "Amiri", "Noto Naskh Arabic", "Traditional Arabic", serif;
+  }
+
   [lang="ar"], [dir="rtl"] {
-    font-family: var(--font-arabic, "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif);
-    line-height: 1.8;
+    font-family: var(--font-arabic-body);
+    line-height: 1.85;
+    letter-spacing: 0 !important;
+  }
+
+  [lang="ar"] h1, [lang="ar"] h2, [lang="ar"] h3, [lang="ar"] h4, [lang="ar"] h5, [lang="ar"] h6,
+  [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
+    font-family: var(--font-arabic-heading);
+    line-height: 1.6;
+    letter-spacing: 0 !important;
+  }
+
+  /* Form Elements & Inputs Directional Alignment */
+  input, textarea, select {
+    text-align: start;
   }
 
   /* Keyboard Visible Focus Rings (WCAG AA Compliance) */
@@ -122,3 +140,27 @@
     }
   }
 }
+
+/* Directional & BiDi Helper Classes */
+.font-arabic {
+  font-family: var(--font-arabic-body, "Noto Naskh Arabic", "Amiri", serif);
+}
+
+.font-amiri {
+  font-family: var(--font-arabic-heading, "Amiri", "Noto Naskh Arabic", serif);
+}
+
+.bidi-ltr {
+  direction: ltr !important;
+  unicode-bidi: isolate;
+}
+
+.bidi-rtl {
+  direction: rtl !important;
+  unicode-bidi: isolate;
+}
+
+[dir="rtl"] .rtl-mirror {
+  transform: scaleX(-1);
+}
+

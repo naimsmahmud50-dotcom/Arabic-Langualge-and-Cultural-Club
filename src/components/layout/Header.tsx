@@ -1,13 +1,16 @@
 /**
- * @file Header.tsx
+ * @file src/components/layout/Header.tsx
  * @description Public institutional navigation header for the Arabic Language & Cultural Club.
- * Features:
- * - Brand logo & bilingual emblem badge
- * - Desktop primary navigation links
- * - Theme toggle (Light/Dark mode)
- * - Language selector shortcut (EN / AR)
- * - "Join Club" action button
- * - Mobile drawer trigger button
+ * 
+ * DEVELOPER USAGE NOTE:
+ * - Features:
+ *   - Brand logo & bilingual emblem badge
+ *   - Desktop primary navigation links with dynamic translation
+ *   - Language selector dropdown (EN, العربية, বাংলা) via `<LanguageSwitcher />`
+ *   - Theme toggle (Light/Dark mode) via `<ThemeToggle />`
+ *   - "Join Club" action button with RTL-aware layout
+ *   - Mobile drawer trigger button
+ * - Connects with `useTranslation()` from `@/lib/i18n/context`.
  */
 
 "use client";
@@ -15,25 +18,29 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button, ThemeToggle, Badge } from "@/components/ui";
-import { Menu, Globe, Shield, ArrowUpRight } from "lucide-react";
+import { Button, ThemeToggle } from "@/components/ui";
+import { Menu, Shield, ArrowUpRight } from "lucide-react";
 import { MobileNav } from "./MobileNav";
-
-export const NAV_LINKS = [
-  { label: "About", href: "/about" },
-  { label: "History", href: "/history" },
-  { label: "Founders", href: "/founders" },
-  { label: "Leadership", href: "/leadership" },
-  { label: "Calendar", href: "/events" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Resources", href: "/resources" },
-  { label: "News", href: "/news" },
-  { label: "Contact", href: "/contact" },
-];
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslation } from "@/lib/i18n/context";
+import { cn } from "@/lib/utils/cn";
 
 export function Header() {
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { t, isRTL } = useTranslation();
+
+  const navLinks = [
+    { label: t("nav.about", "About"), href: "/about" },
+    { label: t("nav.history", "History"), href: "/history" },
+    { label: t("nav.founders", "Founders"), href: "/founders" },
+    { label: t("nav.leadership", "Leadership"), href: "/leadership" },
+    { label: t("nav.calendar", "Calendar"), href: "/events" },
+    { label: t("nav.gallery", "Gallery"), href: "/gallery" },
+    { label: t("nav.resources", "Resources"), href: "/resources" },
+    { label: t("nav.news", "News"), href: "/news" },
+    { label: t("nav.contact", "Contact"), href: "/contact" },
+  ];
 
   return (
     <>
@@ -51,7 +58,7 @@ export function Header() {
                 <span className="font-arabic font-bold text-xl">ض</span>
               </div>
               
-              <div className="flex flex-col">
+              <div className="flex flex-col text-start">
                 <span className="font-bold text-base sm:text-lg leading-tight tracking-tight text-[var(--text-primary)] group-hover:text-[var(--brand-accent)] transition-colors">
                   Arabic Language & Cultural Club
                 </span>
@@ -63,17 +70,18 @@ export function Header() {
 
             {/* Desktop Navigation Links */}
             <nav className="hidden xl:flex items-center gap-1.5" aria-label="Main Navigation">
-              {NAV_LINKS.map((link) => {
+              {navLinks.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`px-3 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-colors duration-150 ${
+                    className={cn(
+                      "px-3 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-colors duration-150",
                       isActive
                         ? "bg-[var(--bg-surface-hover)] text-[var(--brand-primary)] dark:text-[var(--brand-accent)] font-bold"
                         : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]/60"
-                    }`}
+                    )}
                   >
                     {link.label}
                   </Link>
@@ -82,21 +90,32 @@ export function Header() {
             </nav>
 
             {/* Header Right Actions */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               {/* Admin Portal Shortcut */}
-              <Link href="/admin" className="hidden sm:inline-flex" title="Administrative CMS Portal">
+              <Link 
+                href="/admin" 
+                className="hidden sm:inline-flex" 
+                title={t("nav.adminPortal", "Admin Portal")}
+              >
                 <Button variant="ghost" size="sm" leftIcon={<Shield className="w-3.5 h-3.5" />}>
-                  Admin
+                  {t("nav.adminPortal", "Admin")}
                 </Button>
               </Link>
+
+              {/* Language Selector Dropdown */}
+              <LanguageSwitcher variant="compact" />
 
               {/* Theme Switcher */}
               <ThemeToggle />
 
               {/* Apply / Join CTA */}
               <Link href="/membership" className="hidden sm:inline-flex">
-                <Button variant="accent" size="sm" rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}>
-                  Join Club
+                <Button 
+                  variant="accent" 
+                  size="sm" 
+                  rightIcon={<ArrowUpRight className={cn("w-3.5 h-3.5", isRTL && "rotate-270")} />}
+                >
+                  {t("nav.joinClub", "Join Club")}
                 </Button>
               </Link>
 
@@ -117,7 +136,7 @@ export function Header() {
       <MobileNav
         isOpen={mobileNavOpen}
         onClose={() => setMobileNavOpen(false)}
-        links={NAV_LINKS}
+        links={navLinks}
       />
     </>
   );

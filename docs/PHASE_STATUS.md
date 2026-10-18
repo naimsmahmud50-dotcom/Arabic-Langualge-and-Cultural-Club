@@ -14,7 +14,7 @@
 | **Phase 8** | Membership Application & Inquiries | **Completed** | 2026-10-18 | 2026-10-18 | Admissions pipeline, reference tracker, contact inbox (47 tests) |
 | **Phase 9** | Complete Admin Dashboard & CMS | **Completed** | 2026-10-18 | 2026-10-18 | Admin shell, CMS for all content domains, RBAC users, settings, audit trail, cryptographic backups (400+ tests) |
 | **Phase 10** | Security Hardening & Audit Logs | **Completed** | 2026-10-18 | 2026-10-18 | Rate limiting, upload sanitization, immutable ledger, backup engine |
-| **Phase 11** | Bilingual (English/Arabic RTL) & SEO | **Not Started** | - | - | Locale persistence, `dir="rtl"`, sitemap, meta |
+| **Phase 11** | Bilingual (English/Arabic RTL) & SEO | **Completed** | 2026-10-18 | 2026-10-18 | Locale persistence, `dir="rtl"`, Arabic Amiri & Naskh typography, LanguageSwitcher, BiDi engine (15 test suites passed) |
 | **Phase 12** | Automated Testing & QA Audit | **Not Started** | - | - | E2E tests, unit tests, Lighthouse >= 95 |
 | **Phase 13** | Deployment, Handover & Final Acceptance | **Not Started** | - | - | Production hosting guide, admin manual |
 
@@ -163,6 +163,19 @@
   - Automated verification test suite passed: `src/lib/db/test-admin-governance-settings.ts`: 5/5 test suites passed (100%).
   - Full cumulative regression test suite passed: 14/14 test suites passed with 100% passing rate.
   - Production build verified: `pnpm exec next build` compiled and generated all 41 routes with 0 errors.
-- **Recommended Next Prompt:** **Phase 10 (or Prompt 20): English–Arabic Bilingual Support, RTL Layout Engine & Localization** (Implement full public and administrative English-Arabic bilingual switching, persistent language selector, RTL layout directionality, Arabic typography formatting, and localized metadata).
+- **Phase 11 (English–Arabic Bilingual Support, RTL Layout Engine & Localization - Feature 019):** Completed on 2026-10-18.
+  - Implemented complete i18n architecture with strict TypeScript contracts (`src/lib/i18n/types.ts`) and configuration (`src/lib/i18n/config.ts`).
+  - Authored canonical English (`en.ts`), authentic classical Arabic (`ar.ts`), and foundational Bengali (`bn.ts`) translation dictionaries with 100% section and key parity.
+  - Built `LanguageProvider` and `useTranslation()` context engine (`src/lib/i18n/context.tsx`) with multi-layer persistence (`localStorage` + `alc_locale` cookie + anti-FOUC inline script).
+  - Built accessible, keyboard-navigable `<LanguageSwitcher />` component (`src/components/layout/LanguageSwitcher.tsx`) integrated into public Header, mobile drawer (`MobileNav.tsx`), and admin topbar (`AdminHeader.tsx`).
+  - Implemented BiDi text isolation utilities and `<BidiCode />` component (`src/lib/i18n/bidi.ts`) ensuring reference codes, phones, and emails never garble in RTL text flow.
+  - Enhanced global Arabic typography in `src/app/globals.css`: loaded `Amiri` and `Noto Naskh Arabic`, set `line-height: 1.85` for Arabic body and `1.6` for headings, disabled destructive letter-spacing on Arabic ligatures, and added directional utility classes.
+  - Added dynamic bilingual entity resolution and localized date/number formatting (`src/lib/i18n/format.ts`).
+  - Marked REQ-LANG-01 through REQ-LANG-04 as `[x] Completed` in `docs/REQUIREMENTS_CHECKLIST.md`.
+  - Automated verification test suite passed: `src/lib/db/test-bilingual-localization.ts`: 6/6 test suites passed (100%).
+  - Full cumulative regression test suite passed: 15/15 test suites passed with 100% passing rate.
+  - Production build verified: `pnpm exec next build` compiled and generated all 41 routes with 0 errors.
+- **Recommended Next Prompt:** **Phase 12 (or Prompt 21): Comprehensive Quality Assurance, Accessibility Audit & SEO Hardening** (WCAG 2.2 AA accessibility audit, keyboard focus rings, dynamic sitemap.xml, robots.txt, structured metadata, and Lighthouse >= 95 verification).
+
 
 
