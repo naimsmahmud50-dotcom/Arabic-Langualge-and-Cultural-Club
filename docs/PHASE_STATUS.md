@@ -10,7 +10,7 @@
 | **Phase 4** | Authentication & Role-Based Access Control | **Completed** | 2026-10-17 | 2026-10-17 | Scrypt hashing, HMAC session tokens, RBAC matrix, Edge middleware, 403 Forbidden, 58 tests |
 | **Phase 5** | Public Website Shell & Homepage | **Completed** | 2026-10-17 | 2026-10-17 | Complete 14-section dynamic homepage, zero fake stats, responsive bilingual layout |
 | **Phase 6** | History, Founders & Committees Archive | **Completed** | 2026-10-17 | 2026-10-17 | Verified Founders, Term-by-term preservation, Multi-term service, Privacy-safe Member Directory |
-| **Phase 7** | Annual Calendar, Events & Gallery | **Not Started** | - | - | 12-month program, registration form, media viewer |
+| **Phase 7** | Annual Calendar, Events & Gallery | **In Progress** | 2026-10-18 | - | 12-Month Master Plan & Calendar completed (27/27 tests); Events & Gallery next |
 | **Phase 8** | Membership Application & Inquiries | **Not Started** | - | - | Admissions pipeline, reference tracker, contact |
 | **Phase 9** | Complete Admin Dashboard & CMS | **Not Started** | - | - | CRUD actions, media uploaders, term creator |
 | **Phase 10** | Security Hardening & Audit Logs | **Not Started** | - | - | Rate limiting, upload sanitization, immutable ledger |

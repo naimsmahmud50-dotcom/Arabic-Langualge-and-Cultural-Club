@@ -271,15 +271,26 @@ export const annualPlans = sqliteTable("annual_plans", {
   monthNumber: integer("month_number").notNull(), // 1 to 12
   activityTitleEn: text("activity_title_en").notNull(),
   activityTitleAr: text("activity_title_ar"),
+  descriptionEn: text("description_en"),
+  descriptionAr: text("description_ar"),
   category: text("category").notNull().default("academic"),
   status: text("status", { 
     enum: ["planned", "confirmed", "completed", "postponed", "cancelled"] 
   }).notNull().default("planned"),
+  targetDate: text("target_date"), // YYYY-MM-DD when verified
+  time: text("time"), // e.g. "10:00 AM - 1:00 PM" when verified
+  location: text("location"), // e.g. "Faculty Auditorium" when verified
+  relatedEventId: text("related_event_id").references(() => events.id, { onDelete: "set null" }),
+  documentUrl: text("document_url"),
+  documentTitle: text("document_title"),
   notes: text("notes"),
+  isPublished: integer("is_published", { mode: "boolean" }).notNull().default(true),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 }, (table) => [
   index("annual_plans_year_month_idx").on(table.academicYear, table.monthNumber),
+  index("annual_plans_published_idx").on(table.isPublished),
+  index("annual_plans_target_date_idx").on(table.targetDate),
 ]);
 
 // ----------------------------------------------------------------------

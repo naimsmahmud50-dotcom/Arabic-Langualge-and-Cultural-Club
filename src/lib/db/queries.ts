@@ -201,17 +201,67 @@ export async function getPublicEventBySlug(slug: string) {
 }
 
 /**
- * Fetch annual plan highlights.
+ * Fetch annual plan highlights & month-by-month itinerary.
+ * Supports filtering by academic year, category, and status.
+ * Left-joins related event slug and title for seamless registration links.
  */
-export async function getPublicAnnualPlans(academicYear?: string) {
-  const conditions = [];
-  if (academicYear) {
-    conditions.push(eq(annualPlans.academicYear, academicYear));
+export async function getPublicAnnualPlans(options: { 
+  academicYear?: string; 
+  category?: string; 
+  status?: string; 
+} | string = {}) {
+  const opts = typeof options === "string" ? { academicYear: options } : options;
+  const conditions = [eq(annualPlans.isPublished, true)];
+
+  if (opts.academicYear && opts.academicYear !== "all") {
+    conditions.push(eq(annualPlans.academicYear, opts.academicYear));
   }
-  return await db.select()
-    .from(annualPlans)
-    .where(and(...conditions))
-    .orderBy(asc(annualPlans.monthNumber));
+  if (opts.category && opts.category !== "all") {
+    conditions.push(eq(annualPlans.category, opts.category));
+  }
+  if (opts.status && opts.status !== "all") {
+    conditions.push(eq(annualPlans.status, opts.status as any));
+  }
+
+  return await db.select({
+    id: annualPlans.id,
+    academicYear: annualPlans.academicYear,
+    monthNumber: annualPlans.monthNumber,
+    activityTitleEn: annualPlans.activityTitleEn,
+    activityTitleAr: annualPlans.activityTitleAr,
+    descriptionEn: annualPlans.descriptionEn,
+    descriptionAr: annualPlans.descriptionAr,
+    category: annualPlans.category,
+    status: annualPlans.status,
+    targetDate: annualPlans.targetDate,
+    time: annualPlans.time,
+    location: annualPlans.location,
+    relatedEventId: annualPlans.relatedEventId,
+    relatedEventSlug: events.slug,
+    relatedEventTitle: events.titleEn,
+    documentUrl: annualPlans.documentUrl,
+    documentTitle: annualPlans.documentTitle,
+    notes: annualPlans.notes,
+    isPublished: annualPlans.isPublished,
+  })
+  .from(annualPlans)
+  .leftJoin(events, eq(annualPlans.relatedEventId, events.id))
+  .where(and(...conditions))
+  .orderBy(asc(annualPlans.monthNumber), asc(annualPlans.targetDate));
+}
+
+/**
+ * Fetch all distinct academic years that have published annual plans.
+ */
+export async function getAnnualPlanYears(): Promise<string[]> {
+  const results = await db.selectDistinct({
+    academicYear: annualPlans.academicYear,
+  })
+  .from(annualPlans)
+  .where(eq(annualPlans.isPublished, true))
+  .orderBy(desc(annualPlans.academicYear));
+
+  return results.map(r => r.academicYear);
 }
 
 /**
@@ -764,5 +814,107 @@ export async function getAdminMembers(params: {
     pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
   };
 }
+
+// ----------------------------------------------------------------------
+// ANNUAL PLANS ADMIN OPERATIONS
+// ----------------------------------------------------------------------
+
+/**
+ * Administrative mutation: Create a new annual plan activity item.
+ */
+export async function createAnnualPlanItem(data: {
+  id?: string;
+  academicYear: string;
+  monthNumber: number;
+  activityTitleEn: string;
+  activityTitleAr?: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  category: string;
+  status?: "planned" | "confirmed" | "completed" | "postponed" | "cancelled";
+  targetDate?: string | null;
+  time?: string | null;
+  location?: string | null;
+  relatedEventId?: string | null;
+  documentUrl?: string | null;
+  documentTitle?: string | null;
+  notes?: string | null;
+  isPublished?: boolean;
+}) {
+  const now = new Date();
+  const id = data.id || `ap_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  if (data.monthNumber < 1 || data.monthNumber > 12) {
+    throw new Error("monthNumber must be between 1 and 12.");
+  }
+
+  await db.insert(annualPlans).values({
+    id,
+    academicYear: data.academicYear,
+    monthNumber: data.monthNumber,
+    activityTitleEn: data.activityTitleEn,
+    activityTitleAr: data.activityTitleAr ?? null,
+    descriptionEn: data.descriptionEn ?? null,
+    descriptionAr: data.descriptionAr ?? null,
+    category: data.category,
+    status: data.status ?? "planned",
+    targetDate: data.targetDate ?? null,
+    time: data.time ?? null,
+    location: data.location ?? null,
+    relatedEventId: data.relatedEventId ?? null,
+    documentUrl: data.documentUrl ?? null,
+    documentTitle: data.documentTitle ?? null,
+    notes: data.notes ?? null,
+    isPublished: data.isPublished ?? true,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return id;
+}
+
+/**
+ * Administrative mutation: Update an existing annual plan activity item.
+ */
+export async function updateAnnualPlanItem(id: string, data: Partial<{
+  academicYear: string;
+  monthNumber: number;
+  activityTitleEn: string;
+  activityTitleAr: string | null;
+  descriptionEn: string | null;
+  descriptionAr: string | null;
+  category: string;
+  status: "planned" | "confirmed" | "completed" | "postponed" | "cancelled";
+  targetDate: string | null;
+  time: string | null;
+  location: string | null;
+  relatedEventId: string | null;
+  documentUrl: string | null;
+  documentTitle: string | null;
+  notes: string | null;
+  isPublished: boolean;
+}>) {
+  if (data.monthNumber !== undefined && (data.monthNumber < 1 || data.monthNumber > 12)) {
+    throw new Error("monthNumber must be between 1 and 12.");
+  }
+
+  await db.update(annualPlans)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(annualPlans.id, id));
+
+  return true;
+}
+
+/**
+ * Administrative mutation: Delete an annual plan activity item.
+ */
+export async function deleteAnnualPlanItem(id: string) {
+  await db.delete(annualPlans).where(eq(annualPlans.id, id));
+  return true;
+}
+
 
 
