@@ -858,26 +858,39 @@ export async function getPageWithSections(slug: string): Promise<PageWithSection
 }
 
 // ----------------------------------------------------------------------
-// ADMIN METRICS QUERY (Zero Fake Stats)
+// ADMIN METRICS QUERY (Zero Fake Stats - Feature 014 Foundation)
 // ----------------------------------------------------------------------
 
+/**
+ * Fetches verified real-time database metrics for the Administrative Command Center.
+ * 
+ * DEVELOPER NOTE:
+ * - Used by /admin (src/app/admin/page.tsx)
+ * - Queries live SQLite tables via Drizzle ORM.
+ * - Zero fabricated statistics: if no data exists, exact 0 is returned.
+ * - Sourced entities: events, members, membership_applications, gallery_albums, announcements, contact_inquiries, audit_logs.
+ */
 export async function getAdminDashboardMetrics() {
   const [
     [{ totalEvents }],
     [{ totalUpcoming }],
+    [{ publishedEvents }],
     [{ totalMembers }],
     [{ pendingApplications }],
     [{ totalAlbums }],
-    [{ totalAnnouncements }]
+    [{ totalAnnouncements }],
+    [{ unreadInquiries }],
   ] = await Promise.all([
     db.select({ totalEvents: count() }).from(events),
     db.select({ totalUpcoming: count() }).from(events).where(
       and(eq(events.status, "confirmed"), sql`${events.startTime} >= ${Math.floor(Date.now() / 1000)}`)
     ),
+    db.select({ publishedEvents: count() }).from(events).where(eq(events.status, "confirmed")),
     db.select({ totalMembers: count() }).from(members).where(eq(members.status, "active")),
     db.select({ pendingApplications: count() }).from(membershipApplications).where(eq(membershipApplications.status, "pending")),
     db.select({ totalAlbums: count() }).from(galleryAlbums),
     db.select({ totalAnnouncements: count() }).from(announcements).where(eq(announcements.isPublished, true)),
+    db.select({ unreadInquiries: count() }).from(contactInquiries).where(eq(contactInquiries.status, "unread")),
   ]);
 
   const recentLogs = await db.select()
@@ -888,10 +901,12 @@ export async function getAdminDashboardMetrics() {
   return {
     totalEvents,
     totalUpcoming,
+    publishedEvents,
     totalMembers,
     pendingApplications,
     totalAlbums,
     totalAnnouncements,
+    unreadInquiries,
     recentLogs,
   };
 }

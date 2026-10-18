@@ -47,8 +47,8 @@ Status definitions:
 ### Section C: Administrative Dashboard & CMS
 | ID | Requirement Description | Priority | Responsible Phase | Acceptance Test | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **REQ-ADM-01** | Secure Admin Shell: responsive sidebar, topbar, user profile, role badge, breadcrumbs, theme switcher. | CRITICAL | Phase 8 | Protected behind server-side authentication; unauthorized visitors redirected to `/admin/login`. | [ ] Not Started |
-| **REQ-ADM-02** | Dashboard Metrics & Activity Feed: real counts from database (events, applications, members, albums). | HIGH | Phase 8 | Zero fake stats; shows accurate database count; displays recent audit log events. | [ ] Not Started |
+| **REQ-ADM-01** | Secure Admin Shell: responsive sidebar, mobile navigation drawer, user profile menu, role badge, breadcrumbs, theme switcher. | CRITICAL | Phase 9 | Protected behind server-side authentication; unauthorized visitors redirected to `/admin/login`. | [x] Completed |
+| **REQ-ADM-02** | Dashboard Metrics & Activity Feed: real counts from database (events, applications, members, albums, unread inquiries, announcements). | HIGH | Phase 9 | Zero fake stats; shows accurate database count; displays recent audit log events; reusable admin UI building blocks. | [x] Completed |
 | **REQ-ADM-03** | Founders & History CMS: CRUD for founder records, milestones, and archival notes. | HIGH | Phase 8 | Form persists records to DB; updates appear on public `/founders` and `/history` pages. | [ ] Not Started |
 | **REQ-ADM-04** | Committee Terms & Officeholder Management (Preservation Rule). | CRITICAL | Phase 8 | Adding a new term (e.g. 2025-26) preserves previous terms (2024-25) intact without data loss. | [ ] Not Started |
 | **REQ-ADM-05** | Member Management & Status Review: search, filter, status toggles (Active, Alumni, Suspended). | HIGH | Phase 8 | Edit member roles, assign committee terms, search by name or membership ID. | [ ] Not Started |

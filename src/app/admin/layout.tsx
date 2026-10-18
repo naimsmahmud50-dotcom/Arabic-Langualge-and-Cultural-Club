@@ -1,15 +1,18 @@
 /**
  * @file src/app/admin/layout.tsx
- * @description Dedicated Server Layout wrapper for the Administrative CMS.
+ * @description Master Server Layout wrapper for the Administrative CMS (Feature 014 Foundation).
  * 
- * ARCHITECTURE & SECURITY:
- * - Retrieves the verified session from the database/cookies via `getSession()`.
- * - Passes authenticated user context to the AdminSidebar.
- * - Enforces security boundary separating public pages from administrative workspace.
+ * DEVELOPER ARCHITECTURE NOTE:
+ * - Route boundary: /admin/*
+ * - Enforces server-side session authentication defense-in-depth via `getSession()`.
+ * - Passes authenticated user session to client `AdminShell`, which coordinates desktop
+ *   fixed navigation (`AdminSidebar`) and mobile slide-out drawer (`AdminMobileNav`).
+ * - Exposes `AdminContext` for subcomponents (e.g. `AdminHeader`, user profile dropdown).
+ * - Human-crafted UI: strictly zero AI emojis; uses authentic typography and Lucide SVG icons.
  */
 
 import React from "react";
-import { AdminSidebar } from "@/components/layout/AdminSidebar";
+import { AdminShell } from "@/components/layout/AdminShell";
 import { getSession } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -19,17 +22,12 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Retrieve authenticated administrative session
   const session = await getSession();
 
   return (
-    <div className="flex min-h-screen bg-[var(--bg-primary)]">
-      {/* Fixed Admin Sidebar with dynamic role filtering */}
-      <AdminSidebar className="hidden md:flex" user={session} />
-
-      {/* Main Admin Content Workspace */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {children}
-      </main>
-    </div>
+    <AdminShell user={session}>
+      {children}
+    </AdminShell>
   );
 }
