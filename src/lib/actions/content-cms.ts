@@ -49,6 +49,10 @@ import {
   validateMediaUpload, 
   generateSafeStoragePath 
 } from "@/lib/utils/media-storage";
+import { db } from "@/lib/db";
+import { mediaAssets, galleryAlbums } from "@/lib/db/schema";
+import { eq, ne, inArray, and } from "drizzle-orm";
+import { getStorageProvider, extractStorageKeyFromUrl } from "@/lib/storage";
 
 // Helper: Slugify string
 function slugify(text: string): string {
@@ -906,7 +910,51 @@ export async function bulkUpdateMediaAssetsAction(
   }
 
   try {
+    let fileUrlsToCheck: string[] = [];
+
+    if (action === "delete") {
+      // Fetch the assets being deleted to inspect their fileUrls before removing records
+      const targetAssets = await db
+        .select({ id: mediaAssets.id, fileUrl: mediaAssets.fileUrl })
+        .from(mediaAssets)
+        .where(inArray(mediaAssets.id, assetIds));
+
+      fileUrlsToCheck = targetAssets.map((a) => a.fileUrl).filter(Boolean);
+    }
+
     await bulkUpdateMediaAssets(assetIds, action);
+
+    // Shared media safety check for bulk deletion:
+    // If a physical file is still referenced by another asset or album cover, preserve it on disk/bucket
+    if (action === "delete" && fileUrlsToCheck.length > 0) {
+      const storageProvider = getStorageProvider();
+      const uniqueUrls = Array.from(new Set(fileUrlsToCheck));
+
+      for (const fileUrl of uniqueUrls) {
+        const remainingMediaRefs = await db
+          .select({ id: mediaAssets.id })
+          .from(mediaAssets)
+          .where(eq(mediaAssets.fileUrl, fileUrl))
+          .limit(1);
+
+        const albumCoverRefs = await db
+          .select({ id: galleryAlbums.id })
+          .from(galleryAlbums)
+          .where(eq(galleryAlbums.coverImageUrl, fileUrl))
+          .limit(1);
+
+        const isStillReferenced = remainingMediaRefs.length > 0 || albumCoverRefs.length > 0;
+
+        if (!isStillReferenced) {
+          const storageKey = extractStorageKeyFromUrl(fileUrl);
+          if (storageKey) {
+            await storageProvider.deleteFile(storageKey).catch((err) => {
+              console.warn(`Non-blocking warning: Failed to purge unreferenced bulk storage object '${storageKey}':`, err);
+            });
+          }
+        }
+      }
+    }
 
     await recordAuditLog({
       userId: session.id,
@@ -973,7 +1021,48 @@ export async function deleteMediaAssetAction(id: string, albumId?: string) {
   }
 
   try {
+    // 1. Fetch asset details to identify fileUrl and storage references
+    const existingAsset = await db
+      .select()
+      .from(mediaAssets)
+      .where(eq(mediaAssets.id, id))
+      .get();
+
+    if (!existingAsset) {
+      return { success: false, error: "Media asset not found or already deleted." };
+    }
+
+    const fileUrl = existingAsset.fileUrl;
+
+    // 2. Perform deletion from database
     await deleteMediaAsset(id);
+
+    // 3. Shared Media Safety Check:
+    // Determine if any other mediaAsset or album cover is referencing the same fileUrl
+    const otherMediaReferences = await db
+      .select({ id: mediaAssets.id })
+      .from(mediaAssets)
+      .where(and(eq(mediaAssets.fileUrl, fileUrl), ne(mediaAssets.id, id)))
+      .limit(1);
+
+    const albumCoverReferences = await db
+      .select({ id: galleryAlbums.id })
+      .from(galleryAlbums)
+      .where(eq(galleryAlbums.coverImageUrl, fileUrl))
+      .limit(1);
+
+    const isShared = otherMediaReferences.length > 0 || albumCoverReferences.length > 0;
+
+    // 4. Physical Storage Cleanup only if not shared by any other record
+    if (!isShared) {
+      const storageKey = extractStorageKeyFromUrl(fileUrl);
+      if (storageKey) {
+        const storageProvider = getStorageProvider();
+        await storageProvider.deleteFile(storageKey).catch((err) => {
+          console.warn(`Non-blocking warning: Failed to purge unreferenced storage object '${storageKey}':`, err);
+        });
+      }
+    }
 
     await recordAuditLog({
       userId: session.id,
@@ -981,14 +1070,20 @@ export async function deleteMediaAssetAction(id: string, albumId?: string) {
       action: "MEDIA_ASSET_DELETE",
       targetEntity: "media_assets",
       targetId: id,
-      details: { assetId: id, albumId, adminEmail: session.email },
+      details: {
+        assetId: id,
+        albumId: albumId || existingAsset.albumId,
+        fileUrl,
+        wasShared: isShared,
+        adminEmail: session.email,
+      },
     });
 
     revalidatePath("/admin/gallery");
     revalidatePath("/gallery");
     revalidatePath("/");
 
-    return { success: true };
+    return { success: true, wasShared: isShared };
   } catch (err: any) {
     return { success: false, error: err.message || "Failed to delete media asset." };
   }

@@ -32,6 +32,14 @@ export interface MediaUploadValidationOptions {
   mimeType: string;
   sizeBytes: number;
   mediaCategory?: "image" | "video";
+  buffer?: Buffer;
+}
+
+export interface BinarySignatureResult {
+  isValid: boolean;
+  detectedFormat?: "jpeg" | "png" | "webp" | "avif" | "mp4" | "webm";
+  detectedMime?: string;
+  errorMessage?: string;
 }
 
 export interface MediaValidationResult {
@@ -40,6 +48,126 @@ export interface MediaValidationResult {
   storageKey?: string;
   errorMessage?: string;
   mediaType: "image" | "video";
+  detectedMime?: string;
+}
+
+/**
+ * Inspects binary magic bytes and scans the initial payload for embedded scripts.
+ * Rejects disguised executables, HTML, PHP, SVGs, or malformed streams.
+ */
+export function inspectFileSignature(buffer: Buffer): BinarySignatureResult {
+  if (!buffer || buffer.length < 8) {
+    return { isValid: false, errorMessage: "File buffer is too small or empty to verify." };
+  }
+
+  // 1. Scan the initial bytes for embedded scripts, XML, PHP or shellcode
+  const headerPreview = buffer.subarray(0, Math.min(buffer.length, 4096)).toString("binary").toLowerCase();
+  const dangerousSignatures = [
+    "<?php",
+    "<script",
+    "<svg",
+    "<!doctype html",
+    "<html",
+    "<!entity",
+    "eval(",
+    "base64_decode(",
+    "system(",
+    "passthru(",
+    "shell_exec("
+  ];
+
+  for (const sig of dangerousSignatures) {
+    if (headerPreview.includes(sig)) {
+      return {
+        isValid: false,
+        errorMessage: `Malicious payload detected: contains prohibited script or XML sequence '${sig}'.`,
+      };
+    }
+  }
+
+  // 2. JPEG: FF D8 FF
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return {
+      isValid: true,
+      detectedFormat: "jpeg",
+      detectedMime: "image/jpeg",
+    };
+  }
+
+  // 3. PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47 &&
+    buffer[4] === 0x0d &&
+    buffer[5] === 0x0a &&
+    buffer[6] === 0x1a &&
+    buffer[7] === 0x0a
+  ) {
+    return {
+      isValid: true,
+      detectedFormat: "png",
+      detectedMime: "image/png",
+    };
+  }
+
+  // 4. WebP: Bytes 0-3 'RIFF', Bytes 8-11 'WEBP'
+  if (buffer.length >= 12) {
+    const riff = buffer.subarray(0, 4).toString("ascii");
+    const webp = buffer.subarray(8, 12).toString("ascii");
+    if (riff === "RIFF" && webp === "WEBP") {
+      return {
+        isValid: true,
+        detectedFormat: "webp",
+        detectedMime: "image/webp",
+      };
+    }
+  }
+
+  // 5. AVIF: Bytes 4-7 'ftyp', followed by 'avif', 'avis', or 'mif1'
+  if (buffer.length >= 12) {
+    const ftyp = buffer.subarray(4, 8).toString("ascii");
+    const brand = buffer.subarray(8, 12).toString("ascii");
+    if (ftyp === "ftyp" && (brand === "avif" || brand === "avis" || brand === "mif1")) {
+      return {
+        isValid: true,
+        detectedFormat: "avif",
+        detectedMime: "image/avif",
+      };
+    }
+  }
+
+  // 6. MP4: Bytes 4-7 'ftyp', standard ISO container
+  if (buffer.length >= 12) {
+    const ftyp = buffer.subarray(4, 8).toString("ascii");
+    if (ftyp === "ftyp") {
+      return {
+        isValid: true,
+        detectedFormat: "mp4",
+        detectedMime: "video/mp4",
+      };
+    }
+  }
+
+  // 7. WebM: Bytes 0-3 1A 45 DF A3 (EBML)
+  if (
+    buffer[0] === 0x1a &&
+    buffer[1] === 0x45 &&
+    buffer[2] === 0xdf &&
+    buffer[3] === 0xa3
+  ) {
+    return {
+      isValid: true,
+      detectedFormat: "webm",
+      detectedMime: "video/webm",
+    };
+  }
+
+  return {
+    isValid: false,
+    errorMessage: "File binary header (magic bytes) does not match any approved image or video format.",
+  };
 }
 
 // ----------------------------------------------------------------------
@@ -169,6 +297,43 @@ export function validateMediaUpload(options: MediaUploadValidationOptions): Medi
         isValid: false,
         errorMessage: `Photograph size exceeds maximum permissible quota of ${MAX_IMAGE_SIZE_BYTES / (1024 * 1024)}MB.`,
         mediaType: "image",
+      };
+    }
+  }
+
+  // 4. Binary Content Inspection & Magic Bytes Validation (if buffer supplied)
+  if (options.buffer) {
+    const signature = inspectFileSignature(options.buffer);
+    if (!signature.isValid) {
+      return {
+        isValid: false,
+        errorMessage: signature.errorMessage || "Binary content inspection failed.",
+        mediaType: determinedType,
+      };
+    }
+
+    // Verify format consistency between extension and magic bytes
+    const fmt = signature.detectedFormat;
+    const isJpegExt = ext === "jpg" || ext === "jpeg";
+    const isPngExt = ext === "png";
+    const isWebpExt = ext === "webp";
+    const isAvifExt = ext === "avif";
+    const isMp4Ext = ext === "mp4";
+    const isWebmExt = ext === "webm";
+
+    const isMatch =
+      (fmt === "jpeg" && isJpegExt) ||
+      (fmt === "png" && isPngExt) ||
+      (fmt === "webp" && isWebpExt) ||
+      (fmt === "avif" && isAvifExt) ||
+      (fmt === "mp4" && isMp4Ext) ||
+      (fmt === "webm" && isWebmExt);
+
+    if (!isMatch) {
+      return {
+        isValid: false,
+        errorMessage: `Header mismatch: File extension '.${ext}' contradicts binary header signature '${fmt}'.`,
+        mediaType: determinedType,
       };
     }
   }

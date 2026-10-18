@@ -2,7 +2,7 @@
  * DEVELOPER NOTE:
  * @file src/app/api/admin/gallery/upload/route.ts
  * @route /api/admin/gallery/upload
- * @description Authenticated Batch Media Upload Handler for Gallery & Media Archive.
+ * @description Authenticated Batch Media Upload Handler with Storage Provider & Compensating Cleanup (Phase 6).
  * 
  * INSTITUTIONAL CONTEXT:
  * - Institution: Kabi Nazrul Government College, Dhaka
@@ -10,26 +10,26 @@
  * 
  * ARCHITECTURE & DEFENSE IN DEPTH:
  * - Protected by session verification and least-privilege RBAC ("gallery:manage" or "media:manage").
- * - Multi-file multipart/form-data ingestion with live buffer validation.
+ * - Multi-file multipart/form-data ingestion with live binary buffer validation (magic bytes).
  * - Enforces Strix-Supabase Security: Whitelisted MIME types (JPEG, PNG, WebP, AVIF, MP4, WebM).
  * - Anti-Malware / Anti-XSS: Rejects executable binaries, scripts, SVGs, and HTML payloads.
- * - Persistent Storage: Writes validated files to durable local directory `public/uploads/gallery/...`.
- * - Database Registration: Creates `media_assets` records and auto-assigns album cover if absent.
+ * - Unified Storage Engine: Uploads via getStorageProvider() supporting Supabase Storage and durable mounted volumes.
+ * - Atomic Reliability & Compensating Cleanup: If database insertion fails, the uploaded storage object is deleted.
  * - Audit Trail: Records immutable audit entry in `audit_logs` table.
  * - Strictly zero AI emojis.
  */
 
 import { NextResponse } from "next/server";
 import path from "path";
-import fs from "fs";
 import crypto from "crypto";
 import { getSession } from "@/lib/auth/session";
 import { hasPermission } from "@/lib/auth/rbac";
 import { db } from "@/lib/db";
 import { galleryAlbums, mediaAssets } from "@/lib/db/schema";
-import { eq, asc, desc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { validateMediaUpload, generateSafeStoragePath } from "@/lib/utils/media-storage";
 import { recordAuditLog } from "@/lib/auth/audit";
+import { getStorageProvider } from "@/lib/storage";
 
 export async function POST(request: Request) {
   // 1. Authenticate Session
@@ -97,20 +97,24 @@ export async function POST(request: Request) {
 
     let nextSortOrder = (existingAssets[0]?.sortOrder ?? 0) + 1;
 
+    const storageProvider = getStorageProvider();
     const uploadedAssets = [];
     const errors = [];
     let assignedCoverUrl: string | null = album.coverImageUrl;
 
-    const baseUploadDir = path.join(process.cwd(), "public");
-
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      // Security Validation
+      // Read buffer into memory
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      // Binary Magic Bytes & MIME Security Validation
       const validation = validateMediaUpload({
         filename: file.name,
         mimeType: file.type || "application/octet-stream",
         sizeBytes: file.size,
+        buffer,
       });
 
       if (!validation.isValid) {
@@ -128,21 +132,23 @@ export async function POST(request: Request) {
         validation.sanitizedFilename || file.name
       );
 
-      const diskPath = path.join(baseUploadDir, "uploads", relativeStoragePath);
-      const directoryPath = path.dirname(diskPath);
-
-      // Ensure destination directory exists on disk
-      if (!fs.existsSync(directoryPath)) {
-        fs.mkdirSync(directoryPath, { recursive: true });
+      // Upload via Storage Provider
+      let uploadResult;
+      try {
+        uploadResult = await storageProvider.uploadFile(
+          relativeStoragePath,
+          buffer,
+          validation.detectedMime || file.type || "application/octet-stream"
+        );
+      } catch (uploadErr: any) {
+        errors.push({
+          filename: file.name,
+          error: `Storage upload failed: ${uploadErr.message}`,
+        });
+        continue;
       }
 
-      // Write buffer to disk
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      fs.writeFileSync(diskPath, buffer);
-
-      // Public web URL served by Next.js static engine
-      const fileUrl = `/uploads/${relativeStoragePath}`;
+      const fileUrl = uploadResult.publicUrl;
       const assetId = `med_${crypto.randomBytes(12).toString("hex")}`;
       const now = new Date();
 
@@ -150,41 +156,53 @@ export async function POST(request: Request) {
       const rawName = file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
       const cleanAltText = defaultCaption || `${album.titleEn} - ${rawName.replace(/[-_]/g, " ")}`;
 
-      // Insert mediaAsset record
-      await db.insert(mediaAssets).values({
-        id: assetId,
-        albumId: album.id,
-        fileUrl,
-        thumbnailUrl: fileUrl,
-        mediaType: validation.mediaType,
-        captionEn: defaultCaption || null,
-        captionAr: null,
-        altText: cleanAltText,
-        credit: defaultCredit || null,
-        sortOrder: nextSortOrder++,
-        isPublished: true,
-        createdAt: now,
-      });
+      // Insert mediaAsset record with Compensating Cleanup on failure
+      try {
+        await db.insert(mediaAssets).values({
+          id: assetId,
+          albumId: album.id,
+          fileUrl,
+          thumbnailUrl: fileUrl,
+          mediaType: validation.mediaType,
+          captionEn: defaultCaption || null,
+          captionAr: null,
+          altText: cleanAltText,
+          credit: defaultCredit || null,
+          sortOrder: nextSortOrder++,
+          isPublished: true,
+          createdAt: now,
+        });
 
-      // If album lacks a cover image, automatically set this first uploaded photo
-      if (!assignedCoverUrl) {
-        assignedCoverUrl = fileUrl;
-        await db
-          .update(galleryAlbums)
-          .set({ coverImageUrl: fileUrl, updatedAt: now })
-          .where(eq(galleryAlbums.id, album.id));
+        // If album lacks a cover image, automatically set this first uploaded photo
+        if (!assignedCoverUrl) {
+          assignedCoverUrl = fileUrl;
+          await db
+            .update(galleryAlbums)
+            .set({ coverImageUrl: fileUrl, updatedAt: now })
+            .where(eq(galleryAlbums.id, album.id));
+        }
+
+        uploadedAssets.push({
+          id: assetId,
+          filename: file.name,
+          url: fileUrl,
+          mediaType: validation.mediaType,
+        });
+      } catch (dbErr: any) {
+        // Compensating Cleanup: purge uploaded object from storage to prevent orphans
+        console.error(`Database insertion failed for asset '${assetId}', executing compensating storage cleanup:`, dbErr);
+        await storageProvider.deleteFile(relativeStoragePath).catch((cleanupErr) => {
+          console.error("Compensating cleanup warning:", cleanupErr);
+        });
+
+        errors.push({
+          filename: file.name,
+          error: `Database persistence failed: ${dbErr.message}`,
+        });
       }
-
-      uploadedAssets.push({
-        id: assetId,
-        filename: file.name,
-        fileUrl,
-        mediaType: validation.mediaType,
-        sizeBytes: file.size,
-      });
     }
 
-    // 5. Record Immutable Audit Log
+    // Record Immutable Audit Log
     if (uploadedAssets.length > 0) {
       await recordAuditLog({
         userId: session.id,
@@ -194,27 +212,29 @@ export async function POST(request: Request) {
         targetId: album.id,
         details: {
           albumId: album.id,
-          albumTitle: album.titleEn,
-          uploadedCount: uploadedAssets.length,
-          skippedCount: errors.length,
+          albumSlug: album.slug,
+          count: uploadedAssets.length,
+          storageProvider: storageProvider.name,
+          uploadedIds: uploadedAssets.map((u) => u.id),
           adminEmail: session.email,
         },
-        ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1",
       });
     }
 
     return NextResponse.json({
-      success: true,
-      uploadedCount: uploadedAssets.length,
-      skippedCount: errors.length,
-      assets: uploadedAssets,
-      errors: errors.length > 0 ? errors : undefined,
-      message: `Successfully uploaded and registered ${uploadedAssets.length} media asset(s).`,
+      success: uploadedAssets.length > 0,
+      summary: {
+        total: files.length,
+        succeeded: uploadedAssets.length,
+        failed: errors.length,
+      },
+      uploadedAssets,
+      errors,
+      storageProvider: storageProvider.name,
     });
   } catch (err: any) {
-    console.error("[Gallery Upload Error]:", err);
     return NextResponse.json(
-      { error: err.message || "An internal error occurred while processing media uploads." },
+      { error: "Internal server error processing media batch upload.", details: err.message },
       { status: 500 }
     );
   }

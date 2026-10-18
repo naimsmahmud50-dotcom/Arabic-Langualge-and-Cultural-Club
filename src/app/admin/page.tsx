@@ -255,54 +255,42 @@ export default async function AdminDashboardPage() {
               </div>
 
               {metrics.recentLogs.length > 0 ? (
-                <AdminDataTable
-                  columns={[
-                    {
-                      key: "createdAt",
-                      header: "Time",
-                      className: "w-28",
-                      render: (log) => (
-                        <span className="font-mono text-[11px] text-[var(--text-muted)]">
-                          {new Date(log.createdAt).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                          })}
-                        </span>
-                      ),
-                    },
-                    {
-                      key: "action",
-                      header: "Action",
-                      render: (log) => (
-                        <span className="font-semibold text-xs text-[var(--text-primary)]">
-                          {log.action}
-                        </span>
-                      ),
-                    },
-                    {
-                      key: "targetEntity",
-                      header: "Target Entity",
-                      render: (log) => (
-                        <span className="text-xs text-[var(--text-secondary)] font-mono">
-                          {log.targetEntity || "—"}
-                        </span>
-                      ),
-                    },
-                    {
-                      key: "status",
-                      header: "Status",
-                      align: "right",
-                      render: () => (
-                        <Badge variant="accent" size="sm">
-                          Audited
-                        </Badge>
-                      ),
-                    },
-                  ]}
-                  data={metrics.recentLogs}
-                  keyExtractor={(log) => log.id}
-                />
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-[var(--border-subtle)] text-[var(--text-muted)] font-medium">
+                        <th className="py-2.5 px-3 w-28">Time</th>
+                        <th className="py-2.5 px-3">Action</th>
+                        <th className="py-2.5 px-3">Target Entity</th>
+                        <th className="py-2.5 px-3 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-subtle)]">
+                      {metrics.recentLogs.map((log) => (
+                        <tr key={log.id} className="hover:bg-[var(--bg-secondary)]/50 transition-colors">
+                          <td className="py-2 px-3 font-mono text-[11px] text-[var(--text-muted)]">
+                            {new Date(log.createdAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            })}
+                          </td>
+                          <td className="py-2 px-3 font-semibold text-xs text-[var(--text-primary)]">
+                            {log.action}
+                          </td>
+                          <td className="py-2 px-3 text-xs text-[var(--text-secondary)] font-mono">
+                            {log.targetEntity || "—"}
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            <Badge variant="accent" size="sm">
+                              Audited
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               ) : (
                 <AdminEmptyState
                   icon={History}
