@@ -54,9 +54,9 @@ Status definitions:
 | **REQ-ADM-05** | Member Management & Status Review: search, filter, status toggles (Active, Alumni, Suspended). | HIGH | Phase 8 | Edit member roles, assign committee terms, search by name or membership ID. | [x] Completed |
 | **REQ-ADM-06** | Membership Applications Review Workflow (Pending, Approved, Rejected, Notes). | CRITICAL | Phase 8 | Reviewer can inspect application, approve/reject, add internal notes; updates status accurately. | [x] Completed |
 | **REQ-ADM-07** | Annual Plan & Event Management CMS. | CRITICAL | Phase 8 | Create/edit events, set capacity, manage registration lists, mark completed/postponed. | [x] Completed |
-| **REQ-ADM-08** | Photo Gallery & Media Asset CMS: bulk photo uploads, captions, credits, cover image selector. | CRITICAL | Phase 8 | Uploads validate size/mime-type; albums and photos persist with proper storage URLs. | [ ] Not Started |
-| **REQ-ADM-09** | News & Announcements CMS: rich text editor, draft/published status, scheduled expiry. | HIGH | Phase 8 | Draft posts remain hidden from public; published posts appear immediately. | [ ] Not Started |
-| **REQ-ADM-10** | Arabic Learning Resources & Publications CMS. | HIGH | Phase 8 | Upload resource files, assign categories, publish verified learning materials. | [ ] Not Started |
+| **REQ-ADM-08** | Photo Gallery & Media Asset CMS: bulk photo uploads, captions, credits, cover image selector. | CRITICAL | Phase 8 | Uploads validate size/mime-type; albums and photos persist with proper storage URLs. | [x] Completed |
+| **REQ-ADM-09** | News & Announcements CMS: rich text editor, draft/published status, scheduled expiry. | HIGH | Phase 8 | Draft posts remain hidden from public; published posts appear immediately. | [x] Completed |
+| **REQ-ADM-10** | Arabic Learning Resources & Publications CMS. | HIGH | Phase 8 | Upload resource files, assign categories, publish verified learning materials. | [x] Completed |
 | **REQ-ADM-11** | User Accounts & Granular Role Permissions (RBAC). | CRITICAL | Phase 4 | Super Admin can assign roles; restricted roles (e.g. Media Manager, Content Editor) cannot access User Management. | [x] Completed |
 | **REQ-ADM-12** | Immutable Audit Logs for sensitive operations. | HIGH | Phase 4 | Records actor, action type, target entity ID, and timestamp on login/failed login/reset/provisioning. | [x] Completed |
 | **REQ-ADM-13** | Site Settings & Global SEO Configuration. | HIGH | Phase 9 | Update club title, contact email, social media links, and meta tags directly from dashboard. | [ ] Not Started |

@@ -1,104 +1,69 @@
 /**
  * @file src/app/admin/gallery/page.tsx
  * @route /admin/gallery
- * @description Administrative Photo Gallery & Archival Media Management.
+ * @description Master Photo Gallery & Archival Media Management Console (Feature 017).
  * 
- * ARCHITECTURE & ROLE:
- * - Allows curating photo albums, uploading high-resolution event media,
- *   tagging academic years, and moderating publication consent.
- * - Queries `getPublicGalleryAlbums()`.
- * - Meets Requirement SPEC-GAL-01 through SPEC-GAL-04.
+ * DEVELOPER USAGE NOTE:
+ * - Server component protecting the gallery CMS with session verification.
+ * - Queries gallery_albums and media_assets directly from SQLite via Drizzle ORM.
+ * - Supplies academic years, event associations, and asset rosters to AdminGalleryClient.
+ * - Human-crafted UI: strictly zero AI emojis; uses authentic typography and Lucide SVG icons.
  */
 
 import React from "react";
 import { AdminHeader } from "@/components/layout/AdminHeader";
-import { Card, CardContent, Badge, Button, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, EmptyState } from "@/components/ui";
-import { getPublicGalleryAlbums } from "@/lib/db/queries";
-import { Image as ImageIcon, Plus, Edit, Eye, Upload } from "lucide-react";
-import Link from "next/link";
+import { 
+  getAdminGalleryAlbums, 
+  getAnnualPlanYears, 
+  getAdminEvents,
+  getAlbumMediaAssets 
+} from "@/lib/db/queries";
+import { getSession } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
+import { AdminGalleryClient } from "./AdminGalleryClient";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export default async function AdminGalleryPage() {
-  const { data: albums = [] } = await getPublicGalleryAlbums().catch(() => ({ data: [] }));
+  const session = await getSession();
+  if (!session) {
+    redirect("/admin/login?next=/admin/gallery");
+  }
+
+  // Fetch albums
+  const albumsResult = await getAdminGalleryAlbums({ limit: 100 });
+  const albums = albumsResult.data;
+
+  // Fetch academic years and events for cross-linking
+  const academicYears = await getAnnualPlanYears();
+  const eventsResult = await getAdminEvents({ limit: 100 });
+  const eventsList = eventsResult.data.map((e) => ({ id: e.id, titleEn: e.titleEn }));
+
+  // Fetch assets map for each album
+  const albumAssetsMap: Record<string, any[]> = {};
+  await Promise.all(
+    albums.map(async (alb) => {
+      albumAssetsMap[alb.id] = await getAlbumMediaAssets(alb.id);
+    })
+  );
 
   return (
     <div className="flex-1 flex flex-col">
       <AdminHeader
         title="Photo Albums & Media Archive"
-        subtitle="Curate visual memories, upload photographs, and manage media publications"
+        subtitle="Curate visual retrospectives, upload photographs, and manage media publications"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/admin" },
+          { label: "Photo Gallery" },
+        ]}
       />
 
-      <div className="p-6 sm:p-8 space-y-6 max-w-7xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-lg font-bold text-[var(--text-primary)]">
-              Curated Archival Albums
-            </h3>
-            <p className="text-xs text-[var(--text-secondary)]">
-              Albums organize event photographs and exhibition retrospectives.
-            </p>
-          </div>
-          <Button variant="accent" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />}>
-            Create New Album
-          </Button>
-        </div>
-
-        <Card className="border-[var(--border-color)]">
-          {albums.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Album Title (EN / AR)</TableHead>
-                  <TableHead>Academic Term</TableHead>
-                  <TableHead>Date Created</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {albums.map((alb) => (
-                  <TableRow key={alb.id}>
-                    <TableCell>
-                      <div className="font-bold text-xs text-[var(--text-primary)]">{alb.titleEn}</div>
-                      {alb.titleAr && <div className="font-arabic text-xs text-[var(--brand-accent)]" dir="rtl">{alb.titleAr}</div>}
-                    </TableCell>
-                    <TableCell className="text-xs font-mono text-[var(--brand-accent)] font-semibold">
-                      {alb.academicYear || "General"}
-                    </TableCell>
-                    <TableCell className="text-xs font-mono text-[var(--text-muted)]">
-                      {new Date(alb.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="accent" size="sm">Published</Badge>
-                    </TableCell>
-                    <TableCell className="text-right space-x-1.5">
-                      <Button variant="ghost" size="sm" className="text-xs">
-                        <Upload className="w-3.5 h-3.5 mr-1" />
-                        Add Photos
-                      </Button>
-                      <Link href={`/gallery/${alb.slug}`} target="_blank">
-                        <Button variant="ghost" size="sm" className="text-xs">
-                          <Eye className="w-3.5 h-3.5" />
-                        </Button>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="p-8">
-              <EmptyState
-                title="No Media Albums Created"
-                description="Create your first photo album to document calligraphy exhibitions and cultural assemblies."
-                actionLabel="Create First Album"
-                actionHref="/admin/gallery"
-              />
-            </div>
-          )}
-        </Card>
-      </div>
+      <AdminGalleryClient
+        initialAlbums={albums}
+        academicYears={academicYears}
+        eventsList={eventsList}
+        albumAssetsMap={albumAssetsMap}
+      />
     </div>
   );
 }

@@ -667,12 +667,12 @@ export async function getPublicLearningResources(params: {
 }
 
 /**
- * Atomically increment download count for a learning resource upon user access.
+ * Atomically increment download count for a learning resource upon user access (supports either id or slug).
  */
-export async function incrementResourceDownloadCount(id: string) {
+export async function incrementResourceDownloadCount(idOrSlug: string) {
   await db.update(learningResources)
     .set({ downloadCount: sql`${learningResources.downloadCount} + 1` })
-    .where(eq(learningResources.id, id));
+    .where(or(eq(learningResources.id, idOrSlug), eq(learningResources.slug, idOrSlug)));
   return true;
 }
 
@@ -697,14 +697,16 @@ export async function getPublicAchievements(params: { category?: string } = {}) 
  */
 export async function getPublicPublications(params: { 
   type?: string; 
+  publicationType?: string;
   search?: string; 
   page?: number; 
   limit?: number; 
 } = {}) {
   const conditions = [eq(publications.isPublished, true)];
 
-  if (params.type && params.type !== "all") {
-    conditions.push(eq(publications.publicationType, params.type as any));
+  const filterType = params.publicationType || params.type;
+  if (filterType && filterType !== "all") {
+    conditions.push(eq(publications.publicationType, filterType as any));
   }
 
   if (params.search) {
@@ -2829,6 +2831,371 @@ export async function getAnnualPlanById(id: string) {
 
   return plan || null;
 }
+
+// ============================================================================
+// CONTENT MANAGEMENT MODULES: ADMINISTRATIVE QUERIES (FEATURE 017)
+// ============================================================================
+
+/**
+ * Fetches announcements for administrative review, editing, and publishing.
+ * Supports filtering by category, publication status, and full-text keyword search.
+ */
+export async function getAdminAnnouncements(params: {
+  category?: string;
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+} = {}) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 20));
+  const offset = (page - 1) * limit;
+
+  const conditions = [];
+
+  if (params.category && params.category !== "all") {
+    conditions.push(eq(announcements.category, params.category));
+  }
+  if (params.status && params.status !== "all") {
+    conditions.push(eq(announcements.status, params.status as any));
+  }
+  if (params.search && params.search.trim()) {
+    const s = `%${params.search.trim()}%`;
+    conditions.push(or(
+      like(announcements.titleEn, s),
+      like(announcements.titleAr, s),
+      like(announcements.slug, s),
+      like(announcements.authorName, s)
+    )!);
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const data = await db
+    .select()
+    .from(announcements)
+    .where(whereClause)
+    .orderBy(desc(announcements.isPinned), desc(announcements.publishedAt))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(announcements)
+    .where(whereClause);
+
+  return {
+    data,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
+}
+
+/**
+ * Fetches Arabic learning resources for administrative curation.
+ * Supports filtering by category, skill level, publication status, and keyword search.
+ */
+export async function getAdminLearningResources(params: {
+  category?: string;
+  skillLevel?: string;
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+} = {}) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 20));
+  const offset = (page - 1) * limit;
+
+  const conditions = [];
+
+  if (params.category && params.category !== "all") {
+    conditions.push(eq(learningResources.category, params.category as any));
+  }
+  if (params.skillLevel && params.skillLevel !== "all") {
+    conditions.push(eq(learningResources.skillLevel, params.skillLevel as any));
+  }
+  if (params.status === "published") {
+    conditions.push(eq(learningResources.isPublished, true));
+  } else if (params.status === "draft") {
+    conditions.push(eq(learningResources.isPublished, false));
+  }
+  if (params.search && params.search.trim()) {
+    const s = `%${params.search.trim()}%`;
+    conditions.push(or(
+      like(learningResources.titleEn, s),
+      like(learningResources.titleAr, s),
+      like(learningResources.slug, s)
+    )!);
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const data = await db
+    .select()
+    .from(learningResources)
+    .where(whereClause)
+    .orderBy(desc(learningResources.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(learningResources)
+    .where(whereClause);
+
+  return {
+    data,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
+}
+
+/**
+ * Fetches publications for administrative catalog management.
+ * Supports publication type, publication status, and title keyword search.
+ */
+export async function getAdminPublications(params: {
+  publicationType?: string;
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+} = {}) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 20));
+  const offset = (page - 1) * limit;
+
+  const conditions = [];
+
+  if (params.publicationType && params.publicationType !== "all") {
+    conditions.push(eq(publications.publicationType, params.publicationType as any));
+  }
+  if (params.status === "published") {
+    conditions.push(eq(publications.isPublished, true));
+  } else if (params.status === "draft") {
+    conditions.push(eq(publications.isPublished, false));
+  }
+  if (params.search && params.search.trim()) {
+    const s = `%${params.search.trim()}%`;
+    conditions.push(or(
+      like(publications.titleEn, s),
+      like(publications.titleAr, s),
+      like(publications.slug, s),
+      like(publications.issueNo, s)
+    )!);
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const data = await db
+    .select()
+    .from(publications)
+    .where(whereClause)
+    .orderBy(desc(publications.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(publications)
+    .where(whereClause);
+
+  return {
+    data,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
+}
+
+/**
+ * Fetches verified institutional achievements and tournament accolades for admin review.
+ */
+export async function getAdminAchievements(params: {
+  category?: string;
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+} = {}) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 20));
+  const offset = (page - 1) * limit;
+
+  const conditions = [];
+
+  if (params.category && params.category !== "all") {
+    conditions.push(eq(achievements.category, params.category));
+  }
+  if (params.status === "published") {
+    conditions.push(eq(achievements.isPublished, true));
+  } else if (params.status === "draft") {
+    conditions.push(eq(achievements.isPublished, false));
+  }
+  if (params.search && params.search.trim()) {
+    const s = `%${params.search.trim()}%`;
+    conditions.push(or(
+      like(achievements.titleEn, s),
+      like(achievements.titleAr, s),
+      like(achievements.descriptionEn, s)
+    )!);
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const data = await db
+    .select()
+    .from(achievements)
+    .where(whereClause)
+    .orderBy(desc(achievements.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(achievements)
+    .where(whereClause);
+
+  return {
+    data,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
+}
+
+/**
+ * Fetches gallery albums for administrative curation with media counts.
+ * Supports academic year, category, and publication status filtering.
+ */
+export async function getAdminGalleryAlbums(params: {
+  academicYear?: string;
+  category?: string;
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+} = {}) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 20));
+  const offset = (page - 1) * limit;
+
+  const conditions = [];
+
+  if (params.academicYear && params.academicYear !== "all") {
+    conditions.push(eq(galleryAlbums.academicYear, params.academicYear));
+  }
+  if (params.category && params.category !== "all") {
+    conditions.push(eq(galleryAlbums.category, params.category));
+  }
+  if (params.status === "published") {
+    conditions.push(eq(galleryAlbums.isPublished, true));
+  } else if (params.status === "draft") {
+    conditions.push(eq(galleryAlbums.isPublished, false));
+  }
+  if (params.search && params.search.trim()) {
+    const s = `%${params.search.trim()}%`;
+    conditions.push(or(
+      like(galleryAlbums.titleEn, s),
+      like(galleryAlbums.titleAr, s),
+      like(galleryAlbums.slug, s),
+      like(galleryAlbums.location, s)
+    )!);
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const rawAlbums = await db
+    .select({
+      id: galleryAlbums.id,
+      slug: galleryAlbums.slug,
+      titleEn: galleryAlbums.titleEn,
+      titleAr: galleryAlbums.titleAr,
+      descriptionEn: galleryAlbums.descriptionEn,
+      descriptionAr: galleryAlbums.descriptionAr,
+      coverImageUrl: galleryAlbums.coverImageUrl,
+      eventDate: galleryAlbums.eventDate,
+      academicYear: galleryAlbums.academicYear,
+      category: galleryAlbums.category,
+      relatedEventId: galleryAlbums.relatedEventId,
+      relatedEventTitle: events.titleEn,
+      photographerCredit: galleryAlbums.photographerCredit,
+      location: galleryAlbums.location,
+      isFeatured: galleryAlbums.isFeatured,
+      isPublished: galleryAlbums.isPublished,
+      createdAt: galleryAlbums.createdAt,
+      updatedAt: galleryAlbums.updatedAt,
+      mediaCount: count(mediaAssets.id),
+    })
+    .from(galleryAlbums)
+    .leftJoin(events, eq(galleryAlbums.relatedEventId, events.id))
+    .leftJoin(mediaAssets, eq(galleryAlbums.id, mediaAssets.albumId))
+    .where(whereClause)
+    .groupBy(galleryAlbums.id)
+    .orderBy(desc(galleryAlbums.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(galleryAlbums)
+    .where(whereClause);
+
+  return {
+    data: rawAlbums,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
+}
+
+/**
+ * Fetches a single gallery album along with all contained media assets for management.
+ */
+export async function getAdminAlbumWithAssets(albumId: string) {
+  const [album] = await db
+    .select({
+      id: galleryAlbums.id,
+      slug: galleryAlbums.slug,
+      titleEn: galleryAlbums.titleEn,
+      titleAr: galleryAlbums.titleAr,
+      descriptionEn: galleryAlbums.descriptionEn,
+      descriptionAr: galleryAlbums.descriptionAr,
+      coverImageUrl: galleryAlbums.coverImageUrl,
+      eventDate: galleryAlbums.eventDate,
+      academicYear: galleryAlbums.academicYear,
+      category: galleryAlbums.category,
+      relatedEventId: galleryAlbums.relatedEventId,
+      relatedEventTitle: events.titleEn,
+      photographerCredit: galleryAlbums.photographerCredit,
+      location: galleryAlbums.location,
+      isFeatured: galleryAlbums.isFeatured,
+      isPublished: galleryAlbums.isPublished,
+      createdAt: galleryAlbums.createdAt,
+      updatedAt: galleryAlbums.updatedAt,
+    })
+    .from(galleryAlbums)
+    .leftJoin(events, eq(galleryAlbums.relatedEventId, events.id))
+    .where(eq(galleryAlbums.id, albumId))
+    .limit(1);
+
+  if (!album) return null;
+
+  const assets = await db
+    .select()
+    .from(mediaAssets)
+    .where(eq(mediaAssets.albumId, albumId))
+    .orderBy(asc(mediaAssets.sortOrder), desc(mediaAssets.createdAt));
+
+  return {
+    ...album,
+    assets,
+  };
+}
+
 
 
 
