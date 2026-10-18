@@ -458,23 +458,52 @@ export async function getAlbumMediaAssets(albumId: string) {
 }
 
 /**
- * Fetch public announcements with pagination.
+ * Fetch public announcements with category filtering, search, and pagination.
+ * Security constraint: Only retrieves isPublished === true AND status === 'published'.
+ * Drafts and archived bulletins are strictly excluded from public listing.
  */
-export async function getPublicAnnouncements(params: { page?: number; limit?: number } = {}) {
+export async function getPublicAnnouncements(params: { 
+  category?: string; 
+  search?: string; 
+  page?: number; 
+  limit?: number; 
+} = {}) {
   const page = Math.max(1, params.page || 1);
   const limit = Math.min(50, Math.max(1, params.limit || 10));
   const offset = (page - 1) * limit;
 
-  const conditions = [eq(announcements.isPublished, true)];
+  const conditions = [
+    eq(announcements.isPublished, true),
+    eq(announcements.status, "published"),
+  ];
+
+  if (params.category && params.category !== "all") {
+    conditions.push(eq(announcements.category, params.category));
+  }
+
+  if (params.search) {
+    const s = `%${params.search}%`;
+    conditions.push(or(
+      like(announcements.titleEn, s),
+      like(announcements.titleAr, s),
+      like(announcements.summaryEn, s),
+      like(announcements.contentEn, s)
+    )!);
+  }
 
   const data = await db.select({
     id: announcements.id,
     slug: announcements.slug,
     titleEn: announcements.titleEn,
     titleAr: announcements.titleAr,
+    summaryEn: announcements.summaryEn,
+    summaryAr: announcements.summaryAr,
     contentEn: announcements.contentEn,
     contentAr: announcements.contentAr,
     category: announcements.category,
+    coverImageUrl: announcements.coverImageUrl,
+    authorName: announcements.authorName,
+    status: announcements.status,
     isPinned: announcements.isPinned,
     publishedAt: announcements.publishedAt,
   })
@@ -492,6 +521,25 @@ export async function getPublicAnnouncements(params: { page?: number; limit?: nu
     data,
     pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
   };
+}
+
+/**
+ * Fetch a single public announcement by slug.
+ * Strictly enforces isPublished === true AND status === 'published'.
+ * Non-existent or unpublished announcements return null.
+ */
+export async function getPublicAnnouncementBySlug(slug: string) {
+  const row = await db.select()
+    .from(announcements)
+    .where(and(
+      eq(announcements.slug, slug),
+      eq(announcements.isPublished, true),
+      eq(announcements.status, "published")
+    ))
+    .limit(1)
+    .then(rows => rows[0] || null);
+
+  return row;
 }
 
 /**
@@ -518,7 +566,11 @@ export async function getPublicLearningResources(params: {
   }
   if (params.search) {
     const s = `%${params.search}%`;
-    conditions.push(or(like(learningResources.titleEn, s), like(learningResources.titleAr, s))!);
+    conditions.push(or(
+      like(learningResources.titleEn, s), 
+      like(learningResources.titleAr, s),
+      like(learningResources.contentEn, s)
+    )!);
   }
 
   const data = await db.select()
@@ -539,23 +591,68 @@ export async function getPublicLearningResources(params: {
 }
 
 /**
+ * Atomically increment download count for a learning resource upon user access.
+ */
+export async function incrementResourceDownloadCount(id: string) {
+  await db.update(learningResources)
+    .set({ downloadCount: sql`${learningResources.downloadCount} + 1` })
+    .where(eq(learningResources.id, id));
+  return true;
+}
+
+/**
  * Fetch published achievements.
  */
-export async function getPublicAchievements() {
+export async function getPublicAchievements(params: { category?: string } = {}) {
+  const conditions = [eq(achievements.isPublished, true)];
+
+  if (params.category && params.category !== "all") {
+    conditions.push(eq(achievements.category, params.category));
+  }
+
   return await db.select()
     .from(achievements)
-    .where(eq(achievements.isPublished, true))
+    .where(and(...conditions))
     .orderBy(desc(achievements.dateAchieved));
 }
 
 /**
- * Fetch published magazines and publications.
+ * Fetch published magazines and publications with optional type filter.
  */
-export async function getPublicPublications() {
-  return await db.select()
+export async function getPublicPublications(params: { 
+  type?: string; 
+  search?: string; 
+  page?: number; 
+  limit?: number; 
+} = {}) {
+  const conditions = [eq(publications.isPublished, true)];
+
+  if (params.type && params.type !== "all") {
+    conditions.push(eq(publications.publicationType, params.type as any));
+  }
+
+  if (params.search) {
+    const s = `%${params.search}%`;
+    conditions.push(or(
+      like(publications.titleEn, s),
+      like(publications.titleAr, s),
+      like(publications.descriptionEn, s)
+    )!);
+  }
+
+  const query = db.select()
     .from(publications)
-    .where(eq(publications.isPublished, true))
+    .where(and(...conditions))
     .orderBy(desc(publications.publicationDate));
+
+  if (params.limit) {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.min(50, Math.max(1, params.limit));
+    const offset = (page - 1) * limit;
+    return await query.limit(limit).offset(offset);
+  }
+
+  return await query;
 }
 
 /**
@@ -1131,6 +1228,268 @@ export async function updateEventRegistrationStatus(
     .set({ status })
     .where(eq(eventRegistrations.id, registrationId));
 
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// ANNOUNCEMENTS ADMIN OPERATIONS
+// ----------------------------------------------------------------------
+
+export async function createAnnouncement(data: {
+  id?: string;
+  slug: string;
+  titleEn: string;
+  titleAr?: string | null;
+  summaryEn?: string | null;
+  summaryAr?: string | null;
+  contentEn: string;
+  contentAr?: string | null;
+  category?: string;
+  coverImageUrl?: string | null;
+  authorName?: string | null;
+  status?: "draft" | "published" | "archived";
+  isPinned?: boolean;
+  isPublished?: boolean;
+  publishedAt?: Date;
+  expiresAt?: Date | null;
+}) {
+  const now = new Date();
+  const id = data.id || `ann_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  await db.insert(announcements).values({
+    id,
+    slug: data.slug,
+    titleEn: data.titleEn,
+    titleAr: data.titleAr ?? null,
+    summaryEn: data.summaryEn ?? null,
+    summaryAr: data.summaryAr ?? null,
+    contentEn: data.contentEn,
+    contentAr: data.contentAr ?? null,
+    category: data.category ?? "notice",
+    coverImageUrl: data.coverImageUrl ?? null,
+    authorName: data.authorName ?? null,
+    status: data.status ?? "published",
+    isPinned: data.isPinned ?? false,
+    isPublished: data.isPublished ?? true,
+    publishedAt: data.publishedAt ?? now,
+    expiresAt: data.expiresAt ?? null,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return id;
+}
+
+export async function updateAnnouncement(id: string, data: Partial<{
+  slug: string;
+  titleEn: string;
+  titleAr: string | null;
+  summaryEn: string | null;
+  summaryAr: string | null;
+  contentEn: string;
+  contentAr: string | null;
+  category: string;
+  coverImageUrl: string | null;
+  authorName: string | null;
+  status: "draft" | "published" | "archived";
+  isPinned: boolean;
+  isPublished: boolean;
+  publishedAt: Date;
+  expiresAt: Date | null;
+}>) {
+  await db.update(announcements)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(announcements.id, id));
+
+  return true;
+}
+
+export async function deleteAnnouncement(id: string) {
+  await db.delete(announcements).where(eq(announcements.id, id));
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// LEARNING RESOURCES ADMIN OPERATIONS
+// ----------------------------------------------------------------------
+
+export async function createLearningResource(data: {
+  id?: string;
+  slug: string;
+  titleEn: string;
+  titleAr?: string | null;
+  category: "grammar" | "morphology" | "rhetoric" | "vocabulary" | "literature" | "reading" | "general";
+  skillLevel?: "beginner" | "intermediate" | "advanced";
+  fileUrl?: string | null;
+  contentEn?: string | null;
+  contentAr?: string | null;
+  isPublished?: boolean;
+}) {
+  const now = new Date();
+  const id = data.id || `res_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  await db.insert(learningResources).values({
+    id,
+    slug: data.slug,
+    titleEn: data.titleEn,
+    titleAr: data.titleAr ?? null,
+    category: data.category,
+    skillLevel: data.skillLevel ?? "beginner",
+    fileUrl: data.fileUrl ?? null,
+    contentEn: data.contentEn ?? null,
+    contentAr: data.contentAr ?? null,
+    isPublished: data.isPublished ?? true,
+    downloadCount: 0,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return id;
+}
+
+export async function updateLearningResource(id: string, data: Partial<{
+  slug: string;
+  titleEn: string;
+  titleAr: string | null;
+  category: "grammar" | "morphology" | "rhetoric" | "vocabulary" | "literature" | "reading" | "general";
+  skillLevel: "beginner" | "intermediate" | "advanced";
+  fileUrl: string | null;
+  contentEn: string | null;
+  contentAr: string | null;
+  isPublished: boolean;
+}>) {
+  await db.update(learningResources)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(learningResources.id, id));
+
+  return true;
+}
+
+export async function deleteLearningResource(id: string) {
+  await db.delete(learningResources).where(eq(learningResources.id, id));
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// PUBLICATIONS & ACHIEVEMENTS ADMIN OPERATIONS
+// ----------------------------------------------------------------------
+
+export async function createPublication(data: {
+  id?: string;
+  slug: string;
+  titleEn: string;
+  titleAr?: string | null;
+  publicationType?: "magazine" | "newsletter" | "journal" | "report";
+  issueNo?: string | null;
+  publicationDate?: string | null;
+  coverImageUrl?: string | null;
+  fileUrl: string;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  isPublished?: boolean;
+}) {
+  const now = new Date();
+  const id = data.id || `pub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  await db.insert(publications).values({
+    id,
+    slug: data.slug,
+    titleEn: data.titleEn,
+    titleAr: data.titleAr ?? null,
+    publicationType: data.publicationType ?? "magazine",
+    issueNo: data.issueNo ?? null,
+    publicationDate: data.publicationDate ?? null,
+    coverImageUrl: data.coverImageUrl ?? null,
+    fileUrl: data.fileUrl,
+    descriptionEn: data.descriptionEn ?? null,
+    descriptionAr: data.descriptionAr ?? null,
+    isPublished: data.isPublished ?? true,
+    createdAt: now,
+  });
+
+  return id;
+}
+
+export async function updatePublication(id: string, data: Partial<{
+  slug: string;
+  titleEn: string;
+  titleAr: string | null;
+  publicationType: "magazine" | "newsletter" | "journal" | "report";
+  issueNo: string | null;
+  publicationDate: string | null;
+  coverImageUrl: string | null;
+  fileUrl: string;
+  descriptionEn: string | null;
+  descriptionAr: string | null;
+  isPublished: boolean;
+}>) {
+  await db.update(publications)
+    .set(data)
+    .where(eq(publications.id, id));
+
+  return true;
+}
+
+export async function deletePublication(id: string) {
+  await db.delete(publications).where(eq(publications.id, id));
+  return true;
+}
+
+export async function createAchievement(data: {
+  id?: string;
+  titleEn: string;
+  titleAr?: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  category?: string;
+  dateAchieved?: string | null;
+  certificateUrl?: string | null;
+  isPublished?: boolean;
+}) {
+  const now = new Date();
+  const id = data.id || `ach_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  await db.insert(achievements).values({
+    id,
+    titleEn: data.titleEn,
+    titleAr: data.titleAr ?? null,
+    descriptionEn: data.descriptionEn ?? null,
+    descriptionAr: data.descriptionAr ?? null,
+    category: data.category ?? "competition",
+    dateAchieved: data.dateAchieved ?? null,
+    certificateUrl: data.certificateUrl ?? null,
+    isPublished: data.isPublished ?? true,
+    createdAt: now,
+  });
+
+  return id;
+}
+
+export async function updateAchievement(id: string, data: Partial<{
+  titleEn: string;
+  titleAr: string | null;
+  descriptionEn: string | null;
+  descriptionAr: string | null;
+  category: string;
+  dateAchieved: string | null;
+  certificateUrl: string | null;
+  isPublished: boolean;
+}>) {
+  await db.update(achievements)
+    .set(data)
+    .where(eq(achievements.id, id));
+
+  return true;
+}
+
+export async function deleteAchievement(id: string) {
+  await db.delete(achievements).where(eq(achievements.id, id));
   return true;
 }
 

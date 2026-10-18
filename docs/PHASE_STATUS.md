@@ -73,4 +73,13 @@
   - Seeded database with varied fixtures: completed event, capacity-capped event (5/5 seats booked), postponed event, and active registrations.
   - Automated verification test suite passed: `src/lib/db/test-event-registration-system.ts`: 45/45 tests passed (100%).
   - Production build verified: `pnpm next build` completed with 0 errors across all 35 routes.
+- **Public Content Modules (News, Resources, Publications & Achievements):** Completed on 2026-10-18.
+  - Upgraded News & Gazettes (`/news`) with category filters, search input, pinned priority spotlight, and pagination.
+  - Created News Detail Dossier (`/news/[slug]`) with bilingual text blocks, author attestation, and dynamic SEO `generateMetadata`.
+  - Upgraded Arabic Learning Resources Hub (`/resources`) with dual-level filters (Subject & Proficiency Tier: Beginner, Intermediate, Advanced), search, and atomic download tracking.
+  - Upgraded Publications & Honors Registry (`/publications`) with official magazine/periodical downloads (Al-Bayan series) and Roll of Honor competitive achievements.
+  - Added Strix security isolation guardrails: drafts and archived items are strictly excluded from public queries.
+  - Added administrative CRUD operations for all three content domains in `src/lib/db/queries.ts`.
+  - Automated test suite passed: `src/lib/db/test-public-content-modules.ts`: 43/43 tests passed (100%).
+  - Production build verified: `pnpm next build` completed with 0 errors across all 37 routes.
 - **Recommended Next Prompt:** **Phase 7 Part 3 — Photo & Media Gallery System** (Implement `/gallery` album grid and `/gallery/[slug]` album details with responsive layout, image captions, credits, and fullscreen keyboard-accessible lightbox [Esc, Arrow keys, swipe]).

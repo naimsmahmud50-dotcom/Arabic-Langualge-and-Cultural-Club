@@ -1,27 +1,52 @@
 /**
  * @file src/app/(public)/publications/page.tsx
  * @route /publications
- * @description Academic Publications, Literary Journals, and Competitive Honors.
+ * @description Academic Publications, Literary Reviews, and Competitive Roll of Honor.
  * 
  * ARCHITECTURE & ROLE:
- * - Showcases official magazines (such as "Al-Bayan"), scholarly collections,
- *   and oratorical/debate competition achievements.
- * - Queries `getPublicPublications()` and `getPublicAchievements()`.
- * - Meets Requirement SPEC-PUB-01 through SPEC-PUB-04 and SPEC-ACH-01.
+ * - Showcases official magazines (such as "Al-Bayan"), quarterly bulletins, annual reports,
+ *   and verified tournament achievements with distinction citations.
+ * - Queries `getPublicPublications({ type, search })` and `getPublicAchievements({ category })`.
+ * - Strictly isolates unpublished draft publications and unverified trophies.
+ * - Meets Requirement REQ-PUB-12 and SPEC-PUB-01 through SPEC-PUB-04 and SPEC-ACH-01.
+ * 
+ * DESIGN TOKENS & CONSTRAINTS:
+ * - Primary: #173D32 (Forest Green)
+ * - Accent: #B18A4A (Antique Brass)
+ * - Anti-Emoji: Strictly clean Lucide SVG icons. Zero cheesy AI emojis.
  */
 
 import React from "react";
+import Link from "next/link";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge, EmptyState, Button } from "@/components/ui";
 import { getPublicPublications, getPublicAchievements } from "@/lib/db/queries";
-import { BookOpen, Award, Download, Calendar, ExternalLink } from "lucide-react";
+import { 
+  BookOpen, 
+  Award, 
+  Download, 
+  Calendar, 
+  FileText, 
+  Sparkles, 
+  ShieldCheck, 
+  ExternalLink,
+  Layers
+} from "lucide-react";
 
 export const revalidate = 60;
 
-export default async function PublicationsPage() {
+interface PublicationsPageProps {
+  searchParams: Promise<{ type?: string; achievementCategory?: string }>;
+}
+
+export default async function PublicationsPage({ searchParams }: PublicationsPageProps) {
+  const { type, achievementCategory } = await searchParams;
+  const activeType = type || "";
+  const activeAchCategory = achievementCategory || "";
+
   const [publications, achievements] = await Promise.all([
-    getPublicPublications().catch(() => []),
-    getPublicAchievements().catch(() => []),
+    getPublicPublications({ type: activeType || undefined }).catch(() => []),
+    getPublicAchievements({ category: activeAchCategory || undefined }).catch(() => []),
   ]);
 
   const breadcrumbs = [
@@ -29,27 +54,74 @@ export default async function PublicationsPage() {
     { label: "Publications & Honors", href: "/publications" },
   ];
 
+  const publicationTypes = [
+    { label: "All Press Issues", value: "" },
+    { label: "Literary Magazines", value: "magazine" },
+    { label: "Quarterly Bulletins", value: "newsletter" },
+    { label: "Annual Governance Reports", value: "report" },
+  ];
+
+  const achievementCategories = [
+    { label: "All Distinctions", value: "" },
+    { label: "Competitive Tournaments", value: "competition" },
+    { label: "Academic Commendations", value: "academic" },
+    { label: "Institutional Citations", value: "institutional" },
+  ];
+
   return (
-    <div>
+    <div className="space-y-14 pb-20">
+      {/* 1. Header */}
       <PageHeader
         title="Publications & Institutional Honors"
         titleAr="المطبوعات الدورية والجوائز الشرفية"
-        description="Peer-reviewed student journals, quarterly Arabic bulletins, research essays, and regional oratorical tournament honors."
-        badge="Academic Press"
+        description="Peer-reviewed literary reviews, quarterly bulletins, annual governance reports, and verified tournament debate championships."
+        badge="Academic Press & Roll of Honor"
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-16">
-        {/* Publications Section */}
-        <section className="space-y-6">
-          <div className="space-y-1">
-            <Badge variant="accent" size="sm">Literary Journals</Badge>
-            <h2 className="text-2xl font-bold text-[var(--text-primary)]">
-              Club Magazines & Official Bulletins
-            </h2>
-            <p className="text-sm text-[var(--text-secondary)]">
-              Archival and current issues of official club publications available for open study.
-            </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        {/* 2. Official Publications Section */}
+        <section aria-labelledby="publications-heading" className="space-y-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--border-color)] pb-6">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-[var(--brand-accent)]" />
+                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--brand-accent)]">
+                  Archival Press Repository
+                </span>
+              </div>
+              <h2 id="publications-heading" className="text-2xl font-bold text-[var(--text-primary)]">
+                Club Magazines & Official Periodicals
+              </h2>
+              <p className="text-xs text-[var(--text-secondary)]">
+                Verified editions authenticated by the Editorial Board and Academic Council.
+              </p>
+            </div>
+
+            {/* Publication Type Filters */}
+            <div className="flex flex-wrap gap-2">
+              {publicationTypes.map((t) => {
+                const isSelected = activeType === t.value;
+                const url = `/publications?${new URLSearchParams({
+                  ...(t.value ? { type: t.value } : {}),
+                  ...(activeAchCategory ? { achievementCategory: activeAchCategory } : {}),
+                }).toString()}`;
+
+                return (
+                  <Link
+                    key={t.value}
+                    href={url}
+                    className={`px-3 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-all border ${
+                      isSelected
+                        ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-sm"
+                        : "bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-color)] hover:border-[var(--brand-accent)] hover:text-[var(--text-primary)]"
+                    }`}
+                  >
+                    {t.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
           {publications.length > 0 ? (
@@ -58,7 +130,7 @@ export default async function PublicationsPage() {
                 <Card key={pub.id} hoverElevate className="border-[var(--border-color)] flex flex-col justify-between">
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
-                      <Badge variant="accent" size="sm">
+                      <Badge variant="accent" size="sm" className="capitalize">
                         {pub.publicationType || "Journal"}
                       </Badge>
                       {pub.publicationDate && (
@@ -79,13 +151,14 @@ export default async function PublicationsPage() {
                       )}
                     </div>
 
-                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                    <p className="text-xs text-[var(--text-secondary)] line-clamp-3 leading-relaxed">
                       {pub.descriptionEn || "Complete publication archive authenticated by the press and editorial board."}
                     </p>
 
                     {pub.issueNo && (
-                      <div className="pt-2 border-t border-[var(--border-subtle)] text-[11px] font-mono text-[var(--text-muted)]">
-                        Issue Ref: {pub.issueNo}
+                      <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-[11px] font-mono text-[var(--text-muted)]">
+                        <span>Issue Ref: {pub.issueNo}</span>
+                        <span className="uppercase text-[10px] text-[var(--brand-accent)]">Verified Edition</span>
                       </div>
                     )}
                   </CardContent>
@@ -103,7 +176,7 @@ export default async function PublicationsPage() {
                         className="w-full justify-between"
                         rightIcon={<Download className="w-3.5 h-3.5" />}
                       >
-                        Read / Download Issue
+                        <span>Download Verified Issue</span>
                       </Button>
                     </a>
                   </div>
@@ -112,59 +185,113 @@ export default async function PublicationsPage() {
             </div>
           ) : (
             <EmptyState
-              title="Publication Archive Being Digitized"
-              description="Editorial issues of the club magazine are currently undergoing OCR scanning and archival verification."
-              actionLabel="Return Home"
-              actionHref="/"
+              title="No Publications in Selected Category"
+              description="Editorial issues in this category are currently undergoing archival cataloging. Please select another category or view all periodicals."
+              actionLabel="Show All Press Issues"
+              actionHref="/publications"
             />
           )}
         </section>
 
-        {/* Competitive Achievements Section */}
-        <section className="space-y-6 pt-8 border-t border-[var(--border-color)]">
-          <div className="space-y-1">
-            <Badge variant="neutral" size="sm">Roll of Honor</Badge>
-            <h2 className="text-2xl font-bold text-[var(--text-primary)]">
-              Championships & Academic Distinctions
-            </h2>
-            <p className="text-sm text-[var(--text-secondary)]">
-              Institutional awards won by club debate teams, orators, and calligraphers.
-            </p>
+        {/* 3. Competitive Distinctions & Roll of Honor Section */}
+        <section aria-labelledby="achievements-heading" className="space-y-6 pt-10 border-t border-[var(--border-color)]">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--border-color)] pb-6">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Award className="w-4 h-4 text-[var(--brand-accent)]" />
+                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--brand-accent)]">
+                  Institutional Roll of Honor
+                </span>
+              </div>
+              <h2 id="achievements-heading" className="text-2xl font-bold text-[var(--text-primary)]">
+                Championships & Academic Distinctions
+              </h2>
+              <p className="text-xs text-[var(--text-secondary)]">
+                Verified institutional accolades won by varsity debate delegations, orators, and calligraphic fellows.
+              </p>
+            </div>
+
+            {/* Achievement Category Filters */}
+            <div className="flex flex-wrap gap-2">
+              {achievementCategories.map((achCat) => {
+                const isSelected = activeAchCategory === achCat.value;
+                const url = `/publications?${new URLSearchParams({
+                  ...(activeType ? { type: activeType } : {}),
+                  ...(achCat.value ? { achievementCategory: achCat.value } : {}),
+                }).toString()}`;
+
+                return (
+                  <Link
+                    key={achCat.value}
+                    href={url}
+                    className={`px-3 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-all border ${
+                      isSelected
+                        ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-sm"
+                        : "bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-color)] hover:border-[var(--brand-accent)] hover:text-[var(--text-primary)]"
+                    }`}
+                  >
+                    {achCat.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
           {achievements.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {achievements.map((ach) => (
-                <Card key={ach.id} className="border-[var(--border-color)] bg-[var(--bg-surface)]">
+                <Card key={ach.id} hoverElevate className="border-[var(--border-color)] bg-[var(--bg-surface)] flex flex-col justify-between">
                   <CardContent className="p-6 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-[6px] bg-[var(--brand-accent)]/10 text-[var(--brand-accent)] flex items-center justify-center shrink-0">
-                        <Award className="w-5 h-5" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-[6px] bg-[var(--brand-accent)]/10 text-[var(--brand-accent)] flex items-center justify-center shrink-0">
+                          <Award className="w-4 h-4" />
+                        </div>
+                        <Badge variant="neutral" size="sm" className="capitalize">
+                          {ach.category || "Competitive Distinction"}
+                        </Badge>
                       </div>
-                      <div>
-                        <span className="text-xs font-mono font-semibold text-[var(--brand-accent)]">
-                          {ach.dateAchieved ? new Date(ach.dateAchieved).getFullYear().toString() : "Distinction"}
-                        </span>
-                        <h4 className="text-base font-bold text-[var(--text-primary)] leading-tight">
-                          {ach.titleEn}
-                        </h4>
-                      </div>
+
+                      <span className="text-xs font-mono font-semibold text-[var(--brand-accent)]">
+                        {ach.dateAchieved ? new Date(ach.dateAchieved).getFullYear().toString() : "Honors"}
+                      </span>
                     </div>
 
-                    {ach.titleAr && (
-                      <p className="font-arabic text-sm text-[var(--brand-accent)]" dir="rtl">
-                        {ach.titleAr}
-                      </p>
-                    )}
+                    <div className="space-y-1">
+                      <h3 className="text-base font-bold text-[var(--text-primary)] leading-tight">
+                        {ach.titleEn}
+                      </h3>
+                      {ach.titleAr && (
+                        <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                          {ach.titleAr}
+                        </p>
+                      )}
+                    </div>
 
-                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-3">
                       {ach.descriptionEn}
                     </p>
 
-                    <div className="pt-2 border-t border-[var(--border-subtle)] text-[11px] text-[var(--text-muted)]">
-                      Honor Category: <strong className="text-[var(--text-primary)] capitalize">{ach.category || "Competitive Distinction"}</strong>
+                    <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-[11px] text-[var(--text-muted)] font-mono">
+                      <span>Conferred: {ach.dateAchieved || "Verified Record"}</span>
+                      <span className="text-[var(--brand-accent)] font-bold">Authenticated</span>
                     </div>
                   </CardContent>
+
+                  {ach.certificateUrl && (
+                    <div className="p-6 pt-0">
+                      <a
+                        href={ach.certificateUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full block"
+                      >
+                        <Button variant="outline" size="sm" className="w-full justify-between" rightIcon={<ExternalLink className="w-3.5 h-3.5" />}>
+                          <span>Inspect Verified Citation</span>
+                        </Button>
+                      </a>
+                    </div>
+                  )}
                 </Card>
               ))}
             </div>
@@ -173,11 +300,22 @@ export default async function PublicationsPage() {
               <Award className="w-8 h-8 text-[var(--brand-accent)] mx-auto mb-2 opacity-80" />
               <h4 className="text-sm font-bold text-[var(--text-primary)]">Historical Honors Registry</h4>
               <p className="text-xs text-[var(--text-secondary)] mt-1">
-                Records of past inter-university tournament trophies are being cataloged by the secretariat.
+                Records of past inter-university tournament trophies in this category are being cataloged by the secretariat.
               </p>
             </div>
           )}
         </section>
+
+        {/* 4. Archival Certification Protocol Note */}
+        <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[6px] p-6 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wide text-[var(--brand-accent)]">
+            <ShieldCheck className="w-4 h-4 text-[var(--brand-accent)]" />
+            <span>Honors Verification & Editorial Protocol</span>
+          </div>
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            In accordance with Article 8 of the Club Constitution, every competitive distinction, debate trophy, and student research journal published under the institutional masthead must undergo formal authentication by the Academic Committee. Fictional accolades or unverified claims are strictly prohibited from this permanent public register.
+          </p>
+        </div>
       </div>
     </div>
   );

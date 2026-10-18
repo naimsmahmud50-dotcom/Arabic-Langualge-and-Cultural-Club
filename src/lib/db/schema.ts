@@ -301,9 +301,14 @@ export const announcements = sqliteTable("announcements", {
   slug: text("slug").notNull().unique(),
   titleEn: text("title_en").notNull(),
   titleAr: text("title_ar"),
+  summaryEn: text("summary_en"),
+  summaryAr: text("summary_ar"),
   contentEn: text("content_en").notNull(),
   contentAr: text("content_ar"),
-  category: text("category").notNull().default("notice"), // notice, news, press, achievement
+  category: text("category").notNull().default("notice"), // notice, news, press, achievement, academic
+  coverImageUrl: text("cover_image_url"),
+  authorName: text("author_name"),
+  status: text("status", { enum: ["draft", "published", "archived"] }).notNull().default("published"),
   isPinned: integer("is_pinned", { mode: "boolean" }).notNull().default(false),
   isPublished: integer("is_published", { mode: "boolean" }).notNull().default(true),
   publishedAt: integer("published_at", { mode: "timestamp" }).notNull(),
@@ -313,6 +318,7 @@ export const announcements = sqliteTable("announcements", {
 }, (table) => [
   index("announcements_slug_idx").on(table.slug),
   index("announcements_published_idx").on(table.isPublished),
+  index("announcements_status_idx").on(table.status),
   index("announcements_pinned_idx").on(table.isPinned),
 ]);
 
@@ -370,7 +376,7 @@ export const learningResources = sqliteTable("learning_resources", {
   titleEn: text("title_en").notNull(),
   titleAr: text("title_ar"),
   category: text("category", { 
-    enum: ["grammar", "vocabulary", "literature", "reading", "general"] 
+    enum: ["grammar", "morphology", "rhetoric", "vocabulary", "literature", "reading", "general"] 
   }).notNull().default("grammar"),
   skillLevel: text("skill_level", { 
     enum: ["beginner", "intermediate", "advanced"] 

@@ -35,10 +35,10 @@ Status definitions:
 | **REQ-PUB-08** | Annual Calendar & 12-Month Plan (Month-by-month list and calendar views). | CRITICAL | Phase 7 | Displays planned, confirmed, completed, and postponed activities with status indicators. | [x] Completed |
 | **REQ-PUB-09** | Event Details & Interactive Registration. | CRITICAL | Phase 7 | Displays event logistics; validated registration form enforces capacity and prevents duplicate entries. | [x] Completed |
 | **REQ-PUB-10** | Photo & Media Gallery with Albums, Categories, and Fullscreen Lightbox. | CRITICAL | Phase 6 | Responsive grid renders event albums; clicking open lightbox with keyboard navigation (Esc, Arrow keys). | [ ] Not Started |
-| **REQ-PUB-11** | Arabic Learning & Educational Resources Hub. | HIGH | Phase 6 | Categorized by Nahw/Sarf/Vocabulary; downloadable PDFs and readable guides with proper Arabic shaping. | [ ] Not Started |
-| **REQ-PUB-12** | Achievements & Official Publications page. | HIGH | Phase 6 | Showcases competition awards, achievements, newsletters, and annual magazine downloads. | [ ] Not Started |
+| **REQ-PUB-11** | Arabic Learning & Educational Resources Hub. | HIGH | Phase 6 | Categorized by Nahw/Sarf/Vocabulary; downloadable PDFs and readable guides with proper Arabic shaping. | [x] Completed |
+| **REQ-PUB-12** | Achievements & Official Publications page. | HIGH | Phase 6 | Showcases competition awards, achievements, newsletters, and annual magazine downloads. | [x] Completed |
 | **REQ-PUB-13** | Membership Information & Multi-Step Online Application Form. | CRITICAL | Phase 7 | Form validates all inputs on server, persists application, generates unique Reference ID. | [ ] Not Started |
-| **REQ-PUB-14** | News & Official Announcements Hub. | HIGH | Phase 6 | Filterable announcements by category; pagination and detail pages with SEO metadata. | [ ] Not Started |
+| **REQ-PUB-14** | News & Official Announcements Hub. | HIGH | Phase 6 | Filterable announcements by category; pagination and detail pages with SEO metadata. | [x] Completed |
 | **REQ-PUB-15** | Partners & Contact Page with validated inquiry form. | HIGH | Phase 7 | Contact form validates server-side with rate limiting; verified contact info rendered. | [ ] Not Started |
 | **REQ-PUB-16** | Policies, Privacy, Photo Consent, and Accessibility Statement. | HIGH | Phase 7 | Clear data handling terms, consent policy, takedown contact route, and WCAG AA statement. | [ ] Not Started |
 
