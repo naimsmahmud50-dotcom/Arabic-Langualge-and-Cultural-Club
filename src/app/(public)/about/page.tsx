@@ -34,7 +34,7 @@ import React from "react";
 import Link from "next/link";
 import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Card, CardContent, Badge, Button, HeritageDivider, EmptyState } from "@/components/ui";
+import { Card, CardContent, Badge, Button, HeritageDivider, EmptyState, ClubLogo } from "@/components/ui";
 import { 
   Compass, 
   BookOpen, 
@@ -300,21 +300,24 @@ export default async function AboutPage() {
         {constitutionSection && (
           <section className="bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-[8px] p-8 md:p-10 space-y-6" id="constitution">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-2 max-w-2xl">
-                <div className="flex items-center gap-2">
-                  <Badge variant="primary" size="sm">
-                    {constitutionSection.contentEn.badge || "Governing Charter"}
-                  </Badge>
-                  <span className="text-xs text-[var(--brand-accent)] font-medium">
-                    Verified Institutional Record
-                  </span>
+              <div className="flex items-start gap-4 max-w-2xl">
+                <ClubLogo variant="crest" size="lg" className="shrink-0 hidden sm:inline-flex drop-shadow-sm" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="primary" size="sm">
+                      {constitutionSection.contentEn.badge || "Governing Charter"}
+                    </Badge>
+                    <span className="text-xs text-[var(--brand-accent)] font-medium">
+                      Verified Institutional Record
+                    </span>
+                  </div>
+                  <h2 className="text-2xl font-serif font-bold text-[var(--text-primary)]">
+                    {constitutionSection.contentEn.heading || "Club Constitution & Institutional Governance"}
+                  </h2>
+                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                    {constitutionSection.contentEn.body || "The Arabic Language & Cultural Club operates under an institutional constitution ratified by the founding general assembly. The constitution mandates annual executive committee transitions, democratic representation, transparent auditing of club assets, and permanent preservation of archival records."}
+                  </p>
                 </div>
-                <h2 className="text-2xl font-serif font-bold text-[var(--text-primary)]">
-                  {constitutionSection.contentEn.heading || "Club Constitution & Institutional Governance"}
-                </h2>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  {constitutionSection.contentEn.body || "The Arabic Language & Cultural Club operates under an institutional constitution ratified by the founding general assembly. The constitution mandates annual executive committee transitions, democratic representation, transparent auditing of club assets, and permanent preservation of archival records."}
-                </p>
               </div>
 
               {/* Downloadable Constitution Card */}

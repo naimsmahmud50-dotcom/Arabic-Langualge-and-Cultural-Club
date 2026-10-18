@@ -38,7 +38,7 @@ import {
 import { SessionUser, Permission, Role } from "@/lib/auth/types";
 import { hasPermission, ROLE_METADATA } from "@/lib/auth/rbac";
 import { logoutAction } from "@/lib/auth/actions";
-import { Badge } from "@/components/ui";
+import { Badge, ClubLogo } from "@/components/ui";
 
 interface AdminSidebarProps {
   className?: string;
@@ -121,10 +121,8 @@ export function AdminSidebar({ className, user }: AdminSidebarProps) {
       <div className="flex flex-col h-full overflow-hidden">
         {/* Brand Header */}
         <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between shrink-0">
-          <Link href="/admin" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-[4px] bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] flex items-center justify-center font-bold text-sm border border-[var(--brand-accent)]">
-              ض
-            </div>
+          <Link href="/admin" className="flex items-center gap-2.5 group">
+            <ClubLogo variant="crest" size="sm" className="group-hover:scale-105 transition-transform drop-shadow-xs" />
             <div>
               <span className="font-bold text-sm text-[var(--text-primary)] block leading-tight">
                 Arabic Club Admin

@@ -18,7 +18,7 @@
 import React, { useState } from "react";
 import { MembershipApplicationForm } from "./MembershipApplicationForm";
 import { ApplicationStatusTracker } from "./ApplicationStatusTracker";
-import { Card, CardContent, Badge } from "@/components/ui";
+import { Card, CardContent, Badge, ClubLogo } from "@/components/ui";
 import { 
   FileText, 
   Search, 
@@ -83,6 +83,22 @@ export function MembershipPortalView() {
 
         {/* Informational Sidebar: Privileges & Academic Guidelines */}
         <div className="space-y-6">
+          {/* Official Collegiate Seal Card */}
+          <div className="p-6 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center space-y-3 shadow-xs">
+            <ClubLogo variant="crest" size="lg" className="mx-auto filter drop-shadow-xs" />
+            <div>
+              <h4 className="font-serif font-bold text-sm text-[var(--text-primary)]">
+                Official Society Fellowship
+              </h4>
+              <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
+                Kabi Nazrul Government College, Dhaka
+              </p>
+              <p className="font-arabic text-[11px] text-[var(--brand-accent)] mt-1" dir="rtl">
+                نادي اللغة والثقافة العربية
+              </p>
+            </div>
+          </div>
+
           {/* Eligibility Criteria */}
           <Card className="border border-stone-200 dark:border-stone-800 bg-white/70 dark:bg-stone-900/70 backdrop-blur-sm">
             <CardContent className="p-6 space-y-4">

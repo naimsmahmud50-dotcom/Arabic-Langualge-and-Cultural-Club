@@ -1,7 +1,8 @@
 /**
  * DEVELOPER NOTE:
  * Page/Component: src/components/layout/Header.tsx
- * Updated masthead brand identity to Kabi Nazrul Government College, Dhaka / كلية كابي نذرول الحكومية.
+ * Updated masthead brand identity with official Arabic Language & Cultural Club crest.
+ * Institution: Kabi Nazrul Government College, Dhaka / كلية كابي نذرول الحكومية
  * Strictly human vibe; zero AI emojis.
  *
  * @file src/components/layout/Header.tsx
@@ -9,7 +10,7 @@
  * 
  * DEVELOPER USAGE NOTE:
  * - Features:
- *   - Brand logo & bilingual emblem badge
+ *   - Official brand crest (<ClubLogo variant="crest" />) & bilingual title
  *   - Desktop primary navigation links with dynamic translation
  *   - Language selector dropdown (EN, العربية, বাংলা) via `<LanguageSwitcher />`
  *   - Theme toggle (Light/Dark mode) via `<ThemeToggle />`
@@ -23,7 +24,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button, ThemeToggle } from "@/components/ui";
+import { Button, ThemeToggle, ClubLogo } from "@/components/ui";
 import { Menu, Shield, ArrowUpRight } from "lucide-react";
 import { MobileNav } from "./MobileNav";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -58,10 +59,12 @@ export function Header() {
               className="flex items-center gap-3.5 group select-none shrink-0"
               aria-label="Arabic Language & Cultural Club Home"
             >
-              {/* Emblem Tile */}
-              <div className="w-11 h-11 rounded-[6px] bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] flex items-center justify-center font-bold text-lg border border-[var(--brand-accent)] shadow-xs group-hover:scale-[1.02] transition-transform">
-                <span className="font-arabic font-bold text-xl">ض</span>
-              </div>
+              {/* Official Club Crest */}
+              <ClubLogo 
+                variant="crest" 
+                size="md" 
+                className="group-hover:scale-[1.03] transition-transform drop-shadow-xs" 
+              />
               
               <div className="flex flex-col text-start">
                 <span className="font-bold text-sm sm:text-base leading-tight tracking-tight text-[var(--text-primary)] group-hover:text-[var(--brand-accent)] transition-colors">

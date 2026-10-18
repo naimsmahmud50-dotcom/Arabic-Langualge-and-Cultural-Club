@@ -13,7 +13,7 @@
 
 import React, { useActionState } from "react";
 import Link from "next/link";
-import { Card, Button, Input, Alert } from "@/components/ui";
+import { Card, Button, Input, Alert, ClubLogo } from "@/components/ui";
 import { Mail, ArrowLeft, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
 import { requestPasswordResetAction } from "@/lib/auth/actions";
 import { ActionResponse } from "@/lib/auth/types";
@@ -29,9 +29,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Brand Crest */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-[6px] bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] flex items-center justify-center font-bold text-xl mx-auto border border-[var(--brand-accent)] shadow-xs">
-            ض
-          </div>
+          <ClubLogo variant="crest" size="lg" className="mx-auto filter drop-shadow-sm mb-1" />
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
             Reset Administrative Access
           </h1>

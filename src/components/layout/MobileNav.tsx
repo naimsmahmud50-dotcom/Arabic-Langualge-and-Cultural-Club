@@ -1,7 +1,8 @@
 /**
  * DEVELOPER NOTE:
  * Page/Component: src/components/layout/MobileNav.tsx
- * Updated mobile drawer header identity to Kabi Nazrul Govt. College, Dhaka.
+ * Updated mobile drawer header identity with official Arabic Language & Cultural Club crest.
+ * Institution: Kabi Nazrul Govt. College, Dhaka (কবি নজরুল সরকারি কলেজ, ঢাকা)
  * Strictly human vibe; zero AI emojis.
  *
  * @file src/components/layout/MobileNav.tsx
@@ -10,6 +11,7 @@
  * DEVELOPER USAGE NOTE:
  * - Supports RTL mirroring: slides from left in RTL mode and from right in LTR mode.
  * - Features:
+ *   - Official club crest (<ClubLogo variant="crest" size="sm" />)
  *   - Backdrop click to dismiss and ESC key handler
  *   - Body overflow locking while drawer is open
  *   - Language Switcher (`<LanguageSwitcher variant="full" />`)
@@ -24,7 +26,7 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, ArrowRight, Shield } from "lucide-react";
-import { Button, ThemeToggle } from "@/components/ui";
+import { Button, ThemeToggle, ClubLogo } from "@/components/ui";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils/cn";
@@ -95,9 +97,7 @@ export function MobileNav({ isOpen, onClose, links }: MobileNavProps) {
           {/* Header */}
           <div className="flex items-center justify-between pb-5 border-b border-[var(--border-color)]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-[4px] bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] flex items-center justify-center font-bold text-sm">
-                ض
-              </div>
+              <ClubLogo variant="crest" size="sm" className="drop-shadow-xs" />
               <div className="flex flex-col text-start">
                 <span className="font-bold text-sm text-[var(--text-primary)]">
                   {t("nav.home", "Arabic Club")}

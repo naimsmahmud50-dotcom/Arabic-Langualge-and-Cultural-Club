@@ -23,7 +23,7 @@
 import React from "react";
 import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Card, CardContent, Badge } from "@/components/ui";
+import { Card, CardContent, Badge, ClubLogo } from "@/components/ui";
 import { getContactSettings } from "@/lib/db/queries";
 import { ContactInquiryForm } from "./ContactInquiryForm";
 import { 
@@ -81,15 +81,18 @@ export default async function ContactPage() {
           <div className="space-y-6">
             <Card className="border border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur-sm">
               <CardContent className="p-6 space-y-6">
-                <div>
-                  <Badge variant="accent" size="sm">Club Headquarters</Badge>
-                  <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100 mt-2">
-                    Secretariat Office
-                  </h3>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                    Central campus administrative and cultural headquarters.
-                  </p>
+                <div className="flex items-center gap-3">
+                  <ClubLogo variant="crest" size="md" className="shrink-0 drop-shadow-xs" />
+                  <div>
+                    <Badge variant="accent" size="sm">Club Headquarters</Badge>
+                    <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100 mt-1">
+                      Secretariat Office
+                    </h3>
+                  </div>
                 </div>
+                <p className="text-xs text-stone-500 dark:text-stone-400 -mt-2">
+                  Central campus administrative and cultural headquarters.
+                </p>
 
                 <div className="space-y-5 text-xs">
                   {/* Verified Address */}

@@ -2,6 +2,7 @@
  * DEVELOPER NOTE:
  * Page/Component: src/components/home/HeroSection.tsx
  * Updated hero collegiate badge, Arabic bismillah heading, and editorial narrative to reflect Kabi Nazrul Government College, Dhaka.
+ * Integrated official Arabic Language & Cultural Club crest in scholarly emblem card.
  * Strictly human vibe; zero AI emojis.
  *
  * @file src/components/home/HeroSection.tsx
@@ -9,7 +10,7 @@
  * 
  * ARCHITECTURAL ROLE:
  * - Premium scholarly gateway greeting members, researchers, and prospective students.
- * - Displays verified institutional nomenclature, Arabic calligraphic motto, and primary CTAs.
+ * - Displays verified institutional nomenclature, official club crest (<ClubLogo variant="crest" />), and primary CTAs.
  * - Meets Requirement SPEC-HOM-01.
  * 
  * DESIGN CONSTRAINTS:
@@ -21,7 +22,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Button, GeometricPattern, Badge } from "@/components/ui";
+import { Button, GeometricPattern, Badge, ClubLogo } from "@/components/ui";
 import { ShieldCheck, ArrowRight, BookOpen, Calendar, Compass } from "lucide-react";
 
 interface HeroSectionProps {
@@ -125,9 +126,11 @@ export function HeroSection({ stats }: HeroSectionProps) {
           {/* Right Emblem Card: Calligraphic Crest */}
           <div className="lg:col-span-4 hidden lg:flex flex-col items-center justify-center">
             <div className="relative p-8 rounded-[12px] bg-white/5 border border-white/15 backdrop-blur-xs text-center space-y-4 max-w-xs shadow-2xl">
-              <div className="w-24 h-24 rounded-full bg-[var(--brand-primary)] border-2 border-[var(--brand-accent)] text-white flex items-center justify-center font-bold text-5xl mx-auto shadow-inner">
-                ض
-              </div>
+              <ClubLogo 
+                variant="crest" 
+                size="xl" 
+                className="mx-auto filter drop-shadow-lg hover:scale-105 transition-transform" 
+              />
               <div className="space-y-1">
                 <h3 className="font-bold text-base text-white">
                   Lisan Al-Arab Heritage

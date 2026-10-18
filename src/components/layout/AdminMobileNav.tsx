@@ -19,7 +19,7 @@ import { X, ExternalLink, LogOut, Shield } from "lucide-react";
 import { SessionUser } from "@/lib/auth/types";
 import { hasPermission, ROLE_METADATA } from "@/lib/auth/rbac";
 import { logoutAction } from "@/lib/auth/actions";
-import { Badge } from "@/components/ui";
+import { Badge, ClubLogo } from "@/components/ui";
 import { ADMIN_NAV_GROUPS } from "./AdminSidebar";
 
 export interface AdminMobileNavProps {
@@ -95,9 +95,7 @@ export function AdminMobileNav({ isOpen, onClose, user }: AdminMobileNavProps) {
         {/* Brand Header & Close Button */}
         <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between shrink-0">
           <Link href="/admin" onClick={onClose} className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-[4px] bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] flex items-center justify-center font-bold text-sm border border-[var(--brand-accent)]">
-              ض
-            </div>
+            <ClubLogo variant="crest" size="sm" className="drop-shadow-xs" />
             <div>
               <span className="font-bold text-sm text-[var(--text-primary)] block leading-tight">
                 Arabic Club Admin

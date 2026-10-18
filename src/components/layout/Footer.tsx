@@ -2,12 +2,13 @@
  * DEVELOPER NOTE:
  * Page/Component: src/components/layout/Footer.tsx
  * Updated institutional footer identity block and copyright bar to Kabi Nazrul Government College, Dhaka.
+ * Integrated official Arabic Language & Cultural Club crest.
  * Strictly human vibe; zero AI emojis.
  *
  * @file Footer.tsx
  * @description Comprehensive institutional footer for the Arabic Language & Cultural Club.
  * Features:
- * - Official branding, mission, and Arabic motto
+ * - Official branding, mission, Arabic motto, and official club crest (<ClubLogo variant="crest" />)
  * - Sitemaps grouped by domain (About, Operations, Resources, Policies)
  * - Institutional integrity notice (Zero-fabrication & archive preservation)
  * - Admin portal login shortcut
@@ -15,7 +16,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { GeometricPattern, HeritageDivider } from "@/components/ui";
+import { GeometricPattern, HeritageDivider, ClubLogo } from "@/components/ui";
 import { Shield, Mail, MapPin, Globe } from "lucide-react";
 
 export function Footer() {
@@ -31,9 +32,7 @@ export function Footer() {
           {/* Column 1: Institutional Identity */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-[6px] bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] border border-[var(--brand-accent)] flex items-center justify-center font-bold text-lg">
-                ض
-              </div>
+              <ClubLogo variant="crest" size="md" className="drop-shadow-sm" />
               <div>
                 <h4 className="font-bold text-lg text-white leading-tight">
                   Arabic Language & Cultural Club
