@@ -4,7 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "tsx src/lib/db/migrate.ts",
+    "db:seed": "tsx src/lib/db/seed.ts",
+    "test": "tsx src/lib/db/test-e2e-comprehensive.ts",
+    "test:all": "tsx src/lib/db/test-e2e-comprehensive.ts"
   },
   "keywords": [],
   "author": "",
