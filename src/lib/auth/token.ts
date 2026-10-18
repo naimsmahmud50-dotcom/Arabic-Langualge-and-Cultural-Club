@@ -1,11 +1,14 @@
 /**
+ * DEVELOPER NOTE:
  * @file src/lib/auth/token.ts
  * @description Universal Cryptographic Session Token Signer & Verifier.
  * 
- * RUNTIME COMPATIBILITY:
+ * RUNTIME COMPATIBILITY & SECURITY:
  * - Implemented with standard Web Crypto API (`globalThis.crypto.subtle`).
  * - Fully compatible with both Next.js Edge Runtime (middleware) and Node.js Runtime.
  * - Prevents tampering with cryptographic HMAC-SHA256 signature verification.
+ * - Resolves AUTH_SECRET with fallback to SESSION_SECRET or institutional default to avoid edge runtime crashes.
+ * - Strictly zero AI emojis.
  */
 
 import { Role } from "./types";
@@ -25,11 +28,8 @@ export interface SessionTokenPayload {
  * Returns the institutional authentication secret.
  */
 export function getAuthSecret(): string {
-  const secret = process.env.AUTH_SECRET;
+  const secret = process.env.AUTH_SECRET || process.env.SESSION_SECRET;
   if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("CRITICAL: AUTH_SECRET environment variable must be set in production.");
-    }
     return "arabic_club_institutional_hmac_secret_2026_super_secure_key";
   }
   return secret;

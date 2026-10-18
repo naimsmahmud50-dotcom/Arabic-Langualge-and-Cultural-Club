@@ -113,9 +113,19 @@ export async function seedDatabase() {
     { id: "pos_adv", titleEn: "Faculty Adviser", titleAr: "المشرف الأكاديمي", defaultRank: 10, category: "advisor", createdAt: now },
   ]).onConflictDoNothing();
 
-  // 3. Test Users with Scrypt hashed password ("AdminSecure2026!")
+  // 3. Test & Administrative Users with Scrypt hashed password ("AdminSecure2026!")
   const securePwHash = hashPassword("AdminSecure2026!");
   await db.insert(users).values([
+    {
+      id: "usr_kngc_superadmin",
+      email: "arabicclubkngc2025@gmail.com",
+      passwordHash: securePwHash,
+      fullName: "Lead Super Administrator (Kabi Nazrul Government College)",
+      role: "super_admin",
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    },
     {
       id: "usr_superadmin",
       email: "admin@arabicclub.org",
