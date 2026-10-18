@@ -33,6 +33,7 @@ import {
   ExternalLink,
   LogOut,
   User,
+  Mail,
 } from "lucide-react";
 import { SessionUser, Permission, Role } from "@/lib/auth/types";
 import { hasPermission, ROLE_METADATA } from "@/lib/auth/rbac";
@@ -86,6 +87,7 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
   {
     group: "System & Governance",
     items: [
+      { label: "Inquiries & Inbox", href: "/admin/inquiries", icon: Mail, permission: "settings:manage" },
       { label: "Users & Roles", href: "/admin/users", icon: ShieldCheck, permission: "users:manage" },
       { label: "Site Settings & SEO", href: "/admin/settings", icon: Settings, permission: "settings:manage" },
       { label: "Audit Logs", href: "/admin/audit-logs", icon: History, permission: "audit:read" },

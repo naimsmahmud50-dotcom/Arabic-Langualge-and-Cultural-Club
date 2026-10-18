@@ -39,7 +39,7 @@ Status definitions:
 | **REQ-PUB-12** | Achievements & Official Publications page. | HIGH | Phase 6 | Showcases competition awards, achievements, newsletters, and annual magazine downloads. | [x] Completed |
 | **REQ-PUB-13** | Membership Information & Multi-Step Online Application Form. | CRITICAL | Phase 7 | Form validates all inputs on server, persists application, generates unique Reference ID. | [x] Completed |
 | **REQ-PUB-14** | News & Official Announcements Hub. | HIGH | Phase 6 | Filterable announcements by category; pagination and detail pages with SEO metadata. | [x] Completed |
-| **REQ-PUB-15** | Partners & Contact Page with validated inquiry form. | HIGH | Phase 7 | Contact form validates server-side with rate limiting; verified contact info rendered. | [ ] Not Started |
+| **REQ-PUB-15** | Partners & Contact Page with validated inquiry form. | HIGH | Phase 7 | Contact form validates server-side with rate limiting; verified contact info rendered. | [x] Completed |
 | **REQ-PUB-16** | Policies, Privacy, Photo Consent, and Accessibility Statement. | HIGH | Phase 7 | Clear data handling terms, consent policy, takedown contact route, and WCAG AA statement. | [ ] Not Started |
 
 ---

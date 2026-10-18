@@ -17,7 +17,8 @@ import {
   auditLogs,
   annualPlans,
   editablePages,
-  pageSections
+  pageSections,
+  contactInquiries
 } from "./schema";
 import { eq, ne, desc, asc, and, like, or, count, sql } from "drizzle-orm";
 
@@ -2000,6 +2001,187 @@ export async function updateMediaAsset(id: string, data: Partial<CreateMediaAsse
 export async function deleteMediaAsset(id: string) {
   await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
   return true;
+}
+
+// ----------------------------------------------------------------------
+// 15. CONTACT SETTINGS & INQUIRIES (Institutional Relations)
+// ----------------------------------------------------------------------
+
+export interface ContactSettings {
+  clubNameEn: string;
+  clubNameAr: string;
+  clubTaglineEn: string | null;
+  clubTaglineAr: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  headquartersAddressEn: string | null;
+  headquartersAddressAr: string | null;
+  officeHoursEn: string | null;
+  officeHoursAr: string | null;
+  socialFacebook: string | null;
+  socialYoutube: string | null;
+  socialTwitter: string | null;
+  socialLinkedin: string | null;
+}
+
+/**
+ * Fetch approved institutional contact settings.
+ * STRICT POLICY: Only returns verified values stored in siteSettings.
+ * Never invents phone numbers, office hours, addresses, or social media links.
+ */
+export async function getContactSettings(): Promise<ContactSettings> {
+  const settingsRows = await db.select()
+    .from(siteSettings)
+    .where(or(
+      eq(siteSettings.category, "contact"),
+      eq(siteSettings.category, "social"),
+      eq(siteSettings.category, "general")
+    ));
+
+  const settingsMap = new Map<string, { valueEn: string | null; valueAr: string | null }>();
+  settingsRows.forEach(row => {
+    settingsMap.set(row.key, { valueEn: row.valueEn, valueAr: row.valueAr });
+  });
+
+  return {
+    clubNameEn: settingsMap.get("club_name")?.valueEn || "Arabic Language & Cultural Club",
+    clubNameAr: settingsMap.get("club_name")?.valueAr || "نادي اللغة والثقافة العربية",
+    clubTaglineEn: settingsMap.get("club_tagline")?.valueEn || null,
+    clubTaglineAr: settingsMap.get("club_tagline")?.valueAr || null,
+    contactEmail: settingsMap.get("contact_email")?.valueEn || null,
+    contactPhone: settingsMap.get("contact_phone")?.valueEn || null,
+    headquartersAddressEn: settingsMap.get("headquarters_address")?.valueEn || null,
+    headquartersAddressAr: settingsMap.get("headquarters_address")?.valueAr || null,
+    officeHoursEn: settingsMap.get("office_hours")?.valueEn || null,
+    officeHoursAr: settingsMap.get("office_hours")?.valueAr || null,
+    socialFacebook: settingsMap.get("social_facebook")?.valueEn || null,
+    socialYoutube: settingsMap.get("social_youtube")?.valueEn || null,
+    socialTwitter: settingsMap.get("social_twitter")?.valueEn || null,
+    socialLinkedin: settingsMap.get("social_linkedin")?.valueEn || null,
+  };
+}
+
+export interface SubmitContactInquiryInput {
+  fullName: string;
+  email: string;
+  department?: string;
+  subject: string;
+  message: string;
+  ipAddress?: string | null;
+  deliveryStatus?: "stored_locally" | "delivered_smtp" | "delivery_failed";
+}
+
+/**
+ * Persists an official public inquiry into the secure contact_inquiries table.
+ * Generates an institutional Reference ID (e.g. INQ-2026-XXXX).
+ */
+export async function submitContactInquiry(input: SubmitContactInquiryInput) {
+  const hexSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const referenceNo = `INQ-2026-${hexSuffix}`;
+  const id = `inq_${Date.now()}_${hexSuffix.toLowerCase()}`;
+  const now = new Date();
+
+  await db.insert(contactInquiries).values({
+    id,
+    referenceNo,
+    fullName: input.fullName.trim(),
+    email: input.email.trim().toLowerCase(),
+    department: input.department?.trim() || "general",
+    subject: input.subject.trim(),
+    message: input.message.trim(),
+    status: "unread",
+    deliveryStatus: input.deliveryStatus || "stored_locally",
+    ipAddress: input.ipAddress || null,
+    adminNotes: null,
+    repliedAt: null,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return {
+    id,
+    referenceNo,
+    fullName: input.fullName.trim(),
+    email: input.email.trim().toLowerCase(),
+    deliveryStatus: input.deliveryStatus || "stored_locally",
+    createdAt: now,
+  };
+}
+
+/**
+ * Fetch contact inquiries for the administrative inbox with optional filters.
+ * STRICT SECURITY: Administrative access only. Never call from public routes.
+ */
+export async function getAdminInquiries(options: {
+  status?: string;
+  department?: string;
+  search?: string;
+} = {}) {
+  const conditions = [];
+
+  if (options.status && options.status !== "all") {
+    conditions.push(eq(contactInquiries.status, options.status as any));
+  }
+
+  if (options.department && options.department !== "all") {
+    conditions.push(eq(contactInquiries.department, options.department));
+  }
+
+  if (options.search && options.search.trim()) {
+    const s = `%${options.search.trim()}%`;
+    conditions.push(or(
+      like(contactInquiries.referenceNo, s),
+      like(contactInquiries.fullName, s),
+      like(contactInquiries.email, s),
+      like(contactInquiries.subject, s)
+    )!);
+  }
+
+  return await db.select()
+    .from(contactInquiries)
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(contactInquiries.createdAt));
+}
+
+/**
+ * Update administrative status and internal notes for an inquiry.
+ */
+export async function updateInquiryStatus(
+  id: string,
+  status: "unread" | "read" | "replied" | "archived",
+  adminNotes?: string
+) {
+  const now = new Date();
+  const updateData: any = {
+    status,
+    updatedAt: now,
+  };
+
+  if (adminNotes !== undefined) {
+    updateData.adminNotes = adminNotes;
+  }
+
+  if (status === "replied") {
+    updateData.repliedAt = now;
+  }
+
+  await db.update(contactInquiries)
+    .set(updateData)
+    .where(eq(contactInquiries.id, id));
+
+  return true;
+}
+
+/**
+ * Fetch a single inquiry by ID for admin inspection.
+ */
+export async function getInquiryById(id: string) {
+  const [inquiry] = await db.select()
+    .from(contactInquiries)
+    .where(eq(contactInquiries.id, id))
+    .limit(1);
+
+  return inquiry || null;
 }
 
 

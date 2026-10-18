@@ -522,6 +522,36 @@ export const consentRecords = sqliteTable("consent_records", {
   index("consent_subject_idx").on(table.subjectType, table.subjectId),
 ]);
 
+// ----------------------------------------------------------------------
+// 21. CONTACT INQUIRIES & CORRESPONDENCE
+// ----------------------------------------------------------------------
+export const contactInquiries = sqliteTable("contact_inquiries", {
+  id: text("id").primaryKey(),
+  referenceNo: text("reference_no").notNull().unique(), // e.g. INQ-2026-XXXX
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull(),
+  department: text("department").notNull().default("general"), // general, academic, debate, membership, media
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  status: text("status", {
+    enum: ["unread", "read", "replied", "archived"]
+  }).notNull().default("unread"),
+  deliveryStatus: text("delivery_status", {
+    enum: ["stored_locally", "delivered_smtp", "delivery_failed"]
+  }).notNull().default("stored_locally"),
+  ipAddress: text("ip_address"),
+  adminNotes: text("admin_notes"),
+  repliedAt: integer("replied_at", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+}, (table) => [
+  index("inquiries_status_idx").on(table.status),
+  index("inquiries_ref_idx").on(table.referenceNo),
+  index("inquiries_email_idx").on(table.email),
+  index("inquiries_dept_idx").on(table.department),
+  index("inquiries_created_idx").on(table.createdAt),
+]);
+
 // ======================================================================
 // DRIZZLE RELATIONS
 // ======================================================================

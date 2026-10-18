@@ -104,5 +104,16 @@
   - Automated test suite passed: `src/lib/db/test-membership-application-workflow.ts`: 22/22 tests passed (100%).
   - Full regression test suites passed: 268/268 tests passed (100% across all 8 test suites).
   - Production build verified: `pnpm next build` completed with 0 errors across all 37 routes.
-- **Recommended Next Prompt:** **Phase 8 Part 2 — Contact & Inquiries System with Privacy & Compliance Policies** (Implement `/contact` validated inquiry form with rate limiting, email delivery/inbox logging, and `/policies` institutional privacy charter, photo consent protocol, and WCAG AA accessibility statement).
+- **Phase 8 Part 2 (Contact & Inquiries System - Feature 013):** Completed on 2026-10-18.
+  - Upgraded `/contact` correspondence portal (`src/app/(public)/contact/page.tsx`) reading verified institutional coordinates directly from `site_settings` in SQLite (never invents unverified phone numbers or unconfigured social links).
+  - Implemented interactive client inquiry form (`ContactInquiryForm.tsx`) with Zod input validation, invisible honeypot spam trap (`website_url`), sliding-window IP rate limiting (3 inquiries per 15 min), accessible form fields, and honest confirmation voucher with Reference ID (`INQ-2026-XXXX`).
+  - Implemented honest delivery status reporting: verifies server environment for SMTP credentials; when unconfigured, stores inquiry locally (`stored_locally`) and clearly informs the sender without false delivery assertions.
+  - Created migration `0006_contact_inquiries_table.sql` creating the `contact_inquiries` table with indexes on `reference_no`, `status`, `email`, `department`, and `created_at`.
+  - Implemented secure Server Actions in `src/lib/actions/contact-inquiry.ts` (`submitContactInquiryAction`, `updateInquiryStatusAction`) with honeypot bot trap, rate limiter, and RBAC guardrails (`settings:manage`).
+  - Built administrative correspondence inbox at `/admin/inquiries` (`AdminInquiriesClient.tsx` & `InquiryDetailModal.tsx`) with status filtering (`all`, `unread`, `read`, `replied`, `archived`), department filtering, search, and resolution notes logged to `audit_logs`.
+  - Added `/admin/inquiries` route protection in `src/lib/auth/rbac.ts` and navigation link in `src/components/layout/AdminSidebar.tsx`.
+  - Automated test suite passed: `src/lib/db/test-contact-inquiries.ts`: 25/25 tests passed (100%).
+  - Full regression test suites passed: 293/293 tests passed (100% across all 9 test suites).
+  - Production build verified: `pnpm next build` completed with 0 errors across all 38 routes.
+- **Recommended Next Prompt:** **Phase 8 Part 3 — Institutional Policies & Compliance Portal** (Implement `/policies` institutional privacy charter, photo consent & withdrawal protocol, takedown request workflow, and WCAG AA accessibility compliance statement).
 

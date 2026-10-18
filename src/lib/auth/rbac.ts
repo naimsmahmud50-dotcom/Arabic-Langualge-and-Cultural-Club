@@ -174,6 +174,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
 const ROUTE_PERMISSION_RULES: Array<{ prefix: string; permission: Permission }> = [
   { prefix: "/admin/users", permission: "users:manage" },
   { prefix: "/admin/settings", permission: "settings:manage" },
+  { prefix: "/admin/inquiries", permission: "settings:manage" },
   { prefix: "/admin/audit-logs", permission: "audit:read" },
   { prefix: "/admin/founders", permission: "committees:manage" },
   { prefix: "/admin/committees", permission: "committees:manage" },
