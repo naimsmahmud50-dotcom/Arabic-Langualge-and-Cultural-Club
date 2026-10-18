@@ -1,19 +1,16 @@
 /**
+ * DEVELOPER NOTE:
+ * File: src/lib/actions/content-cms.ts
+ * Module: Content Management Server Actions
+ * Phase 8 Enhancement (030-event-to-gallery-website-integration):
+ * - Added duplicate album prevention in `upsertGalleryAlbumAction`: rejects creating multiple albums
+ *   associated with the same event (`relatedEventId`).
+ * - Added comprehensive revalidation for `/events`, `/admin/events`, and `/events/[slug]` when
+ *   an event-linked album is mutated.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/lib/actions/content-cms.ts
- * @description Secure Server Actions for Content Management Modules (Feature 017).
- * 
- * DEVELOPER USAGE NOTE:
- * - Manages News & Announcements (/admin/news), Arabic Learning Resources (/admin/resources),
- *   Achievements & Publications (/admin/publications), and Gallery Albums & Media Assets (/admin/gallery).
- * - Enforces least-privilege server-side RBAC:
- *   - "news:manage" for announcements
- *   - "resources:manage" for learning modules
- *   - "publications:manage" and "achievements:manage" for publications & honors
- *   - "gallery:manage" and "media:manage" for photo albums and media assets
- * - Employs Strix-Supabase media upload security validation (validateMediaUpload).
- * - Records all mutations to immutable audit_logs via recordAuditLog.
- * - Revalidates relevant public routes immediately on mutation.
- * - Human-crafted UI: strictly zero AI emojis; uses authentic typography and Lucide SVG icons.
+ * @description Secure Server Actions for Content Management Modules (Feature 017 & 030).
  */
 
 "use server";
@@ -43,7 +40,8 @@ import {
   updateMediaAsset,
   deleteMediaAsset,
   bulkUpdateMediaAssets,
-  reorderMediaAssets
+  reorderMediaAssets,
+  getAlbumByRelatedEventId
 } from "@/lib/db/queries";
 import { 
   validateMediaUpload, 
@@ -657,6 +655,17 @@ export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumS
 
     let albumId = parsed.data.id;
 
+    // Duplicate Album Prevention: Ensure only one album links to a specific event
+    if (parsed.data.relatedEventId && parsed.data.relatedEventId.trim()) {
+      const existingLinkedAlbum = await getAlbumByRelatedEventId(parsed.data.relatedEventId.trim());
+      if (existingLinkedAlbum && existingLinkedAlbum.id !== albumId) {
+        return {
+          success: false,
+          error: `An album ("${existingLinkedAlbum.titleEn}") is already associated with this event. Duplicate albums for the same event are prohibited.`,
+        };
+      }
+    }
+
     if (albumId) {
       await updateGalleryAlbum(albumId, {
         slug: finalSlug,
@@ -719,6 +728,10 @@ export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumS
     revalidatePath("/gallery");
     revalidatePath(`/gallery/${finalSlug}`);
     revalidatePath("/");
+    if (parsed.data.relatedEventId) {
+      revalidatePath("/admin/events");
+      revalidatePath("/events");
+    }
 
     return { success: true, id: albumId };
   } catch (err: any) {

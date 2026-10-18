@@ -1,7 +1,7 @@
 /**
  * DEVELOPER NOTE:
  * @file src/app/admin/gallery/AdminGalleryClient.tsx
- * @description Administrative Photo Gallery & Media Archive Client Console (Phase 5).
+ * @description Administrative Photo Gallery & Media Archive Client Console (Phase 5 & 8).
  * 
  * INSTITUTIONAL CONTEXT:
  * - Institution: Kabi Nazrul Government College, Dhaka
@@ -13,6 +13,8 @@
  * - One-click album archive and unarchive lifecycle actions.
  * - Multi-attribute search (title, Arabic title, slug, location, date notes).
  * - Client-side pagination with clean controls.
+ * - URL Parameter Integration (Phase 8): Automatically opens photo manager on `?albumId=...`
+ *   or opens album creation with pre-filled details on `?createForEvent=...`.
  * - Integrates AlbumFormModal, MediaAssetModal, and AdminConfirmModal.
  * - Enforces Strix Security: Unpublished and archived albums are isolated from public views.
  * - Human-crafted UI: strictly zero AI emojis; uses authentic typography and Lucide SVG icons.
@@ -20,8 +22,8 @@
 
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, Button, Input, Badge, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, EmptyState } from "@/components/ui";
 import { AdminConfirmModal } from "@/components/admin";
 import { AlbumFormModal, AlbumRecord as ModalAlbumRecord } from "./AlbumFormModal";
@@ -114,6 +116,9 @@ export function AdminGalleryClient({
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
 
+  const searchParams = useSearchParams();
+  const [albumDefaultValues, setAlbumDefaultValues] = useState<Partial<ModalAlbumRecord> | null>(null);
+
   // Modals state
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
   const [albumToEdit, setAlbumToEdit] = useState<ModalAlbumRecord | null>(null);
@@ -137,6 +142,37 @@ export function AdminGalleryClient({
     message: "",
     onConfirm: async () => {},
   });
+
+  // Handle URL navigation params (albumId or createForEvent)
+  useEffect(() => {
+    const albumIdParam = searchParams.get("albumId");
+    if (albumIdParam) {
+      const alb = initialAlbums.find((a) => a.id === albumIdParam);
+      if (alb) {
+        const assets = albumAssetsMap[alb.id] || [];
+        setSelectedAlbumForMedia({
+          ...alb,
+          assets,
+        });
+        setIsMediaModalOpen(true);
+      }
+    }
+
+    const createForEventParam = searchParams.get("createForEvent");
+    if (createForEventParam) {
+      const eventTitle = searchParams.get("eventTitle") || "";
+      const eventDate = searchParams.get("eventDate") || "";
+      const venue = searchParams.get("venue") || "";
+      setAlbumDefaultValues({
+        titleEn: eventTitle,
+        eventDate: eventDate || new Date().toISOString().split("T")[0],
+        location: venue,
+        relatedEventId: createForEventParam,
+      });
+      setAlbumToEdit(null);
+      setIsAlbumModalOpen(true);
+    }
+  }, [searchParams, initialAlbums, albumAssetsMap]);
 
   // Filtered Albums
   const filteredAlbums = initialAlbums.filter((alb) => {
@@ -171,6 +207,7 @@ export function AdminGalleryClient({
 
   // Handlers
   const handleOpenCreateAlbum = () => {
+    setAlbumDefaultValues(null);
     setAlbumToEdit(null);
     setIsAlbumModalOpen(true);
   };
@@ -571,9 +608,13 @@ export function AdminGalleryClient({
       {/* 1. Album Form Modal */}
       <AlbumFormModal
         isOpen={isAlbumModalOpen}
-        onClose={() => setIsAlbumModalOpen(false)}
+        onClose={() => {
+          setIsAlbumModalOpen(false);
+          setAlbumDefaultValues(null);
+        }}
         onSuccess={() => router.refresh()}
         albumToEdit={albumToEdit}
+        defaultValues={albumDefaultValues}
         academicYears={academicYears}
         eventsList={eventsList}
       />

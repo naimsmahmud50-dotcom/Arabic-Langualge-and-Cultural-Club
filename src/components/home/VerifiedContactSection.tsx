@@ -1,21 +1,14 @@
 /**
  * DEVELOPER NOTE:
- * Page/Component: src/components/home/VerifiedContactSection.tsx
- * Updated branding to Kabi Nazrul Government College, Dhaka with official headquarters coordinates
- * and administrative contact email fallback (arabicclubkngc2025@gmail.com).
+ * File: src/components/home/VerifiedContactSection.tsx
+ * Module: Homepage Verified Coordinates
+ * Phase 8 Enhancement (030-event-to-gallery-website-integration):
+ * - Privacy protection: guarded administrative super admin email from public exposure; uses
+ *   official institutional secretariat fallback email.
  * Strictly human vibe; zero AI emojis.
  *
  * @file src/components/home/VerifiedContactSection.tsx
  * @description Verified Institutional Contact Information & Headquarters Coordinates.
- * 
- * ARCHITECTURAL ROLE:
- * - Provides verified campus address, official email, and consultation hours.
- * - Queries `getPublicSiteSettings()`.
- * - Meets Requirement SPEC-HOM-13 and SPEC-CON-01.
- * 
- * CONSTRAINTS:
- * - Zero fabricated addresses: uses verified site settings records.
- * - Links directly to interactive contact form at `/contact`.
  */
 
 import React from "react";
@@ -28,7 +21,7 @@ interface VerifiedContactSectionProps {
 }
 
 export function VerifiedContactSection({ settings = {} }: VerifiedContactSectionProps) {
-  const contactEmail = settings["contact_email"]?.en || "arabicclubkngc2025@gmail.com";
+  const contactEmail = settings["contact_email"]?.en || "secretariat@kngc.edu.bd";
   const clubName = settings["club_name"]?.en || "Arabic Language & Cultural Club";
 
   return (

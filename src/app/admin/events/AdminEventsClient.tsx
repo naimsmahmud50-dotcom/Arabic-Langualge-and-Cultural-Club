@@ -1,14 +1,16 @@
 /**
+ * DEVELOPER NOTE:
+ * File: src/app/admin/events/AdminEventsClient.tsx
+ * Module: Admin Events & Calendar Operations
+ * Phase 8 Enhancement (030-event-to-gallery-website-integration):
+ * - Added Photo Archive column and status badges to the events table.
+ * - Added "Manage Photos" deep-link to `/admin/gallery?albumId=...` for events with linked albums.
+ * - Added "Create Photo Album" direct launcher linking to `/admin/gallery?createForEvent=...` with
+ *   event ID, title, date, and venue prefilled, preventing duplicate albums.
+ * Strictly human vibe; zero AI emojis.
+ *
  * @file src/app/admin/events/AdminEventsClient.tsx
- * @description Comprehensive Administrative Management Console for Events, Annual Plans & Registrations (Feature 016).
- * 
- * DEVELOPER USAGE NOTE:
- * - Dual-tab architecture:
- *   1. Event Dossiers & Seating Registrations
- *   2. Annual Plan 12-Month Academic Roadmap
- * - Integrates EventFormModal, EventAttendeesModal, AnnualPlanActivityModal, and AdminConfirmModal.
- * - Handles event cancellation, postponement, attendance tracking, and capacity guardrails.
- * - Human-crafted UI: strictly zero AI emojis; uses authentic typography and Lucide SVG icons.
+ * @description Comprehensive Administrative Management Console for Events, Annual Plans & Registrations (Feature 016 & 030).
  */
 
 "use client";
@@ -42,7 +44,8 @@ import {
   XCircle, 
   FileText,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Camera
 } from "lucide-react";
 import Link from "next/link";
 
@@ -65,6 +68,10 @@ interface EventItem {
   isRegistrationOpen: boolean;
   isPublished: boolean;
   registeredCount: number;
+  albumId?: string | null;
+  albumSlug?: string | null;
+  albumTitleEn?: string | null;
+  albumIsPublished?: boolean | null;
 }
 
 interface AnnualPlanItem {
@@ -418,6 +425,7 @@ export function AdminEventsClient({
                     <TableHead>Seating & Registrations</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Public Admissions</TableHead>
+                    <TableHead>Photo Archive</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -493,6 +501,35 @@ export function AdminEventsClient({
                             </div>
                           )}
                         </div>
+                      </TableCell>
+
+                      <TableCell>
+                        {evt.albumId ? (
+                          <div className="space-y-1">
+                            <Badge
+                              variant={evt.albumIsPublished ? "accent" : "neutral"}
+                              size="sm"
+                              className="text-[10px]"
+                            >
+                              {evt.albumIsPublished ? "Album Published" : "Album Draft"}
+                            </Badge>
+                            <Link
+                              href={`/admin/gallery?albumId=${evt.albumId}`}
+                              className="text-[11px] text-[var(--brand-accent)] hover:underline flex items-center gap-1 font-medium"
+                            >
+                              <Camera className="w-3 h-3" />
+                              <span>Manage Photos</span>
+                            </Link>
+                          </div>
+                        ) : (
+                          <Link
+                            href={`/admin/gallery?createForEvent=${evt.id}&eventTitle=${encodeURIComponent(evt.titleEn)}&eventDate=${evt.startTime ? new Date(evt.startTime).toISOString().slice(0, 10) : ""}&venue=${encodeURIComponent(evt.venue || "")}`}
+                            className="text-[11px] text-[var(--text-secondary)] hover:text-[var(--brand-accent)] hover:underline flex items-center gap-1 font-medium"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Create Album</span>
+                          </Link>
+                        )}
                       </TableCell>
 
                       <TableCell className="text-right space-x-1">

@@ -15,6 +15,7 @@
     "test:gallery": "tsx src/lib/db/test-gallery-cms.ts",
     "test:storage": "tsx src/lib/db/test-persistent-storage.ts",
     "test:import": "tsx src/lib/db/test-historical-import.ts",
+    "test:integration": "tsx src/lib/db/test-event-gallery-integration.ts",
     "test": "tsx src/lib/db/test-e2e-comprehensive.ts",
     "test:all": "tsx src/lib/db/test-e2e-comprehensive.ts"
   },

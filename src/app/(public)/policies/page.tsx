@@ -1,20 +1,20 @@
 /**
  * DEVELOPER NOTE:
- * Page/Component: src/app/(public)/policies/page.tsx
- * Updated page title, SEO metadata, and privacy contact email to reflect Kabi Nazrul Government College, Dhaka.
+ * File: src/app/(public)/policies/page.tsx
+ * Route: /policies
+ * Module: Governance Charters & Policies
+ * Phase 8 Enhancement (030-event-to-gallery-website-integration):
+ * - Privacy protection: guarded administrative super admin email from public exposure; redirected
+ *   redaction inquiries through the official Contact & Correspondence Desk (/contact).
  * Strictly human vibe; zero AI emojis.
  *
  * @file src/app/(public)/policies/page.tsx
  * @route /policies
  * @description Institutional Privacy, Data Protection, Media Consent & Accessibility Charters.
- * 
- * ARCHITECTURE & ROLE:
- * - Public governance documentation defining member privacy rights, photo consent
- *   rules, archival storage terms, and WCAG 2.2 AA compliance commitments.
- * - Meets Requirement SPEC-POL-01 through SPEC-POL-04.
  */
 
 import React from "react";
+import Link from "next/link";
 import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge } from "@/components/ui";
@@ -86,7 +86,7 @@ export default function PoliciesPage() {
               Photographs captured during official club assemblies, Arabic calligraphy workshops, debate competitions, and public symposia form part of the club's permanent historical archive.
             </p>
             <p className="text-xs">
-              <strong>Right to Revocation:</strong> Any member or event participant holds the institutional right to request the redaction or removal of specific individual portraits from public gallery albums by writing directly to <span className="font-mono text-[var(--brand-accent)]">arabicclubkngc2025@gmail.com</span>.
+              <strong>Right to Revocation:</strong> Any member or event participant holds the institutional right to request the redaction or removal of specific individual portraits from public gallery albums by submitting an official inquiry through the <Link href="/contact" className="text-[var(--brand-accent)] hover:underline font-semibold">Contact & Correspondence Desk</Link>.
             </p>
           </Card>
         </section>

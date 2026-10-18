@@ -1,3 +1,15 @@
+/**
+ * DEVELOPER NOTE:
+ * File: src/lib/db/queries.ts
+ * Module: Database Access & Query Ledger
+ * Phase 8 Enhancement (030-event-to-gallery-website-integration):
+ * - Added `getPublicGalleryAlbumByEventId(eventId)`: Fetches public published album for event dossier.
+ * - Added `getAlbumByRelatedEventId(eventId)`: Admin lookup for album associated with an event.
+ * - Enhanced `getAdminEvents()` & `getAdminEventById()`: Left-joins or maps associated `galleryAlbums`
+ *   to expose `albumId`, `albumSlug`, `albumTitleEn`, and `albumIsPublished` for admin workflows.
+ * Strictly human vibe; zero AI emojis.
+ */
+
 import { db } from "./index";
 import { 
   members, 
@@ -1087,6 +1099,72 @@ export async function getPublicGalleryAlbumBySlug(slug: string) {
     photoCount: photos.filter(p => p.mediaType === "image").length,
     videoCount: photos.filter(p => p.mediaType === "video").length,
   };
+}
+
+/**
+ * Fetches the public gallery album associated with a given event ID.
+ * Returns null if no album is linked, or if the album is a draft or archived (Strix-Supabase isolation).
+ */
+export async function getPublicGalleryAlbumByEventId(eventId: string) {
+  const [album] = await db.select({
+    id: galleryAlbums.id,
+    slug: galleryAlbums.slug,
+    titleEn: galleryAlbums.titleEn,
+    titleAr: galleryAlbums.titleAr,
+    descriptionEn: galleryAlbums.descriptionEn,
+    descriptionAr: galleryAlbums.descriptionAr,
+    coverImageUrl: galleryAlbums.coverImageUrl,
+    eventDate: galleryAlbums.eventDate,
+    academicYear: galleryAlbums.academicYear,
+    category: galleryAlbums.category,
+    relatedEventId: galleryAlbums.relatedEventId,
+    photographerCredit: galleryAlbums.photographerCredit,
+    location: galleryAlbums.location,
+    isFeatured: galleryAlbums.isFeatured,
+    isPublished: galleryAlbums.isPublished,
+    createdAt: galleryAlbums.createdAt,
+    updatedAt: galleryAlbums.updatedAt,
+  })
+  .from(galleryAlbums)
+  .where(and(
+    eq(galleryAlbums.relatedEventId, eventId),
+    eq(galleryAlbums.isPublished, true),
+    eq(galleryAlbums.isArchived, false)
+  ))
+  .limit(1);
+
+  if (!album) return null;
+
+  const photos = await getAlbumMediaAssets(album.id);
+  return {
+    ...album,
+    photos,
+    media: photos,
+    mediaCount: photos.length,
+    photoCount: photos.filter(p => p.mediaType === "image").length,
+    videoCount: photos.filter(p => p.mediaType === "video").length,
+  };
+}
+
+/**
+ * Administrative query to fetch an album associated with an event ID regardless of publication status.
+ */
+export async function getAlbumByRelatedEventId(eventId: string) {
+  const [album] = await db.select({
+    id: galleryAlbums.id,
+    slug: galleryAlbums.slug,
+    titleEn: galleryAlbums.titleEn,
+    titleAr: galleryAlbums.titleAr,
+    coverImageUrl: galleryAlbums.coverImageUrl,
+    isPublished: galleryAlbums.isPublished,
+    isArchived: galleryAlbums.isArchived,
+    relatedEventId: galleryAlbums.relatedEventId,
+  })
+  .from(galleryAlbums)
+  .where(eq(galleryAlbums.relatedEventId, eventId))
+  .limit(1);
+
+  return album || null;
 }
 
 /**
@@ -2304,6 +2382,13 @@ export interface CreateGalleryAlbumInput {
  * Creates a new curated archival photo/media album.
  */
 export async function createGalleryAlbum(data: CreateGalleryAlbumInput) {
+  if (data.relatedEventId) {
+    const existing = await getAlbumByRelatedEventId(data.relatedEventId);
+    if (existing) {
+      throw new Error(`Duplicate album prevented: An album ("${existing.titleEn}") is already associated with event ${data.relatedEventId}.`);
+    }
+  }
+
   const now = new Date();
   const id = data.id || `alb_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
@@ -2336,6 +2421,13 @@ export async function createGalleryAlbum(data: CreateGalleryAlbumInput) {
  * Updates metadata or publication status for an archival album.
  */
 export async function updateGalleryAlbum(id: string, data: Partial<CreateGalleryAlbumInput>) {
+  if (data.relatedEventId) {
+    const existing = await getAlbumByRelatedEventId(data.relatedEventId);
+    if (existing && existing.id !== id) {
+      throw new Error(`Duplicate album prevented: An album ("${existing.titleEn}") is already associated with event ${data.relatedEventId}.`);
+    }
+  }
+
   await db.update(galleryAlbums)
     .set({
       ...data,
@@ -2707,10 +2799,31 @@ export async function getAdminEvents(params: {
 
   const regMap = new Map(regCounts.map(r => [r.eventId, r.registeredCount]));
 
-  const enriched = data.map(evt => ({
-    ...evt,
-    registeredCount: regMap.get(evt.id) || 0,
-  }));
+  // Lookup associated gallery albums for these events
+  const eventIds = data.map(e => e.id);
+  const associatedAlbums = eventIds.length > 0 ? await db.select({
+    id: galleryAlbums.id,
+    slug: galleryAlbums.slug,
+    titleEn: galleryAlbums.titleEn,
+    isPublished: galleryAlbums.isPublished,
+    relatedEventId: galleryAlbums.relatedEventId,
+  })
+  .from(galleryAlbums)
+  .where(inArray(galleryAlbums.relatedEventId, eventIds)) : [];
+
+  const albumMap = new Map(associatedAlbums.map(a => [a.relatedEventId!, a]));
+
+  const enriched = data.map(evt => {
+    const alb = albumMap.get(evt.id);
+    return {
+      ...evt,
+      registeredCount: regMap.get(evt.id) || 0,
+      albumId: alb?.id || null,
+      albumSlug: alb?.slug || null,
+      albumTitleEn: alb?.titleEn || null,
+      albumIsPublished: alb ? alb.isPublished : null,
+    };
+  });
 
   return {
     data: enriched,
@@ -2719,7 +2832,7 @@ export async function getAdminEvents(params: {
 }
 
 /**
- * Fetches single event details by ID with active registration count for admin view.
+ * Fetches single event details by ID with active registration count and associated album for admin view.
  */
 export async function getAdminEventById(id: string) {
   const [event] = await db.select().from(events).where(eq(events.id, id)).limit(1);
@@ -2729,9 +2842,23 @@ export async function getAdminEventById(id: string) {
     .from(eventRegistrations)
     .where(and(eq(eventRegistrations.eventId, id), ne(eventRegistrations.status, "cancelled")));
 
+  const [associatedAlbum] = await db.select({
+    id: galleryAlbums.id,
+    slug: galleryAlbums.slug,
+    titleEn: galleryAlbums.titleEn,
+    isPublished: galleryAlbums.isPublished,
+  })
+  .from(galleryAlbums)
+  .where(eq(galleryAlbums.relatedEventId, id))
+  .limit(1);
+
   return {
     ...event,
     registeredCount: regCount?.c || 0,
+    albumId: associatedAlbum?.id || null,
+    albumSlug: associatedAlbum?.slug || null,
+    albumTitleEn: associatedAlbum?.titleEn || null,
+    albumIsPublished: associatedAlbum ? associatedAlbum.isPublished : null,
   };
 }
 

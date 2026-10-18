@@ -1,7 +1,7 @@
 /**
  * DEVELOPER NOTE:
  * @file src/app/admin/gallery/AlbumFormModal.tsx
- * @description Accessible Modal for Creating and Editing Photo Gallery Albums (Phase 5).
+ * @description Accessible Modal for Creating and Editing Photo Gallery Albums (Phase 5 & 8).
  * 
  * INSTITUTIONAL CONTEXT:
  * - Institution: Kabi Nazrul Government College, Dhaka
@@ -11,6 +11,7 @@
  * - Manages photographic albums for exhibitions, debate tournaments, symposia, and annual galas.
  * - Supports academic year assignment, category selection, photographer credits, and event linking.
  * - Historical date notes (dateNotes) for circa/approximate dates without fabricating precision.
+ * - Supports `defaultValues` pre-filling for seamless event-to-gallery creation workflows.
  * - 3-tier publication status: Published, Draft, and Archived.
  * - Adheres to Strix Privacy Protocol: Unreleased and archived albums remain isolated from public views.
  * - Human-crafted UI: strictly zero AI emojis; uses authentic typography and Lucide SVG icons.
@@ -48,6 +49,7 @@ interface AlbumFormModalProps {
   onClose: () => void;
   onSuccess: () => void;
   albumToEdit?: AlbumRecord | null;
+  defaultValues?: Partial<AlbumRecord> | null;
   academicYears: string[];
   eventsList: Array<{ id: string; titleEn: string }>;
 }
@@ -66,6 +68,7 @@ export function AlbumFormModal({
   onClose,
   onSuccess,
   albumToEdit,
+  defaultValues,
   academicYears,
   eventsList,
 }: AlbumFormModalProps) {
@@ -120,25 +123,25 @@ export function AlbumFormModal({
       });
     } else {
       setFormData({
-        titleEn: "",
-        titleAr: "",
-        slug: "",
-        descriptionEn: "",
-        descriptionAr: "",
-        coverImageUrl: "",
-        eventDate: new Date().toISOString().split("T")[0],
-        dateNotes: "",
-        academicYear: academicYears[0] || "2026–2027",
-        category: "cultural",
-        relatedEventId: "",
-        photographerCredit: "",
-        location: "",
-        isFeatured: false,
+        titleEn: defaultValues?.titleEn || "",
+        titleAr: defaultValues?.titleAr || "",
+        slug: defaultValues?.slug || "",
+        descriptionEn: defaultValues?.descriptionEn || "",
+        descriptionAr: defaultValues?.descriptionAr || "",
+        coverImageUrl: defaultValues?.coverImageUrl || "",
+        eventDate: defaultValues?.eventDate || new Date().toISOString().split("T")[0],
+        dateNotes: defaultValues?.dateNotes || "",
+        academicYear: defaultValues?.academicYear || academicYears[0] || "2026–2027",
+        category: defaultValues?.category || "cultural",
+        relatedEventId: defaultValues?.relatedEventId || "",
+        photographerCredit: defaultValues?.photographerCredit || "",
+        location: defaultValues?.location || "",
+        isFeatured: defaultValues?.isFeatured ?? false,
         publicationStatus: "published",
       });
     }
     setErrorMessage(null);
-  }, [albumToEdit, academicYears, isOpen]);
+  }, [albumToEdit, defaultValues, academicYears, isOpen]);
 
   if (!isOpen) return null;
 
