@@ -858,6 +858,121 @@ export async function getPageWithSections(slug: string): Promise<PageWithSection
 }
 
 // ----------------------------------------------------------------------
+// ADMIN PAGES & SECTIONS CMS MUTATIONS (Feature 015 - /admin/pages)
+// ----------------------------------------------------------------------
+
+/**
+ * Fetches all editable pages with their section counts for administrative management.
+ * 
+ * DEVELOPER NOTE:
+ * - Used by /admin/pages
+ * - Computes dynamic section counts per page.
+ */
+export async function getAdminPages() {
+  const pages = await db.select().from(editablePages).orderBy(asc(editablePages.slug));
+  const counts = await db.select({
+    pageId: pageSections.pageId,
+    sectionCount: count(),
+  }).from(pageSections).groupBy(pageSections.pageId);
+  
+  const countMap = new Map(counts.map((c) => [c.pageId, c.sectionCount]));
+  return pages.map((p) => ({
+    ...p,
+    sectionCount: countMap.get(p.id) || 0,
+  }));
+}
+
+/**
+ * Fetches an administrative page record with all its raw section records.
+ */
+export async function getAdminPageWithSections(slugOrId: string) {
+  const [page] = await db.select()
+    .from(editablePages)
+    .where(or(eq(editablePages.slug, slugOrId), eq(editablePages.id, slugOrId)))
+    .limit(1);
+
+  if (!page) return null;
+
+  const rawSections = await db.select()
+    .from(pageSections)
+    .where(eq(pageSections.pageId, page.id))
+    .orderBy(asc(pageSections.sortOrder));
+
+  return {
+    ...page,
+    sections: rawSections,
+  };
+}
+
+/**
+ * Updates editable page metadata (titles, meta descriptions, publication status).
+ */
+export async function updateEditablePage(id: string, data: {
+  titleEn: string;
+  titleAr?: string | null;
+  metaDescriptionEn?: string | null;
+  metaDescriptionAr?: string | null;
+  isPublished?: boolean;
+}) {
+  const now = new Date();
+  await db.update(editablePages)
+    .set({
+      titleEn: data.titleEn,
+      titleAr: data.titleAr || null,
+      metaDescriptionEn: data.metaDescriptionEn || null,
+      metaDescriptionAr: data.metaDescriptionAr || null,
+      isPublished: data.isPublished !== undefined ? data.isPublished : true,
+      updatedAt: now,
+    })
+    .where(eq(editablePages.id, id));
+}
+
+/**
+ * Saves a page section (inserts new if id not supplied, otherwise updates existing).
+ */
+export async function savePageSection(data: {
+  id?: string;
+  pageId: string;
+  sectionKey: string;
+  contentEn?: string | null;
+  contentAr?: string | null;
+  sortOrder?: number;
+}) {
+  const now = new Date();
+  if (data.id) {
+    await db.update(pageSections)
+      .set({
+        sectionKey: data.sectionKey,
+        contentEn: data.contentEn || null,
+        contentAr: data.contentAr || null,
+        sortOrder: data.sortOrder ?? 0,
+        updatedAt: now,
+      })
+      .where(eq(pageSections.id, data.id));
+    return data.id;
+  } else {
+    const id = `sec_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    await db.insert(pageSections).values({
+      id,
+      pageId: data.pageId,
+      sectionKey: data.sectionKey,
+      contentEn: data.contentEn || null,
+      contentAr: data.contentAr || null,
+      sortOrder: data.sortOrder ?? 0,
+      updatedAt: now,
+    });
+    return id;
+  }
+}
+
+/**
+ * Deletes a page section by ID.
+ */
+export async function deletePageSection(id: string) {
+  await db.delete(pageSections).where(eq(pageSections.id, id));
+}
+
+// ----------------------------------------------------------------------
 // ADMIN METRICS QUERY (Zero Fake Stats - Feature 014 Foundation)
 // ----------------------------------------------------------------------
 
@@ -1358,6 +1473,91 @@ export async function setMemberPublicVisibility(memberId: string, isPublic: bool
     .where(eq(members.id, memberId));
 }
 
+// ----------------------------------------------------------------------
+// COMMITTEE TERMS & ASSIGNMENTS ADMIN OPERATIONS (Feature 015 - /admin/committees)
+// ----------------------------------------------------------------------
+
+/**
+ * Fetches all committee terms with officeholder member counts.
+ * 
+ * DEVELOPER NOTE:
+ * - Used by /admin/committees
+ * - Strictly preserves former terms; shows current vs historical archive.
+ */
+export async function getAdminCommitteeTerms() {
+  const terms = await db.select().from(committeeTerms).orderBy(desc(committeeTerms.startDate));
+  const counts = await db.select({
+    termId: committeeAssignments.termId,
+    memberCount: count(),
+  }).from(committeeAssignments).groupBy(committeeAssignments.termId);
+  
+  const countMap = new Map(counts.map((c) => [c.termId, c.memberCount]));
+  return terms.map((t) => ({
+    ...t,
+    memberCount: countMap.get(t.id) || 0,
+  }));
+}
+
+/**
+ * Updates a committee term.
+ * If marked as isCurrent: true, automatically demotes any other current term to false.
+ */
+export async function updateCommitteeTerm(id: string, data: Partial<CreateCommitteeTermInput>) {
+  const now = new Date();
+  if (data.isCurrent) {
+    await db.update(committeeTerms)
+      .set({ isCurrent: false, updatedAt: now })
+      .where(ne(committeeTerms.id, id));
+  }
+
+  await db.update(committeeTerms)
+    .set({
+      ...data,
+      updatedAt: now,
+    })
+    .where(eq(committeeTerms.id, id));
+}
+
+/**
+ * Deletes a committee term.
+ */
+export async function deleteCommitteeTerm(id: string) {
+  await db.delete(committeeTerms).where(eq(committeeTerms.id, id));
+}
+
+/**
+ * Fetches all officeholders assigned to a specific committee term with member profiles.
+ */
+export async function getAdminCommitteeAssignments(termId: string) {
+  return await db.select({
+    id: committeeAssignments.id,
+    termId: committeeAssignments.termId,
+    memberId: committeeAssignments.memberId,
+    positionTitleEn: committeeAssignments.positionTitleEn,
+    positionTitleAr: committeeAssignments.positionTitleAr,
+    rankOrder: committeeAssignments.rankOrder,
+    roleDescription: committeeAssignments.roleDescription,
+    createdAt: committeeAssignments.createdAt,
+    memberNameEn: members.fullNameEn,
+    memberNameAr: members.fullNameAr,
+    memberPhotoUrl: members.photoUrl,
+    memberEmail: members.email,
+    memberStudentId: members.studentId,
+    membershipId: members.membershipId,
+  })
+  .from(committeeAssignments)
+  .innerJoin(members, eq(committeeAssignments.memberId, members.id))
+  .where(eq(committeeAssignments.termId, termId))
+  .orderBy(asc(committeeAssignments.rankOrder));
+}
+
+/**
+ * Deletes an officer assignment from a committee term.
+ */
+export async function deleteCommitteeAssignment(id: string) {
+  await db.delete(committeeAssignments).where(eq(committeeAssignments.id, id));
+}
+
 /**
  * Fetches all founders (including unpublished) for administrative curation.
  */
@@ -1407,6 +1607,38 @@ export async function createFounder(data: CreateFounderInput) {
 }
 
 /**
+ * Updates an existing founder profile.
+ * 
+ * DEVELOPER NOTE:
+ * - Used by /admin/founders
+ */
+export async function updateFounder(id: string, data: Partial<CreateFounderInput>) {
+  const now = new Date();
+  await db.update(founders)
+    .set({
+      ...data,
+      updatedAt: now,
+    })
+    .where(eq(founders.id, id));
+}
+
+/**
+ * Permanently deletes a founder profile record.
+ */
+export async function deleteFounder(id: string) {
+  await db.delete(founders).where(eq(founders.id, id));
+}
+
+/**
+ * Toggles the public visibility/publication of a founder profile.
+ */
+export async function toggleFounderPublish(id: string, isPublished: boolean) {
+  await db.update(founders)
+    .set({ isPublished, updatedAt: new Date() })
+    .where(eq(founders.id, id));
+}
+
+/**
  * Fetches members for administrative management with complete private fields and filters.
  */
 export async function getAdminMembers(params: {
@@ -1452,6 +1684,85 @@ export async function getAdminMembers(params: {
     data,
     pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
   };
+}
+
+/**
+ * Input schema for creating or registering a club member.
+ */
+export interface CreateMemberInput {
+  membershipId?: string;
+  fullNameEn: string;
+  fullNameAr?: string | null;
+  photoUrl?: string | null;
+  email: string;
+  phone?: string | null;
+  studentId?: string | null;
+  status?: "active" | "alumni" | "honorary" | "suspended";
+  isPublic?: boolean;
+  bioEn?: string | null;
+  bioAr?: string | null;
+}
+
+/**
+ * Creates and registers a new member record.
+ * 
+ * DEVELOPER NOTE:
+ * - Used by /admin/members
+ * - Automatically generates unique membership ID if not provided (e.g. ALC-2026-XXX)
+ */
+export async function createMember(data: CreateMemberInput) {
+  const id = `mem_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const membershipId = data.membershipId || `ALC-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
+  const now = new Date();
+
+  await db.insert(members).values({
+    id,
+    membershipId,
+    fullNameEn: data.fullNameEn,
+    fullNameAr: data.fullNameAr || null,
+    photoUrl: data.photoUrl || null,
+    email: data.email.toLowerCase().trim(),
+    phone: data.phone || null,
+    studentId: data.studentId || null,
+    status: data.status || "active",
+    isPublic: !!data.isPublic,
+    bioEn: data.bioEn || null,
+    bioAr: data.bioAr || null,
+    joinedAt: now,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return id;
+}
+
+/**
+ * Updates an existing member profile record.
+ */
+export async function updateMember(id: string, data: Partial<CreateMemberInput>) {
+  const now = new Date();
+  await db.update(members)
+    .set({
+      ...data,
+      updatedAt: now,
+    })
+    .where(eq(members.id, id));
+}
+
+/**
+ * Updates a member's institutional status (active, alumni, honorary, suspended).
+ */
+export async function updateMemberStatus(id: string, status: "active" | "alumni" | "honorary" | "suspended") {
+  await db.update(members)
+    .set({ status, updatedAt: new Date() })
+    .where(eq(members.id, id));
+}
+
+/**
+ * Deletes a member profile record from the registry.
+ */
+export async function deleteMember(id: string) {
+  await db.delete(members).where(eq(members.id, id));
 }
 
 // ----------------------------------------------------------------------
