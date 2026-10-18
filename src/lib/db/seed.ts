@@ -9,6 +9,7 @@ import {
   committeePositions,
   committeeAssignments,
   events,
+  eventRegistrations,
   annualPlans,
   announcements,
   galleryAlbums,
@@ -549,6 +550,10 @@ export async function seedDatabase() {
   // 7. Events [DEMO FIXTURES]
   const eventDate1 = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days ahead
   const eventDate2 = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000); // 21 days ahead
+  const pastEventDate = new Date(Date.now() - 45 * 24 * 60 * 60 * 1000); // 45 days in past
+  const capacityEventDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days ahead
+  const postponedEventDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days ahead
+
   await db.insert(events).values([
     {
       id: "evt_01",
@@ -557,6 +562,8 @@ export async function seedDatabase() {
       titleAr: "دورة الخط العربي الكلاسيكي المتقدمة [نموذج تجريبي]",
       summaryEn: "Hands-on intensive workshop exploring Thuluth and Diwani scripts with master calligraphers.",
       summaryAr: "ورشة عمل تدريبية مكثفة تستكشف خطي الثلث والديواني مع كبار الخطاطين.",
+      descriptionEn: "A dedicated studio practicum covering classical pen cutting, ink preparation, letter anatomy, and compositional harmony across the monumental Thuluth and Ottoman Diwani scripts.",
+      descriptionAr: "تدريب عملي مكثف يغطي بري القصب، وتحضير الأحبار التراثية، وموازين الحروف، وهندسة التركيب في خطي الثلث والديواني.",
       category: "workshop",
       startTime: eventDate1,
       endTime: new Date(eventDate1.getTime() + 4 * 3600 * 1000),
@@ -575,6 +582,8 @@ export async function seedDatabase() {
       titleAr: "المسابقة السنوية للخطابة والفصاحة العربية [نموذج تجريبي]",
       summaryEn: "Prestigious university-wide public speaking competition judged on eloquence, grammar, and delivery.",
       summaryAr: "مسابقة الخطابة العامة المرموقة لتقييم الفصاحة، وسلامة اللغة، وحسن الإلقاء.",
+      descriptionEn: "The signature oratorical contest of the academic year, bringing together contenders from across faculties to deliver prepared and extemporaneous classical Arabic speeches.",
+      descriptionAr: "المنافسة الخطابية الكبرى للعام الأكاديمي، وتجمع المتسابقين لتقديم خطب كلاسيكية مرتجلة ومعدة مسبقاً أمام نخبة من أساتذة البلاغة.",
       category: "competition",
       startTime: eventDate2,
       endTime: new Date(eventDate2.getTime() + 6 * 3600 * 1000),
@@ -586,6 +595,98 @@ export async function seedDatabase() {
       createdAt: now,
       updatedAt: now,
     },
+    {
+      id: "evt_03",
+      slug: "classical-rhetoric-and-dialectics-symposium",
+      titleEn: "Classical Arabic Rhetoric & Dialectics Symposium [DEMO]",
+      titleAr: "ندوة البلاغة العربية الكلاسيكية ومناهج الجدل [نموذج تجريبي]",
+      summaryEn: "Archival record of our completed scholarly symposium on figurative speech and philosophical dialectics.",
+      summaryAr: "التوثيق الأرشيفي للندوة العلمية التي تناولت المجاز، والاستعارة، ومناهج المناظرة العقلية.",
+      descriptionEn: "Concluded symposium examining the rhetorical heritage of Al-Jurjani and Al-Sakkaki, featuring four paper presentations by university fellows.",
+      descriptionAr: "ندوة مكتملة درست تراث عبد القاهر الجرجاني والسكاكي البلاغي، مع أربع أوراق بحثية قدمها زملاء النادي.",
+      category: "seminar",
+      startTime: pastEventDate,
+      endTime: new Date(pastEventDate.getTime() + 5 * 3600 * 1000),
+      venue: "Faculty of Arts Council Chamber",
+      capacity: 75,
+      status: "completed",
+      isRegistrationOpen: false,
+      isPublished: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "evt_04",
+      slug: "manuscript-codicology-intensive-workshop",
+      titleEn: "Manuscript Codicology & Inks Workshop [DEMO]",
+      titleAr: "ورشة الكوديكولوجيا وأحبار المخطوطات النادرة [نموذج تجريبي]",
+      summaryEn: "Strictly limited laboratory practicum capped at 5 archival seats for rare codex restoration.",
+      summaryAr: "تدريب مخبري محدود محجوز بالكامل بحد أقصى ٥ مقاعد لتحقيق المخطوطات التراثية.",
+      descriptionEn: "Laboratory practicum on ink chemistry, paper watermarks, and binding structures. Seating strictly capped at 5 participants.",
+      descriptionAr: "تدريب مخبري حول كيمياء الأحبار والعلامات المائية وهندسة التجليد، محدد بـ ٥ مقاعد فقط لضمان الإشراف الفردي.",
+      category: "workshop",
+      startTime: capacityEventDate,
+      endTime: new Date(capacityEventDate.getTime() + 4 * 3600 * 1000),
+      venue: "University Rare Book Conservation Lab",
+      capacity: 5, // Fully booked test case!
+      status: "confirmed",
+      isRegistrationOpen: true,
+      isPublished: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "evt_05",
+      slug: "collegiate-arabic-debate-invitational",
+      titleEn: "Collegiate Arabic Debate Invitational [DEMO]",
+      titleAr: "مناظرات الجامعات التمهيدية باللغة العربية [نموذج تجريبي]",
+      summaryEn: "Preliminary debate invitational, currently postponed to accommodate exam schedules.",
+      summaryAr: "الجولة التمهيدية لبطولة المناظرات، مؤجلة حالياً لتنسيق مواعيد الامتحانات الجامعية.",
+      descriptionEn: "Preliminary round for 16 collegiate teams. Postponed by the Academic Secretariat; new date to be ratified shortly.",
+      descriptionAr: "المرحلة التمهيدية بمشاركة ١٦ فريقاً طلابياً. تم تأجيلها رسمياً لتجنب التعارض مع الامتحانات الفصلية.",
+      category: "competition",
+      startTime: postponedEventDate,
+      endTime: new Date(postponedEventDate.getTime() + 6 * 3600 * 1000),
+      venue: "Debate Arena Hall B",
+      capacity: 90,
+      status: "postponed",
+      isRegistrationOpen: false,
+      isPublished: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+  ]).onConflictDoNothing();
+
+  // Seed verified event registrations (Demonstrating live capacity and sold-out states)
+  await db.insert(eventRegistrations).values([
+    // evt_01: 2 registrations
+    {
+      id: "REG-2026-F91A01",
+      eventId: "evt_01",
+      attendeeName: "Zaid Al-Mahmoud [DEMO FIXTURE]",
+      email: "zaid.m@demo.internal",
+      phone: "+8801700000001",
+      studentId: "STU-2022-101",
+      status: "confirmed",
+      registeredAt: now,
+    },
+    {
+      id: "REG-2026-F91A02",
+      eventId: "evt_01",
+      attendeeName: "Fatima Al-Zahra [DEMO FIXTURE]",
+      email: "fatima.z@demo.internal",
+      phone: "+8801700000002",
+      studentId: "STU-2023-104",
+      status: "registered",
+      registeredAt: now,
+    },
+
+    // evt_04: Exactly 5 registrations -> Reaches 100% capacity (5/5) to test "At Full Capacity" state!
+    { id: "REG-2026-CAP01", eventId: "evt_04", attendeeName: "Fellow Alpha", email: "alpha@demo.internal", phone: null, studentId: "STU-01", status: "confirmed", registeredAt: now },
+    { id: "REG-2026-CAP02", eventId: "evt_04", attendeeName: "Fellow Beta", email: "beta@demo.internal", phone: null, studentId: "STU-02", status: "confirmed", registeredAt: now },
+    { id: "REG-2026-CAP03", eventId: "evt_04", attendeeName: "Fellow Gamma", email: "gamma@demo.internal", phone: null, studentId: "STU-03", status: "registered", registeredAt: now },
+    { id: "REG-2026-CAP04", eventId: "evt_04", attendeeName: "Fellow Delta", email: "delta@demo.internal", phone: null, studentId: "STU-04", status: "registered", registeredAt: now },
+    { id: "REG-2026-CAP05", eventId: "evt_04", attendeeName: "Fellow Epsilon", email: "epsilon@demo.internal", phone: null, studentId: "STU-05", status: "registered", registeredAt: now },
   ]).onConflictDoNothing();
 
   // 8. 12-Month Annual Plan Framework (Multi-Year Historical Preservation)

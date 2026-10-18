@@ -19,7 +19,7 @@ import {
   editablePages,
   pageSections
 } from "./schema";
-import { eq, desc, asc, and, like, or, count, sql } from "drizzle-orm";
+import { eq, ne, desc, asc, and, like, or, count, sql } from "drizzle-orm";
 
 // ----------------------------------------------------------------------
 // PUBLIC QUERIES (Zero Sensitive Data Exposure)
@@ -170,6 +170,7 @@ export async function getPublicEvents(params: {
     venue: events.venue,
     coverImageUrl: events.coverImageUrl,
     status: events.status,
+    capacity: events.capacity,
     isRegistrationOpen: events.isRegistrationOpen,
   })
   .from(events)
@@ -198,6 +199,158 @@ export async function getPublicEventBySlug(slug: string) {
     .limit(1);
 
   return result[0] || null;
+}
+
+/**
+ * Fetch registration statistics and seating availability for an event.
+ * Public safe: returns only numerical totals and boolean capacity indicators.
+ * Strictly zero attendee PII exposure.
+ */
+export async function getEventRegistrationStats(eventId: string) {
+  const event = await db.select({
+    id: events.id,
+    capacity: events.capacity,
+    isRegistrationOpen: events.isRegistrationOpen,
+    status: events.status,
+  })
+  .from(events)
+  .where(eq(events.id, eventId))
+  .limit(1)
+  .then(rows => rows[0] || null);
+
+  if (!event) {
+    return null;
+  }
+
+  // Count active registrations (excluding cancelled)
+  const [{ activeCount }] = await db.select({ activeCount: count() })
+    .from(eventRegistrations)
+    .where(and(
+      eq(eventRegistrations.eventId, eventId),
+      ne(eventRegistrations.status, "cancelled")
+    ));
+
+  const capacity = event.capacity;
+  const remainingSeats = capacity !== null ? Math.max(0, capacity - activeCount) : null;
+  const isAtCapacity = capacity !== null ? activeCount >= capacity : false;
+  const isAvailable = event.isRegistrationOpen && !isAtCapacity && event.status !== "cancelled" && event.status !== "postponed" && event.status !== "completed";
+
+  return {
+    eventId,
+    totalRegistered: activeCount,
+    capacity,
+    remainingSeats,
+    isAtCapacity,
+    isRegistrationOpen: event.isRegistrationOpen,
+    isAvailable,
+    status: event.status,
+  };
+}
+
+/**
+ * Register an attendee for an event.
+ * Enforces:
+ * 1. Event published and active status.
+ * 2. Registration window open (`isRegistrationOpen === true`).
+ * 3. Server-side seat capacity enforcement.
+ * 4. Duplicate registration prevention by (email, eventId).
+ * 5. Returns a unique reference code (e.g. REG-2026-XXXX).
+ */
+export async function registerAttendeeForEvent(data: {
+  eventId: string;
+  attendeeName: string;
+  email: string;
+  phone?: string | null;
+  studentId?: string | null;
+}) {
+  const normalizedEmail = data.email.toLowerCase().trim();
+  const trimmedName = data.attendeeName.trim();
+
+  if (!trimmedName) {
+    throw new Error("Attendee name is required.");
+  }
+  if (!normalizedEmail || !normalizedEmail.includes("@")) {
+    throw new Error("A valid email address is required.");
+  }
+
+  // 1. Fetch event
+  const event = await db.select()
+    .from(events)
+    .where(and(eq(events.id, data.eventId), eq(events.isPublished, true)))
+    .limit(1)
+    .then(rows => rows[0] || null);
+
+  if (!event) {
+    throw new Error("Event not found or not published.");
+  }
+
+  // 2. Check event status
+  if (event.status === "cancelled") {
+    throw new Error("Registration rejected: this event has been cancelled.");
+  }
+  if (event.status === "postponed") {
+    throw new Error("Registration rejected: this event has been postponed. New dates will be announced soon.");
+  }
+  if (event.status === "completed") {
+    throw new Error("Registration rejected: this event has already concluded.");
+  }
+  if (!event.isRegistrationOpen) {
+    throw new Error("Registration is currently closed for this event.");
+  }
+
+  // 3. Duplicate Prevention: Check if already registered
+  const existing = await db.select({ id: eventRegistrations.id })
+    .from(eventRegistrations)
+    .where(and(
+      eq(eventRegistrations.eventId, data.eventId),
+      eq(eventRegistrations.email, normalizedEmail),
+      ne(eventRegistrations.status, "cancelled")
+    ))
+    .limit(1)
+    .then(rows => rows[0] || null);
+
+  if (existing) {
+    throw new Error("This email address is already registered for this event.");
+  }
+
+  // 4. Capacity Enforcement
+  if (event.capacity !== null) {
+    const [{ activeCount }] = await db.select({ activeCount: count() })
+      .from(eventRegistrations)
+      .where(and(
+        eq(eventRegistrations.eventId, data.eventId),
+        ne(eventRegistrations.status, "cancelled")
+      ));
+
+    if (activeCount >= event.capacity) {
+      throw new Error("This event has reached maximum seating capacity. Registration is closed.");
+    }
+  }
+
+  // 5. Generate Reference ID (e.g. REG-2026-7B9A1C)
+  const hexSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const registrationId = `REG-2026-${hexSuffix}`;
+  const now = new Date();
+
+  await db.insert(eventRegistrations).values({
+    id: registrationId,
+    eventId: data.eventId,
+    attendeeName: trimmedName,
+    email: normalizedEmail,
+    phone: data.phone?.trim() || null,
+    studentId: data.studentId?.trim() || null,
+    status: "registered",
+    registeredAt: now,
+  });
+
+  return {
+    id: registrationId,
+    eventId: data.eventId,
+    eventTitle: event.titleEn,
+    attendeeName: trimmedName,
+    email: normalizedEmail,
+    registeredAt: now,
+  };
 }
 
 /**
@@ -915,6 +1068,72 @@ export async function deleteAnnualPlanItem(id: string) {
   await db.delete(annualPlans).where(eq(annualPlans.id, id));
   return true;
 }
+
+// ----------------------------------------------------------------------
+// EVENT REGISTRATIONS ADMIN OPERATIONS
+// ----------------------------------------------------------------------
+
+/**
+ * Fetch registrations for a specific event (Administrative review and attendance roster).
+ * Strictly protected: only accessible by authorized managers.
+ */
+export async function getAdminEventRegistrations(eventId: string, params: {
+  search?: string;
+  status?: string;
+  page?: number;
+  limit?: number;
+} = {}) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 50));
+  const offset = (page - 1) * limit;
+
+  const conditions = [eq(eventRegistrations.eventId, eventId)];
+
+  if (params.status && params.status !== "all") {
+    conditions.push(eq(eventRegistrations.status, params.status as any));
+  }
+
+  if (params.search) {
+    const s = `%${params.search}%`;
+    conditions.push(or(
+      like(eventRegistrations.attendeeName, s),
+      like(eventRegistrations.email, s),
+      like(eventRegistrations.id, s),
+      like(eventRegistrations.studentId, s)
+    )!);
+  }
+
+  const data = await db.select()
+    .from(eventRegistrations)
+    .where(and(...conditions))
+    .orderBy(desc(eventRegistrations.registeredAt))
+    .limit(limit)
+    .offset(offset);
+
+  const [{ total }] = await db.select({ total: count() })
+    .from(eventRegistrations)
+    .where(and(...conditions));
+
+  return {
+    data,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+  };
+}
+
+/**
+ * Update event registration attendance/confirmation status.
+ */
+export async function updateEventRegistrationStatus(
+  registrationId: string, 
+  status: "registered" | "confirmed" | "attended" | "cancelled"
+) {
+  await db.update(eventRegistrations)
+    .set({ status })
+    .where(eq(eventRegistrations.id, registrationId));
+
+  return true;
+}
+
 
 
 

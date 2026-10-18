@@ -33,7 +33,7 @@ Status definitions:
 | **REQ-PUB-06** | Current Executive Committee & Advisory Board page. | HIGH | Phase 6 | Displays active committee members, designated roles, biographies, and contact links. | [x] Completed |
 | **REQ-PUB-07** | Member Directory with privacy protection filters. | MEDIUM | Phase 6 | Only displays approved public member profiles; hides phone numbers, student IDs, and private emails. | [x] Completed |
 | **REQ-PUB-08** | Annual Calendar & 12-Month Plan (Month-by-month list and calendar views). | CRITICAL | Phase 7 | Displays planned, confirmed, completed, and postponed activities with status indicators. | [x] Completed |
-| **REQ-PUB-09** | Event Details & Interactive Registration. | CRITICAL | Phase 7 | Displays event logistics; validated registration form enforces capacity and prevents duplicate entries. | [ ] Not Started |
+| **REQ-PUB-09** | Event Details & Interactive Registration. | CRITICAL | Phase 7 | Displays event logistics; validated registration form enforces capacity and prevents duplicate entries. | [x] Completed |
 | **REQ-PUB-10** | Photo & Media Gallery with Albums, Categories, and Fullscreen Lightbox. | CRITICAL | Phase 6 | Responsive grid renders event albums; clicking open lightbox with keyboard navigation (Esc, Arrow keys). | [ ] Not Started |
 | **REQ-PUB-11** | Arabic Learning & Educational Resources Hub. | HIGH | Phase 6 | Categorized by Nahw/Sarf/Vocabulary; downloadable PDFs and readable guides with proper Arabic shaping. | [ ] Not Started |
 | **REQ-PUB-12** | Achievements & Official Publications page. | HIGH | Phase 6 | Showcases competition awards, achievements, newsletters, and annual magazine downloads. | [ ] Not Started |

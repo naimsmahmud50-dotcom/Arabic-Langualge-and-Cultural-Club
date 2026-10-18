@@ -10,7 +10,7 @@
 | **Phase 4** | Authentication & Role-Based Access Control | **Completed** | 2026-10-17 | 2026-10-17 | Scrypt hashing, HMAC session tokens, RBAC matrix, Edge middleware, 403 Forbidden, 58 tests |
 | **Phase 5** | Public Website Shell & Homepage | **Completed** | 2026-10-17 | 2026-10-17 | Complete 14-section dynamic homepage, zero fake stats, responsive bilingual layout |
 | **Phase 6** | History, Founders & Committees Archive | **Completed** | 2026-10-17 | 2026-10-17 | Verified Founders, Term-by-term preservation, Multi-term service, Privacy-safe Member Directory |
-| **Phase 7** | Annual Calendar, Events & Gallery | **In Progress** | 2026-10-18 | - | 12-Month Master Plan & Calendar completed (27/27 tests); Events & Gallery next |
+| **Phase 7** | Annual Calendar, Events & Gallery | **In Progress** | 2026-10-18 | - | 12-Month Master Plan & Calendar (27/27 tests); Event Dossiers & Registration (45/45 tests); Gallery next |
 | **Phase 8** | Membership Application & Inquiries | **Not Started** | - | - | Admissions pipeline, reference tracker, contact |
 | **Phase 9** | Complete Admin Dashboard & CMS | **Not Started** | - | - | CRUD actions, media uploaders, term creator |
 | **Phase 10** | Security Hardening & Audit Logs | **Not Started** | - | - | Rate limiting, upload sanitization, immutable ledger |
@@ -60,4 +60,17 @@
     - `src/lib/auth/test-auth.ts`: 58/58 tests passed (100%).
     - `src/lib/db/test-db.ts`: All tests passed.
   - Production build verified: `pnpm next build` completed with 0 errors across all 35 routes.
-- **Recommended Next Prompt:** **Phase 7 — Annual Calendar, Events & Gallery** (Implement `/events`, `/events/[slug]` with interactive capacity-controlled registration form, `/gallery`, and `/gallery/[slug]` with fullscreen media lightbox).
+- **Phase 7 Part 1 (Annual Plan & Master Calendar Experience):** Completed on 2026-10-18.
+  - Interactive multi-mode calendar client with Month-by-month itinerary, Calendar Grid, and Chronological Schedule.
+  - Multi-year academic session support (2024–2025, 2023–2024).
+  - Automated test suite passed: `src/lib/db/test-annual-plan-calendar.ts`: 27/27 tests passed (100%).
+- **Phase 7 Part 2 (Event Dossiers & Interactive Registration System):** Completed on 2026-10-18.
+  - Implemented public event dossier at `/events/[slug]` (`src/app/(public)/events/[slug]/page.tsx`) with verified logistics, bilingual brief, postponement/cancellation alert banners, and strict attendee PII protection.
+  - Implemented client interactive registration card (`src/app/(public)/events/[slug]/EventRegistrationCard.tsx`) with live capacity tracker, pending state, error handling, and authentic confirmation voucher with unique reference code (`REG-2026-XXXX`).
+  - Implemented secure Server Action `registerForEventAction` (`src/lib/actions/event-registration.ts`) with Zod schema validation, sliding-window IP rate limiting (5 attempts per 10 mins), seat capacity check, and duplicate email prevention.
+  - Added public and administrative query functions in `src/lib/db/queries.ts`: `getEventRegistrationStats`, `registerAttendeeForEvent`, `getAdminEventRegistrations`, and `updateEventRegistrationStatus`.
+  - Added dedicated Upcoming Events (`status: "upcoming"`) and Concluded Past Events Archive (`status: "past"`) views in `AnnualPlanCalendarClient.tsx` and `src/app/(public)/events/page.tsx`.
+  - Seeded database with varied fixtures: completed event, capacity-capped event (5/5 seats booked), postponed event, and active registrations.
+  - Automated verification test suite passed: `src/lib/db/test-event-registration-system.ts`: 45/45 tests passed (100%).
+  - Production build verified: `pnpm next build` completed with 0 errors across all 35 routes.
+- **Recommended Next Prompt:** **Phase 7 Part 3 — Photo & Media Gallery System** (Implement `/gallery` album grid and `/gallery/[slug]` album details with responsive layout, image captions, credits, and fullscreen keyboard-accessible lightbox [Esc, Arrow keys, swipe]).

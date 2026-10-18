@@ -38,15 +38,19 @@ interface EventsPageProps {
 export default async function EventsPage({ searchParams }: EventsPageProps) {
   const { year } = await searchParams;
 
-  // Fetch available academic sessions, published annual plans, and active major events in parallel
-  const [availableYears, annualPlanActivities, eventsResult] = await Promise.all([
+  // Fetch available academic sessions, published annual plans, upcoming events, and past events in parallel
+  const [availableYears, annualPlanActivities, upcomingEventsResult, pastEventsResult, featuredEventsResult] = await Promise.all([
     getAnnualPlanYears().catch(() => ["2024–2025"]),
     getPublicAnnualPlans().catch(() => []),
+    getPublicEvents({ status: "upcoming", limit: 20 }).catch(() => ({ data: [] })),
+    getPublicEvents({ status: "past", limit: 20 }).catch(() => ({ data: [] })),
     getPublicEvents({ limit: 4 }).catch(() => ({ data: [] })),
   ]);
 
   const activeSessionYear = year || availableYears[0] || "2024–2025";
-  const featuredEvents = eventsResult.data || [];
+  const featuredEvents = featuredEventsResult.data || [];
+  const upcomingEvents = upcomingEventsResult.data || [];
+  const pastEvents = pastEventsResult.data || [];
 
   const breadcrumbs = [
     { label: "Home", href: "/" },
@@ -71,6 +75,8 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
             initialActivities={annualPlanActivities as any}
             availableYears={availableYears.length > 0 ? availableYears : ["2024–2025"]}
             activeYear={activeSessionYear}
+            upcomingEvents={upcomingEvents as any}
+            pastEvents={pastEvents as any}
           />
         </section>
 
