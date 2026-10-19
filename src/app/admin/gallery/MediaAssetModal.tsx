@@ -437,40 +437,43 @@ export function MediaAssetModal({
         </div>
 
         {/* Tab Controls */}
+        {/* Tab Navigation */}
         <div className="flex items-center gap-4 px-6 pt-3 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)]">
           <button
             type="button"
             onClick={() => setActiveTab("gallery")}
-            className={`pb-2.5 text-xs font-semibold border-b-2 transition-colors ${
+            className={`pb-2.5 text-xs font-semibold border-b-2 transition-colors flex items-center gap-1.5 ${
               activeTab === "gallery"
                 ? "border-[var(--brand-accent)] text-[var(--text-primary)]"
                 : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
-            Asset Grid ({currentAssets.length})
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span>Album Photos ({currentAssets.length})</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("batch-upload")}
             className={`pb-2.5 text-xs font-semibold border-b-2 transition-colors flex items-center gap-1.5 ${
               activeTab === "batch-upload"
-                ? "border-[var(--brand-accent)] text-[var(--text-primary)]"
-                : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                ? "border-[var(--brand-accent)] text-[var(--brand-accent)]"
+                : "border-transparent text-[var(--brand-primary)] dark:text-[var(--brand-accent)] hover:opacity-80"
             }`}
           >
-            <Upload className="w-3.5 h-3.5" />
-            <span>Batch Upload & Ingestion</span>
+            <Upload className="w-3.5 h-3.5 text-[var(--brand-accent)]" />
+            <span className="font-bold">+ Upload New Photos (Drag & Drop)</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("add-url")}
-            className={`pb-2.5 text-xs font-semibold border-b-2 transition-colors ${
+            className={`pb-2.5 text-xs font-semibold border-b-2 transition-colors flex items-center gap-1.5 ${
               activeTab === "add-url"
                 ? "border-[var(--brand-accent)] text-[var(--text-primary)]"
                 : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
-            Add External URL / Embed
+            <Video className="w-3.5 h-3.5" />
+            <span>Add Video / External Link</span>
           </button>
         </div>
 
@@ -664,14 +667,15 @@ export function MediaAssetModal({
                               )}
                             </div>
 
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1.5">
                               <button
                                 type="button"
                                 onClick={() => setEditingAsset(asset)}
-                                className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[4px] bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-2xs font-semibold text-[var(--brand-accent)] hover:border-[var(--brand-accent)]/50 transition-colors"
                                 title="Edit captions and accessibility text"
                               >
                                 <Edit className="w-3.5 h-3.5" />
+                                <span>Edit Caption</span>
                               </button>
 
                               <button
@@ -693,10 +697,10 @@ export function MediaAssetModal({
               ) : (
                 <EmptyState
                   title="No Media Assets In Album"
-                  description="This album is currently empty. Use the Batch Upload zone above to drag-and-drop photographs or videos directly into storage."
+                  description="This album is currently empty. Click the button below to upload photographs and write captions."
                   action={
-                    <Button variant="accent" size="sm" onClick={() => setActiveTab("batch-upload")}>
-                      Open Batch Uploader
+                    <Button variant="accent" size="sm" onClick={() => setActiveTab("batch-upload")} leftIcon={<Upload className="w-3.5 h-3.5" />}>
+                      Upload Photos Now
                     </Button>
                   }
                 />

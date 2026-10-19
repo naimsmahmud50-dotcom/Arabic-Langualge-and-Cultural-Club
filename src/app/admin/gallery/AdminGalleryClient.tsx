@@ -371,6 +371,24 @@ export function AdminGalleryClient({
         </div>
       </div>
 
+      {/* Visual Workflow Hint Banner */}
+      <div className="bg-[var(--brand-primary)]/5 border border-[var(--brand-primary)]/20 rounded-[8px] p-3.5 text-xs text-[var(--text-secondary)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <Camera className="w-4 h-4 text-[var(--brand-accent)] shrink-0" />
+          <span>
+            <strong className="text-[var(--text-primary)] font-semibold">How to add photos & captions:</strong> Click on <span className="font-semibold text-[var(--brand-accent)]">"Manage & Upload"</span> or the <span className="font-semibold text-[var(--brand-accent)]">"Photos & Captions"</span> button on any album to upload pictures and edit captions. Or click <span className="font-semibold text-[var(--brand-accent)]">"+ Create New Album"</span> to create a new collection.
+          </span>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleOpenCreateAlbum}
+          className="shrink-0 text-xs h-7 gap-1 self-start sm:self-auto"
+        >
+          <Plus className="w-3 h-3" /> New Album
+        </Button>
+      </div>
+
       {/* Albums Table Card */}
       <Card className="border-[var(--border-color)] overflow-hidden">
         {paginatedAlbums.length > 0 ? (
@@ -455,10 +473,11 @@ export function AdminGalleryClient({
                       <button
                         type="button"
                         onClick={() => handleOpenMediaAssets(alb)}
-                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-2xs font-semibold text-[var(--text-primary)] transition-colors"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] bg-[var(--brand-primary)]/10 hover:bg-[var(--brand-primary)]/20 border border-[var(--brand-primary)]/30 text-xs font-semibold text-[var(--brand-primary)] dark:text-[var(--brand-accent)] transition-all cursor-pointer shadow-2xs hover:scale-[1.02]"
+                        title="Click to upload photos, edit captions, or view images in this album"
                       >
-                        <Camera className="w-3 h-3 text-[var(--brand-accent)]" />
-                        <span>{alb.mediaCount} assets</span>
+                        <Camera className="w-3.5 h-3.5 text-[var(--brand-accent)]" />
+                        <span>{alb.mediaCount} Photos • Manage & Upload</span>
                       </button>
                     </TableCell>
 
@@ -483,6 +502,17 @@ export function AdminGalleryClient({
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenMediaAssets(alb)}
+                          title="Upload photos, edit captions, and manage media"
+                          className="h-7 px-2.5 text-2xs gap-1 border-[var(--brand-accent)]/50 text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/10 font-semibold"
+                        >
+                          <Camera className="w-3 h-3" />
+                          <span>Photos & Captions</span>
+                        </Button>
+
+                        <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleOpenBulkImport(alb.id)}
@@ -490,16 +520,6 @@ export function AdminGalleryClient({
                           className="h-7 w-7 p-0"
                         >
                           <UploadCloud className="w-3.5 h-3.5 text-[var(--brand-accent)]" />
-                        </Button>
-
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenMediaAssets(alb)}
-                          title="Manage media assets"
-                          className="h-7 w-7 p-0"
-                        >
-                          <Camera className="w-3.5 h-3.5" />
                         </Button>
 
                         <Button

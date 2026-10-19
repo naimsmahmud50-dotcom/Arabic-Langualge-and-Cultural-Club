@@ -196,8 +196,8 @@ export default async function AdminDashboardPage() {
                   </Button>
                 </Link>
                 <Link href="/admin/gallery" className="block">
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs">
-                    + Upload Archival Photo Album
+                  <Button variant="outline" size="sm" className="w-full justify-start text-xs font-semibold text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/10">
+                    + Upload Photos & Manage Albums (Gallery)
                   </Button>
                 </Link>
                 <Link href="/admin/resources" className="block">
