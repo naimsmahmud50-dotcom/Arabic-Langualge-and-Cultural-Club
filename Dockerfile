@@ -13,7 +13,7 @@
 FROM node:22-slim AS deps
 WORKDIR /app
 
-# Install native compilation dependencies required by better-sqlite3
+# Install native compilation dependencies required by better-sqlite3 and sharp
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     make \
@@ -22,14 +22,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libc6-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable and configure pnpm
-RUN corepack enable && corepack prepare pnpm@12.14.0 --activate
+# Install pnpm via npm so native platform executables (@pnpm/exe) are properly fetched
+RUN npm install -g pnpm@12.14.0
 
 # Copy package descriptors
 COPY package.json pnpm-lock.yaml* ./
 
-# Install dependencies (recompiles native addons if needed)
-RUN pnpm install --frozen-lockfile || pnpm install
+# Invariant: Force development mode in deps so devDependencies (TypeScript, Tailwind, etc.) are installed
+ENV NODE_ENV=development
+
+# Install dependencies cleanly without failing on lockfile mismatches
+RUN pnpm install --no-frozen-lockfile
 
 # ------------------------------------------------------------------------------
 # Stage 2: Application Builder
@@ -37,9 +40,10 @@ RUN pnpm install --frozen-lockfile || pnpm install
 FROM node:22-slim AS builder
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@12.14.0 --activate
+# Install pnpm for builder stage
+RUN npm install -g pnpm@12.14.0
 
-# Copy dependencies from deps stage
+# Copy node_modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
