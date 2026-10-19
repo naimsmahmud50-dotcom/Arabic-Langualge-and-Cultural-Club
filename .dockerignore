@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+
+# Dependencies & Local Package Store
+node_modules
+.pnpm-store
+
+# Environment files (injected dynamically via Coolify environment variables)
+.env
+.env*.local
+.env.production
+.env.development
+
+# Build & Test outputs
+.next
+.next_backup*
+out
+dist
+build
+*.tsbuildinfo
+test-results
+playwright-report
+
+# Databases & Backups (Persistent storage is mounted via Docker volumes)
+*.db
+*.db*
+*.db-journal
+*.db-shm
+*.db-wal
+*.backup*
+site_settings_backup*.json
+backups/
+data/
+
+# Local media uploads (Mounted via Docker volume)
+storage/uploads/*
+public/uploads/*
+
+# Temporary documentation & extraction files
+extracted_plan_text.txt
+Website Master Plan.html
+Website Master Plan_files/
