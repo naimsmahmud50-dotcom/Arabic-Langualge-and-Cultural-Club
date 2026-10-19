@@ -17,10 +17,19 @@
 
 import React from "react";
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { getAdminInquiries } from "@/lib/db/queries";
+import { getSession } from "@/lib/auth/session";
+import { assertPermission } from "@/lib/auth/rbac";
 import { AdminInquiriesClient } from "./AdminInquiriesClient";
 import { InquiryDossier } from "./InquiryDetailModal";
+
+/**
+ * DEVELOPER NOTE:
+ * Server-side authorization guard enforcing active session and "settings:manage" RBAC permission.
+ * Prevents unauthorized or unauthenticated access to confidential correspondence and inquiries.
+ */
 
 export const metadata: Metadata = {
   title: "Correspondence Inbox | Admin Console | Arabic Language & Cultural Club",
@@ -30,6 +39,17 @@ export const metadata: Metadata = {
 export const revalidate = 0;
 
 export default async function AdminInquiriesPage() {
+  const session = await getSession();
+  if (!session) {
+    redirect("/admin/login?next=/admin/inquiries");
+  }
+
+  try {
+    assertPermission(session.role, "settings:manage");
+  } catch {
+    redirect("/admin/forbidden");
+  }
+
   const inquiries = await getAdminInquiries({ status: "all" }).catch(() => []);
 
   return (

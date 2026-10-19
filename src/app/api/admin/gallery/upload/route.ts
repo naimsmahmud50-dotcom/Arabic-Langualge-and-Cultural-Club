@@ -27,9 +27,12 @@ import { hasPermission } from "@/lib/auth/rbac";
 import { db } from "@/lib/db";
 import { galleryAlbums, mediaAssets } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { validateMediaUpload, generateSafeStoragePath } from "@/lib/utils/media-storage";
 import { recordAuditLog } from "@/lib/auth/audit";
-import { getStorageProvider } from "@/lib/storage";
+import { 
+  getStorageProvider, 
+  validateUploadBuffer, 
+  optimizeImageWithSharp 
+} from "@/lib/storage";
 
 export async function POST(request: Request) {
   // 1. Authenticate Session
@@ -110,7 +113,7 @@ export async function POST(request: Request) {
       const buffer = Buffer.from(arrayBuffer);
 
       // Binary Magic Bytes & MIME Security Validation
-      const validation = validateMediaUpload({
+      const validation = validateUploadBuffer({
         filename: file.name,
         mimeType: file.type || "application/octet-stream",
         sizeBytes: file.size,
@@ -125,30 +128,73 @@ export async function POST(request: Request) {
         continue;
       }
 
-      // Safe relative storage path (e.g. gallery/2026-2027/symposium/1234_abc_photo.jpg)
-      const relativeStoragePath = generateSafeStoragePath(
-        album.slug,
-        album.academicYear,
-        validation.sanitizedFilename || file.name
-      );
+      // Safe relative storage base key with UUID
+      const randomId = crypto.randomUUID();
+      const baseStorageKey = `gallery/${album.academicYear}/${album.slug}/${Date.now()}_${randomId}`;
 
-      // Upload via Storage Provider
-      let uploadResult;
-      try {
-        uploadResult = await storageProvider.uploadFile(
-          relativeStoragePath,
-          buffer,
-          validation.detectedMime || file.type || "application/octet-stream"
-        );
-      } catch (uploadErr: any) {
-        errors.push({
-          filename: file.name,
-          error: `Storage upload failed: ${uploadErr.message}`,
-        });
-        continue;
+      let mainStorageKey: string;
+      let thumbStorageKey: string | null = null;
+      let fileUrl: string;
+      let thumbnailUrl: string;
+
+      const isSharpEligible = validation.mediaType === "image" && validation.detectedMime !== "image/svg+xml";
+
+      if (isSharpEligible) {
+        try {
+          const optimized = await optimizeImageWithSharp(buffer, baseStorageKey);
+          mainStorageKey = optimized.mainKey;
+          thumbStorageKey = optimized.thumbnailKey;
+
+          const mainUpload = await storageProvider.uploadFile(
+            optimized.mainKey,
+            optimized.mainBuffer,
+            optimized.mainMime
+          );
+
+          const thumbUpload = await storageProvider.uploadFile(
+            optimized.thumbnailKey,
+            optimized.thumbnailBuffer,
+            optimized.thumbnailMime
+          );
+
+          fileUrl = mainUpload.publicUrl;
+          thumbnailUrl = thumbUpload.publicUrl;
+        } catch (sharpErr: any) {
+          console.warn(`Sharp optimization fallback for '${file.name}':`, sharpErr.message);
+          mainStorageKey = `${baseStorageKey}${validation.detectedExt}`;
+          thumbStorageKey = null;
+
+          const mainUpload = await storageProvider.uploadFile(
+            mainStorageKey,
+            buffer,
+            validation.detectedMime
+          );
+
+          fileUrl = mainUpload.publicUrl;
+          thumbnailUrl = fileUrl;
+        }
+      } else {
+        mainStorageKey = `${baseStorageKey}${validation.detectedExt}`;
+        thumbStorageKey = null;
+
+        try {
+          const mainUpload = await storageProvider.uploadFile(
+            mainStorageKey,
+            buffer,
+            validation.detectedMime
+          );
+
+          fileUrl = mainUpload.publicUrl;
+          thumbnailUrl = fileUrl;
+        } catch (uploadErr: any) {
+          errors.push({
+            filename: file.name,
+            error: `Storage upload failed: ${uploadErr.message}`,
+          });
+          continue;
+        }
       }
 
-      const fileUrl = uploadResult.publicUrl;
       const assetId = `med_${crypto.randomBytes(12).toString("hex")}`;
       const now = new Date();
 
@@ -162,7 +208,7 @@ export async function POST(request: Request) {
           id: assetId,
           albumId: album.id,
           fileUrl,
-          thumbnailUrl: fileUrl,
+          thumbnailUrl,
           mediaType: validation.mediaType,
           captionEn: defaultCaption || null,
           captionAr: null,
@@ -186,14 +232,16 @@ export async function POST(request: Request) {
           id: assetId,
           filename: file.name,
           url: fileUrl,
+          thumbnailUrl,
           mediaType: validation.mediaType,
         });
       } catch (dbErr: any) {
-        // Compensating Cleanup: purge uploaded object from storage to prevent orphans
+        // Compensating Cleanup: purge uploaded objects from storage to prevent orphans
         console.error(`Database insertion failed for asset '${assetId}', executing compensating storage cleanup:`, dbErr);
-        await storageProvider.deleteFile(relativeStoragePath).catch((cleanupErr) => {
-          console.error("Compensating cleanup warning:", cleanupErr);
-        });
+        await Promise.allSettled([
+          storageProvider.deleteFile(mainStorageKey),
+          thumbStorageKey ? storageProvider.deleteFile(thumbStorageKey) : Promise.resolve(),
+        ]);
 
         errors.push({
           filename: file.name,

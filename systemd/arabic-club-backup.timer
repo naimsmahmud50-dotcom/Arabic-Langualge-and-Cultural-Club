@@ -1,0 +1,17 @@
+# DEVELOPER NOTE:
+# File: systemd/arabic-club-backup.timer
+# Description: Automated daily timer triggering SQLite database backups at 03:00 AM
+# Institution: Kabi Nazrul Government College, Dhaka
+# Zero AI emojis.
+
+[Unit]
+Description=Daily SQLite Backup Timer for Arabic Language & Cultural Club
+Requires=arabic-club-backup.service
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

@@ -169,28 +169,30 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
             </div>
           </div>
 
-          {/* Skill Level Pills */}
+          {/* Quick Curated Topic Tags */}
           <div className="space-y-2 pt-2 border-t border-[var(--border-subtle)]">
             <span className="text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-wide">
-              Proficiency Tier:
+              Curated Subject Tags:
             </span>
-            <div className="flex flex-wrap gap-2">
-              {skillLevels.map((lvl) => {
-                const isSelected = activeLevel === lvl.value;
-                return (
-                  <Link
-                    key={lvl.value}
-                    href={buildFilterUrl({ level: lvl.value, page: "1" })}
-                    className={`px-3 py-1 rounded-[5px] text-xs font-medium tracking-wide transition-all border ${
-                      isSelected
-                        ? "bg-[var(--brand-accent)] text-white border-[var(--brand-accent)]"
-                        : "bg-[var(--bg-card)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                    }`}
-                  >
-                    {lvl.label}
-                  </Link>
-                );
-              })}
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { tag: "النحو (Nahw)", q: "nahw" },
+                { tag: "الصرف (Sarf)", q: "sarf" },
+                { tag: "البلاغة (Balaghah)", q: "balaghah" },
+                { tag: "الإعراب (Irab)", q: "irab" },
+                { tag: "المفردات (Vocabulary)", q: "vocabulary" },
+                { tag: "المحادثة (Conversation)", q: "conversation" },
+                { tag: "الخط العربي (Calligraphy)", q: "calligraphy" },
+              ].map(({ tag, q }) => (
+                <Link
+                  key={q}
+                  href={buildFilterUrl({ q, page: "1" })}
+                  prefetch={false}
+                  className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--brand-accent)] hover:border-[var(--brand-accent)] transition-colors"
+                >
+                  #{tag}
+                </Link>
+              ))}
             </div>
           </div>
 

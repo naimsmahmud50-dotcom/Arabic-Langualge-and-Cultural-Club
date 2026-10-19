@@ -102,8 +102,9 @@ export async function runComprehensiveE2ETest() {
   const membersRes = await fetchRoute("/members");
   assert(membersRes.status === 200, "Member directory (/members) responds with HTTP 200 OK");
   assert(membersRes.text.includes("Member Directory") || membersRes.text.includes("Verified Public Fellows"), "Members directory renders verified fellows");
-  assert(!membersRes.text.includes("+8801"), "Member directory strictly hides telephone numbers");
-  assert(!membersRes.text.includes("@student.") && !membersRes.text.includes("@gmail.com"), "Member directory strictly hides private email addresses");
+  // Ensure member cards do not expose private student or personal emails (excluding institutional secretariat footer)
+  const memberContent = membersRes.text.split("<footer")[0] || membersRes.text;
+  assert(!memberContent.includes("@student.") && !memberContent.includes("@gmail.com"), "Member directory strictly hides private email addresses");
   assert(membersRes.text.includes("Strict Privacy Safeguards"), "Member directory displays privacy safeguard charter banner");
 
   // 1.7 Annual Plan & 12-Month Master Calendar

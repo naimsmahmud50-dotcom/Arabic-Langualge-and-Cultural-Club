@@ -58,13 +58,8 @@ export async function GET(
     }
 
     // 2. Query Database for Publication State
-    // Storage keys match either /uploads/${cleanKey} or exact cleanKey
-    const targetUrlVariants = [
-      `/uploads/${cleanKey}`,
-      `/${cleanKey}`,
-      cleanKey,
-      path.basename(cleanKey),
-    ];
+    // Normalize base key if it's a generated thumbnail or large variant
+    const baseKey = cleanKey.replace(/_(?:thumb|large)\.[^.]+$/, "");
 
     const matchingAssets = await db
       .select({
@@ -80,18 +75,27 @@ export async function GET(
       .leftJoin(galleryAlbums, eq(mediaAssets.albumId, galleryAlbums.id))
       .where(
         or(
+          eq(mediaAssets.fileUrl, `/api/media/${cleanKey}`),
+          eq(mediaAssets.thumbnailUrl, `/api/media/${cleanKey}`),
           eq(mediaAssets.fileUrl, `/uploads/${cleanKey}`),
-          eq(mediaAssets.fileUrl, cleanKey)
+          eq(mediaAssets.thumbnailUrl, `/uploads/${cleanKey}`),
+          eq(mediaAssets.fileUrl, cleanKey),
+          eq(mediaAssets.thumbnailUrl, cleanKey),
+          eq(mediaAssets.fileUrl, `/api/media/${baseKey}`),
+          eq(mediaAssets.thumbnailUrl, `/api/media/${baseKey}`),
+          eq(mediaAssets.fileUrl, `/uploads/${baseKey}`),
+          eq(mediaAssets.thumbnailUrl, `/uploads/${baseKey}`)
         )
       )
       .limit(1);
 
     const assetRecord = matchingAssets[0];
 
-    // If file is not in database (e.g. system asset, logo, avatar), check public existence
+    // If file is explicitly cataloged in database, verify published state
+    // If standalone asset (not in mediaAssets), treat as public unless in private/ directory
     const isPublicRecord = assetRecord
-      ? Boolean(assetRecord.isAssetPublished && assetRecord.albumPublished && !assetRecord.albumArchived)
-      : false;
+      ? Boolean(assetRecord.isAssetPublished && (assetRecord.albumPublished ?? true) && !assetRecord.albumArchived)
+      : !cleanKey.startsWith("private/");
 
     // 3. Evaluate Authorization
     if (!isAuthorized && !isPublicRecord) {

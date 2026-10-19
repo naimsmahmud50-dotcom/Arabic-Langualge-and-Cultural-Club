@@ -11,10 +11,20 @@
  */
 
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
+
+/**
+ * DEVELOPER NOTE:
+ * Enterprise-grade password hashing engine:
+ * - Employs bcryptjs with 12 salt rounds for all newly created or updated administrative passwords.
+ * - Supports constant-time cryptographic verification for legacy scrypt$v1$ hashes.
+ * - Strictly zero hardcoded credentials or development bypasses.
+ */
 
 const SCRYPT_KEY_LENGTH = 64;
 const SCRYPT_SALT_LENGTH = 16;
 const SCRYPT_PREFIX = "scrypt$v1$";
+const BCRYPT_SALT_ROUNDS = 12;
 
 export interface PasswordValidationResult {
   isValid: boolean;
@@ -56,35 +66,38 @@ export function validatePasswordStrength(password: string): PasswordValidationRe
 }
 
 /**
- * Hashes a plaintext password using Scrypt and returns a serialized string:
- * `scrypt$v1$<saltHex>$<derivedKeyHex>`
+ * Hashes a plaintext password using bcrypt with 12 salt rounds.
  */
 export function hashPassword(password: string): string {
   if (!password || typeof password !== "string") {
     throw new Error("Password must be a non-empty string");
   }
 
-  const salt = crypto.randomBytes(SCRYPT_SALT_LENGTH);
-  const derivedKey = crypto.scryptSync(password, salt, SCRYPT_KEY_LENGTH, {
-    N: 16384,
-    r: 8,
-    p: 1,
-    maxmem: 32 * 1024 * 1024,
-  });
-
-  return `${SCRYPT_PREFIX}${salt.toString("hex")}$${derivedKey.toString("hex")}`;
+  return bcrypt.hashSync(password, BCRYPT_SALT_ROUNDS);
 }
 
 /**
- * Verifies a plaintext password against a stored hash using constant-time comparison.
- * Also handles initial development fixtures gracefully.
+ * Verifies a plaintext password against a stored hash.
+ * Supports:
+ * 1. Standard Bcrypt hashes ($2a$, $2b$, $2y$)
+ * 2. Legacy constant-time Scrypt hashes (scrypt$v1$)
+ * Strictly rejects any unhashed, invalid, or forged passwords.
  */
 export function verifyPassword(password: string, storedHash: string): boolean {
   if (!password || !storedHash) {
     return false;
   }
 
-  // Handle Scrypt format: scrypt$v1$<salt>$<hash>
+  // 1. Bcrypt validation ($2a$, $2b$, $2y$)
+  if (storedHash.startsWith("$2a$") || storedHash.startsWith("$2b$") || storedHash.startsWith("$2y$")) {
+    try {
+      return bcrypt.compareSync(password, storedHash);
+    } catch {
+      return false;
+    }
+  }
+
+  // 2. Legacy Scrypt validation (scrypt$v1$<salt>$<hash>)
   if (storedHash.startsWith(SCRYPT_PREFIX)) {
     const parts = storedHash.slice(SCRYPT_PREFIX.length).split("$");
     if (parts.length !== 2) {
@@ -107,14 +120,6 @@ export function verifyPassword(password: string, storedHash: string): boolean {
     });
 
     return crypto.timingSafeEqual(expectedKey, actualKey);
-  }
-
-  // Development fallback for initial seed fixture ($2b$ demo placeholder or initial default password)
-  if (
-    storedHash.startsWith("$2b$") &&
-    (password === "AdminSecure2026!" || password === "password123")
-  ) {
-    return true;
   }
 
   return false;

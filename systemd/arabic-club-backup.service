@@ -1,0 +1,18 @@
+# DEVELOPER NOTE:
+# File: systemd/arabic-club-backup.service
+# Description: Automated SQLite database backup job for Arabic Language & Cultural Club
+# Institution: Kabi Nazrul Government College, Dhaka
+# Zero AI emojis.
+
+[Unit]
+Description=Arabic Language and Cultural Club Automated SQLite Backup
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/mahmud-hasan/Naims Project/Arabic Club
+Environment="PATH=/home/mahmud-hasan/.local/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="NODE_ENV=production"
+ExecStart=/home/mahmud-hasan/.local/bin/pnpm tsx scripts/backup-sqlite.ts
+StandardOutput=journal
+StandardError=journal

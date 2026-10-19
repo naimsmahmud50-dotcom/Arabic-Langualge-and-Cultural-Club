@@ -24,7 +24,7 @@ const FounderSchema = z.object({
   id: z.string().optional(),
   nameEn: z.string().min(2, "English name must be at least 2 characters").max(100),
   nameAr: z.string().max(120).optional().nullable(),
-  portraitUrl: z.string().url("Valid portrait URL required").optional().nullable().or(z.literal("")),
+  portraitUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid portrait URL or path required").optional().nullable().or(z.literal("")),
   roleTitleEn: z.string().min(2, "English role title is required").max(100),
   roleTitleAr: z.string().max(120).optional().nullable(),
   bioEn: z.string().max(2000).optional().nullable(),
@@ -58,7 +58,11 @@ export async function saveFounderAction(input: {
 
   const parsed = FounderSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {

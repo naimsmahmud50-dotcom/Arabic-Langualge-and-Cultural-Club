@@ -24,6 +24,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, Badge, EmptyState, Button } from "@/components/ui";
@@ -33,12 +34,8 @@ import {
   Calendar, 
   ArrowRight, 
   Search, 
-  MapPin, 
-  Layers, 
-  Film, 
-  Sparkles,
   Link2,
-  FolderOpen
+  MapPin
 } from "lucide-react";
 
 export const revalidate = 60;
@@ -53,6 +50,11 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "/gallery",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Photo & Media Gallery Archive — Arabic Language & Cultural Club",
+    description: "Browse photographic albums and archival recordings documenting the heritage of the Arabic Language & Cultural Club.",
   },
 };
 
@@ -100,7 +102,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-10">
         {/* Controls Toolbar: Search, Category Filters, Academic Year Selector */}
         <div className="bg-[var(--surface-color)] p-6 rounded-xl border border-[var(--border-color)] shadow-sm space-y-6">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
@@ -182,10 +184,14 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
           </div>
         </div>
 
-        {/* Gallery Albums Grid */}
-        {albums.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {albums.map((album) => (
+        {/* Gallery Albums Section */}
+        <section aria-labelledby="gallery-albums-heading">
+          <h2 id="gallery-albums-heading" className="sr-only">
+            Archival Photography and Media Albums
+          </h2>
+          {albums.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {albums.map((album, idx) => (
               <Card 
                 key={album.id} 
                 hoverElevate 
@@ -195,12 +201,13 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
                   {/* Album Cover Thumbnail */}
                   <div className="relative aspect-video bg-[var(--brand-dark)] flex items-center justify-center overflow-hidden border-b border-[var(--border-color)]">
                     {album.coverImageUrl ? (
-                      <img
+                      <Image
                         src={album.coverImageUrl}
                         alt={album.titleEn}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                        fill
+                        priority={idx === 0}
+                        sizes="(max-width: 640px) 380px, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-[var(--brand-accent)] opacity-80">
@@ -291,6 +298,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
             actionHref="/gallery"
           />
         )}
+        </section>
       </div>
     </div>
   );

@@ -58,8 +58,17 @@ export const revalidate = 60; // Incremental Static Regeneration every 60s
 export const metadata: Metadata = {
   title: "About the Club | Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
   description: "An enduring academic society at Kabi Nazrul Government College, Dhaka, founded to preserve the classical eloquence of the Arabic language, foster intellectual discourse, and cultivate cultural scholarship.",
+  alternates: {
+    canonical: "/about",
+  },
   openGraph: {
     title: "About Us — Arabic Language & Cultural Club, Kabi Nazrul Govt. College",
+    description: "Discover our institutional mission, vision, core values, and constitutional charter for Arabophone scholarship at Kabi Nazrul Government College, Dhaka.",
+    url: "/about",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Us — Arabic Language & Cultural Club",
     description: "Discover our institutional mission, vision, core values, and constitutional charter for Arabophone scholarship at Kabi Nazrul Government College, Dhaka.",
   },
 };

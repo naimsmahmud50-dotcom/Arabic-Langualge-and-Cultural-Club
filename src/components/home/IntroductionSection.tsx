@@ -18,8 +18,18 @@ import React from "react";
 import Link from "next/link";
 import { Card, CardContent, Badge, Button, HeritageDivider } from "@/components/ui";
 import { BookOpen, History, Users, Award, ArrowRight, Compass } from "lucide-react";
+import { type SiteSettings } from "@/lib/types/settings";
 
-export function IntroductionSection() {
+export interface IntroductionSectionProps {
+  settings?: SiteSettings;
+}
+
+export function IntroductionSection({ settings }: IntroductionSectionProps) {
+  const badgeText = settings?.mission_badge_en || "Foundational Mandate";
+  const titleText = settings?.mission_title_en || "The Purpose & Four Pillars of Our Society";
+  const subtitleText = settings?.mission_subtitle_ar || "«إِنَّ مِنَ الْبَيَانِ لَسِحْرًا» • أربعة أركان تقوم عليها مسيرتنا في كلية كابي نذرول الحكومية";
+  const descText = settings?.mission_desc_en || "Founded as the premier collegiate society at Kabi Nazrul Government College, Dhaka, the Arabic Language & Cultural Club provides an intellectually rigorous sanctuary for the mastery, celebration, and dissemination of classical Arabic letters.";
+
   const pillars = [
     {
       icon: BookOpen,
@@ -52,15 +62,15 @@ export function IntroductionSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <Badge variant="accent" size="sm">Foundational Mandate</Badge>
+          <Badge variant="accent" size="sm">{badgeText}</Badge>
           <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] font-serif">
-            The Purpose & Four Pillars of Our Society
+            {titleText}
           </h2>
           <p className="font-arabic text-base text-[var(--brand-accent)] font-medium" dir="rtl">
-            «إِنَّ مِنَ الْبَيَانِ لَسِحْرًا» • أربعة أركان تقوم عليها مسيرتنا في كلية كابي نذرول الحكومية
+            {subtitleText}
           </p>
           <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-            Founded as the premier collegiate society at Kabi Nazrul Government College, Dhaka, the Arabic Language & Cultural Club provides an intellectually rigorous sanctuary for the mastery, celebration, and dissemination of classical Arabic letters.
+            {descText}
           </p>
         </div>
 

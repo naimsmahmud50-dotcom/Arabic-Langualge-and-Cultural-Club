@@ -35,9 +35,13 @@ import {
   GalleryPreviewSection,
   MembershipInvitationSection,
   VerifiedContactSection,
+  NewsAnnouncementsSection,
+  CommitteePreviewSection,
+  LearningResourcesSection,
 } from "@/components/home";
 import {
   getCommitteeTerms,
+  getCommitteeMembersByTerm,
   getPublicEvents,
   getPublicLearningResources,
   getPublicPublications,
@@ -45,6 +49,7 @@ import {
   getPublicGalleryAlbums,
   getPublicSiteSettings,
 } from "@/lib/db/queries";
+import { getSiteSettings, DEFAULT_SITE_SETTINGS } from "@/lib/settings";
 
 export const revalidate = 60; // Refresh dynamic queries every 60 seconds
 
@@ -78,6 +83,8 @@ export default async function HomePage() {
     announcementsResult,
     albumsResult,
     settings,
+    siteSettings,
+    committeeOfficers,
   ] = await Promise.all([
     getPublicEvents({ status: "upcoming", limit: 3 }).catch(() => ({ data: [] })),
     getPublicLearningResources({ limit: 4 }).catch(() => ({ data: [] })),
@@ -85,6 +92,8 @@ export default async function HomePage() {
     getPublicAnnouncements({ limit: 3 }).catch(() => ({ data: [] })),
     getPublicGalleryAlbums({ limit: 4 }).catch(() => ({ data: [] })),
     getPublicSiteSettings().catch(() => ({})),
+    getSiteSettings().catch(() => DEFAULT_SITE_SETTINGS),
+    activeTerm ? getCommitteeMembersByTerm(activeTerm.id).catch(() => []) : Promise.resolve([]),
   ]);
 
   const nextUpcomingEvent = eventsResult.data[0];
@@ -96,15 +105,35 @@ export default async function HomePage() {
       {/* 1. Flagship Institutional Hero */}
       <HeroSection
         stats={{
-          foundingYear: 2022,
+          foundingYear: parseInt(siteSettings.founding_year, 10) || 2022,
           upcomingEvents: eventsResult.data.length,
         }}
+        settings={siteSettings}
       />
 
       {/* 2. Institutional Overview: Mission, Vision & Core Pillars */}
-      <IntroductionSection />
+      <IntroductionSection settings={siteSettings} />
 
-      {/* 3. Central Gateway Hub: Connecting Visitors to Dedicated Standalone Pages */}
+      {/* 3. Upcoming Events Strip */}
+      <UpcomingEventsSection events={eventsResult.data} />
+
+      {/* 4. Latest News & Secretarial Bulletins */}
+      <NewsAnnouncementsSection announcements={announcementsResult.data} />
+
+      {/* 5. Curated Visual Archives Highlights Grid */}
+      <GalleryPreviewSection albums={albumsResult.data} />
+
+      {/* 6. Active Executive Committee Preview */}
+      <CommitteePreviewSection
+        termTitle={activeTerm?.titleEn}
+        academicYear={activeTerm?.academicYear}
+        officers={committeeOfficers}
+      />
+
+      {/* 7. Learning Resources Teaser */}
+      <LearningResourcesSection resources={resourcesResult.data} />
+
+      {/* 8. Central Gateway Hub: Connecting Visitors to Dedicated Standalone Pages */}
       <OverviewGatewaySection
         stats={{
           upcomingEventsCount: eventsResult.data.length,
@@ -120,16 +149,10 @@ export default async function HomePage() {
         }}
       />
 
-      {/* 4. Upcoming Events Snapshot */}
-      <UpcomingEventsSection events={eventsResult.data} />
-
-      {/* 5. Curated Visual Archives Preview */}
-      <GalleryPreviewSection albums={albumsResult.data} />
-
-      {/* 6. Membership Fellowship Invitation */}
+      {/* 9. Membership Fellowship Invitation */}
       <MembershipInvitationSection />
 
-      {/* 7. Verified Institutional Coordinates & Contacts */}
+      {/* 10. Verified Institutional Coordinates & Contacts */}
       <VerifiedContactSection settings={settings} />
     </div>
   );

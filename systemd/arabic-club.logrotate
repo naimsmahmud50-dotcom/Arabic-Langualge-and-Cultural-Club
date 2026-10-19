@@ -1,0 +1,23 @@
+# ==============================================================================
+# DEVELOPER NOTE:
+# File: systemd/arabic-club.logrotate
+# Description: Logrotate configuration for Arabic Language & Cultural Club logs.
+# Institution: Kabi Nazrul Government College, Dhaka
+# Target Path: /etc/logrotate.d/arabic-club (or user cron)
+# Strictly human vibe; zero AI emojis.
+# ==============================================================================
+
+"/home/mahmud-hasan/Naims Project/Arabic Club/logs/*.log" {
+    daily
+    missingok
+    rotate 14
+    compress
+    delaycompress
+    notifempty
+    create 0640 mahmud-hasan mahmud-hasan
+    sharedscripts
+    postrotate
+        # Signal systemd service to reopen log handles if applicable
+        systemctl --user kill -s HUP arabic-club.service 2>/dev/null || true
+    endscript
+}

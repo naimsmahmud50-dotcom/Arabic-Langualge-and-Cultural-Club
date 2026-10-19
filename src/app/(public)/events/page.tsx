@@ -43,6 +43,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/events",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Academic Calendar & Annual Plan — Arabic Language & Cultural Club",
+    description: "Explore upcoming events, symposia, and academic workshops organized by the Arabic Language & Cultural Club.",
+  },
 };
 
 interface EventsPageProps {
@@ -113,7 +118,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                 </p>
               </div>
 
-              <Link href="/events?view=list">
+              <Link href="/events?view=list" prefetch={false}>
                 <Button variant="outline" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
                   View Full Itinerary
                 </Button>

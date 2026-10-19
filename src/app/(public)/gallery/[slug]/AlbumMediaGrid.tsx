@@ -21,6 +21,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, Badge } from "@/components/ui";
 import { MediaLightbox, LightboxMediaItem } from "./MediaLightbox";
 import { Camera, Film, Play, Maximize2, Sparkles } from "lucide-react";
@@ -64,12 +65,19 @@ export function AlbumMediaGrid({
             >
               {/* Media Thumbnail Container */}
               <div className="relative aspect-4/3 bg-[var(--brand-dark)] flex items-center justify-center overflow-hidden border-b border-[var(--border-color)]">
-                <img
-                  src={displayUrl}
-                  alt={item.altText || item.captionEn || `${albumTitleEn} photo ${index + 1}`}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                />
+                {displayUrl ? (
+                  <Image
+                    src={displayUrl}
+                    alt={item.altText || item.captionEn || `${albumTitleEn} photo ${index + 1}`}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-[var(--brand-accent)] opacity-80">
+                    <Camera className="w-8 h-8" />
+                  </div>
+                )}
 
                 {/* Video Indicator Overlay */}
                 {isVideo && (

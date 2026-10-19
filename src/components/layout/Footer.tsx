@@ -18,8 +18,21 @@ import React from "react";
 import Link from "next/link";
 import { GeometricPattern, HeritageDivider, ClubLogo } from "@/components/ui";
 import { Shield, Mail, MapPin, Globe } from "lucide-react";
+import { type SiteSettings } from "@/lib/types/settings";
 
-export function Footer() {
+export interface FooterProps {
+  settings?: SiteSettings;
+}
+
+export function Footer({ settings }: FooterProps) {
+  const brandTitle = settings?.club_short_name_en || settings?.club_name_en || "Arabic Language & Cultural Club";
+  const collegeTitle = settings?.college_name_en || "Kabi Nazrul Government College, Dhaka";
+  const arabicTitle = settings?.club_name_ar || "نادي اللغة والثقافة العربية - كلية كابي نذرول الحكومية، دكا";
+  const logoSrc = settings?.logo_crest_url || undefined;
+  const aboutText = settings?.footer_about_text_en || "An enduring institutional archive and digital platform advancing classical Arabic eloquence, literary scholarship, cultural heritage, and student leadership.";
+  const motto = settings?.footer_motto_ar || settings?.footer_motto_en || "«لِسَانُ الْعَرَبِ حِلْيَةُ الْأَدَبِ وَمِفْتَاحُ الْفَهْمِ»";
+  const copyrightText = settings?.footer_copyright_en || "Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka. All institutional rights reserved.";
+
   return (
     <footer className="relative bg-[var(--brand-dark)] text-[#F5F0E5] pt-16 pb-12 border-t border-[var(--border-color)] overflow-hidden">
       {/* Background Subtle Watermark */}
@@ -32,34 +45,34 @@ export function Footer() {
           {/* Column 1: Institutional Identity */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <ClubLogo variant="crest" size="md" className="drop-shadow-sm" />
+              <ClubLogo variant="crest" size="md" src={logoSrc} className="drop-shadow-sm" />
               <div>
-                <h4 className="font-bold text-lg text-white leading-tight">
-                  Arabic Language & Cultural Club
-                </h4>
-                <p className="text-xs text-[#E3D9C4] font-medium mt-0.5">
-                  Kabi Nazrul Government College, Dhaka
+                <p className="font-bold text-lg text-white leading-tight">
+                  {brandTitle}
                 </p>
-                <p className="font-arabic text-xs text-[var(--brand-accent)] mt-0.5" dir="rtl">
-                  نادي اللغة والثقافة العربية - كلية كابي نذرول الحكومية، دكا
+                <p className="text-xs text-[#E3D9C4] font-medium mt-0.5">
+                  {collegeTitle}
+                </p>
+                <p className="font-arabic text-xs text-[#E5BE6A] mt-0.5" dir="rtl">
+                  {arabicTitle}
                 </p>
               </div>
             </div>
 
             <p className="text-sm text-[#C3C9C2] leading-relaxed max-w-sm">
-              An enduring institutional archive and digital platform advancing classical Arabic eloquence, literary scholarship, cultural heritage, and student leadership.
+              {aboutText}
             </p>
 
-            <div className="pt-2 text-xs text-[var(--brand-accent)] font-medium">
-              «لِسَانُ الْعَرَبِ حِلْيَةُ الْأَدَبِ وَمِفْتَاحُ الْفَهْمِ»
+            <div className="pt-2 text-xs text-[#E5BE6A] font-medium">
+              {motto}
             </div>
           </div>
 
           {/* Column 2: Institutional Legacy */}
           <div className="space-y-3">
-            <h5 className="text-xs uppercase font-bold tracking-wider text-[var(--brand-accent)]">
+            <h3 className="text-xs uppercase font-bold tracking-wider text-[#E5BE6A]">
               Heritage & History
-            </h5>
+            </h3>
             <ul className="space-y-2 text-sm text-[#C3C9C2]">
               <li>
                 <Link href="/about" className="hover:text-white transition-colors">
@@ -91,9 +104,9 @@ export function Footer() {
 
           {/* Column 3: Operations & Community */}
           <div className="space-y-3">
-            <h5 className="text-xs uppercase font-bold tracking-wider text-[var(--brand-accent)]">
+            <h3 className="text-xs uppercase font-bold tracking-wider text-[#E5BE6A]">
               Operations & Media
-            </h5>
+            </h3>
             <ul className="space-y-2 text-sm text-[#C3C9C2]">
               <li>
                 <Link href="/events" className="hover:text-white transition-colors">
@@ -130,9 +143,9 @@ export function Footer() {
 
           {/* Column 4: Governance & Policies */}
           <div className="space-y-3">
-            <h5 className="text-xs uppercase font-bold tracking-wider text-[var(--brand-accent)]">
+            <h3 className="text-xs uppercase font-bold tracking-wider text-[#E5BE6A]">
               Governance & Policies
-            </h5>
+            </h3>
             <ul className="space-y-2 text-sm text-[#C3C9C2]">
               <li>
                 <Link href="/policies" className="hover:text-white transition-colors">
@@ -157,7 +170,7 @@ export function Footer() {
               <li className="pt-2">
                 <Link
                   href="/admin"
-                  className="inline-flex items-center gap-1.5 text-xs text-[var(--brand-accent)] hover:underline font-semibold"
+                  className="inline-flex items-center gap-1.5 text-xs text-[#E5BE6A] hover:underline font-semibold"
                 >
                   <Shield className="w-3.5 h-3.5" />
                   Admin CMS Portal
@@ -168,9 +181,9 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8E9C92]">
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#C3C9C2]">
           <div>
-            © {new Date().getFullYear()} Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka. All institutional rights reserved.
+            © {new Date().getFullYear()} {copyrightText}
           </div>
           <div className="flex items-center gap-4">
             <span>Preserving Heritage Since Inception</span>

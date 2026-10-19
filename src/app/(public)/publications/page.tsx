@@ -31,7 +31,8 @@ import {
   GraduationCap, 
   ShieldCheck, 
   ExternalLink,
-  Layers
+  Layers,
+  Search
 } from "lucide-react";
 
 export const revalidate = 60;
@@ -47,19 +48,28 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/publications",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Publications & Roll of Honor — Arabic Language & Cultural Club",
+    description: "Read official magazines, academic treatises, and explore the institutional roll of honor.",
+  },
 };
 
 interface PublicationsPageProps {
-  searchParams: Promise<{ type?: string; achievementCategory?: string }>;
+  searchParams: Promise<{ type?: string; achievementCategory?: string; q?: string }>;
 }
 
 export default async function PublicationsPage({ searchParams }: PublicationsPageProps) {
-  const { type, achievementCategory } = await searchParams;
+  const { type, achievementCategory, q } = await searchParams;
   const activeType = type || "";
   const activeAchCategory = achievementCategory || "";
+  const searchQuery = q || "";
 
   const [publications, achievements] = await Promise.all([
-    getPublicPublications({ type: activeType || undefined }).catch(() => []),
+    getPublicPublications({
+      type: activeType || undefined,
+      search: searchQuery || undefined,
+    }).catch(() => []),
     getPublicAchievements({ category: activeAchCategory || undefined }).catch(() => []),
   ]);
 
@@ -112,29 +122,47 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
               </p>
             </div>
 
-            {/* Publication Type Filters */}
-            <div className="flex flex-wrap gap-2">
-              {publicationTypes.map((t) => {
-                const isSelected = activeType === t.value;
-                const url = `/publications?${new URLSearchParams({
-                  ...(t.value ? { type: t.value } : {}),
-                  ...(activeAchCategory ? { achievementCategory: activeAchCategory } : {}),
-                }).toString()}`;
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              {/* Publication Text Search */}
+              <form method="GET" action="/publications" className="relative w-full sm:w-64">
+                {activeType && <input type="hidden" name="type" value={activeType} />}
+                {activeAchCategory && <input type="hidden" name="achievementCategory" value={activeAchCategory} />}
+                <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  name="q"
+                  defaultValue={searchQuery}
+                  placeholder="Search articles, monographs..."
+                  className="w-full pl-9 pr-4 py-1.5 text-xs rounded-[5px] bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--brand-accent)]"
+                />
+              </form>
 
-                return (
-                  <Link
-                    key={t.value}
-                    href={url}
-                    className={`px-3 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-all border ${
-                      isSelected
-                        ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-sm"
-                        : "bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-color)] hover:border-[var(--brand-accent)] hover:text-[var(--text-primary)]"
-                    }`}
-                  >
-                    {t.label}
-                  </Link>
-                );
-              })}
+              {/* Publication Type Filters */}
+              <div className="flex flex-wrap gap-2">
+                {publicationTypes.map((t) => {
+                  const isSelected = activeType === t.value;
+                  const url = `/publications?${new URLSearchParams({
+                    ...(t.value ? { type: t.value } : {}),
+                    ...(activeAchCategory ? { achievementCategory: activeAchCategory } : {}),
+                    ...(searchQuery ? { q: searchQuery } : {}),
+                  }).toString()}`;
+
+                  return (
+                    <Link
+                      key={t.value}
+                      href={url}
+                      prefetch={false}
+                      className={`px-3 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-all border ${
+                        isSelected
+                          ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-sm"
+                          : "bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-color)] hover:border-[var(--brand-accent)] hover:text-[var(--text-primary)]"
+                      }`}
+                    >
+                      {t.label}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -177,20 +205,34 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                     )}
                   </CardContent>
 
-                  <div className="p-6 pt-0">
+                  <div className="p-6 pt-0 flex items-center gap-2">
                     <a
                       href={pub.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full block"
+                      className="flex-1 block"
                     >
                       <Button
                         variant="outline"
                         size="sm"
                         className="w-full justify-between"
-                        rightIcon={<Download className="w-3.5 h-3.5" />}
+                        rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
                       >
-                        <span>Download Verified Issue</span>
+                        <span>Preview Issue</span>
+                      </Button>
+                    </a>
+                    <a
+                      href={pub.fileUrl}
+                      download
+                      className="shrink-0"
+                      aria-label={`Download ${pub.titleEn}`}
+                    >
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="px-2.5 text-[var(--brand-accent)] hover:bg-[var(--bg-primary)] border border-[var(--border-color)]"
+                      >
+                        <Download className="w-3.5 h-3.5" />
                       </Button>
                     </a>
                   </div>
@@ -238,6 +280,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                   <Link
                     key={achCat.value}
                     href={url}
+                    prefetch={false}
                     className={`px-3 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-all border ${
                       isSelected
                         ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-sm"

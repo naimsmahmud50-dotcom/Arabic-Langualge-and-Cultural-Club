@@ -47,7 +47,7 @@ const EventSchema = z.object({
   startTime: z.string().min(1, "Start date and time are required"),
   endTime: z.string().optional().nullable().or(z.literal("")),
   venue: z.string().min(2, "Venue location is required").max(150),
-  coverImageUrl: z.string().url("Valid image URL required").optional().nullable().or(z.literal("")),
+  coverImageUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid image URL or path required").optional().nullable().or(z.literal("")),
   capacity: z.number().int().min(1, "Capacity must be at least 1 seat").max(10000).optional().nullable(),
   status: z.enum(["planned", "confirmed", "completed", "postponed", "cancelled"]).default("confirmed"),
   isRegistrationOpen: z.boolean().default(false),
@@ -84,7 +84,11 @@ export async function saveEventAction(input: {
 
   const parsed = EventSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   const startDate = new Date(parsed.data.startTime);
@@ -355,7 +359,11 @@ export async function saveAnnualPlanActivityAction(input: {
 
   const parsed = AnnualPlanActivitySchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {

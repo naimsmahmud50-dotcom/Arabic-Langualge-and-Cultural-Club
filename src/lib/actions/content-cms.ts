@@ -77,7 +77,7 @@ const AnnouncementSchema = z.object({
   contentEn: z.string().min(10, "English content is required"),
   contentAr: z.string().optional().nullable(),
   category: z.string().min(2, "Category is required").max(50).default("notice"),
-  coverImageUrl: z.string().url("Valid image URL required").optional().nullable().or(z.literal("")),
+  coverImageUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid image URL or path required").optional().nullable().or(z.literal("")),
   authorName: z.string().max(100).optional().nullable(),
   status: z.enum(["draft", "published", "archived"]).default("published"),
   isPinned: z.boolean().default(false),
@@ -96,7 +96,11 @@ export async function saveAnnouncementAction(input: z.infer<typeof AnnouncementS
 
   const parsed = AnnouncementSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {
@@ -246,7 +250,7 @@ const LearningResourceSchema = z.object({
   titleAr: z.string().max(200).optional().nullable(),
   category: z.enum(["grammar", "morphology", "rhetoric", "vocabulary", "literature", "reading", "general"]).default("grammar"),
   skillLevel: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
-  fileUrl: z.string().url("Valid file URL required").optional().nullable().or(z.literal("")),
+  fileUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid file URL or path required").optional().nullable().or(z.literal("")),
   contentEn: z.string().max(5000).optional().nullable(),
   contentAr: z.string().max(5000).optional().nullable(),
   isPublished: z.boolean().default(true),
@@ -264,7 +268,11 @@ export async function saveLearningResourceAction(input: z.infer<typeof LearningR
 
   const parsed = LearningResourceSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {
@@ -372,8 +380,8 @@ const PublicationSchema = z.object({
   publicationType: z.enum(["magazine", "newsletter", "journal", "report"]).default("magazine"),
   issueNo: z.string().max(40).optional().nullable(),
   publicationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format: YYYY-MM-DD").optional().nullable().or(z.literal("")),
-  coverImageUrl: z.string().url("Valid image URL required").optional().nullable().or(z.literal("")),
-  fileUrl: z.string().url("Valid PDF or document URL required"),
+  coverImageUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid image URL or path required").optional().nullable().or(z.literal("")),
+  fileUrl: z.string().refine((val) => Boolean(val && (val.startsWith("/") || /^https?:\/\//i.test(val))), "Valid PDF or document URL or path required"),
   descriptionEn: z.string().max(1000).optional().nullable(),
   descriptionAr: z.string().max(1000).optional().nullable(),
   isPublished: z.boolean().default(true),
@@ -391,7 +399,11 @@ export async function savePublicationAction(input: z.infer<typeof PublicationSch
 
   const parsed = PublicationSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {
@@ -503,7 +515,7 @@ const AchievementSchema = z.object({
   descriptionAr: z.string().max(1000).optional().nullable(),
   category: z.string().min(2, "Category is required").max(50).default("competition"),
   dateAchieved: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format: YYYY-MM-DD").optional().nullable().or(z.literal("")),
-  certificateUrl: z.string().url("Valid certificate or trophy image URL required").optional().nullable().or(z.literal("")),
+  certificateUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid certificate or trophy image URL or path required").optional().nullable().or(z.literal("")),
   isPublished: z.boolean().default(true),
 });
 
@@ -519,7 +531,11 @@ export async function saveAchievementAction(input: z.infer<typeof AchievementSch
 
   const parsed = AchievementSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {
@@ -620,7 +636,7 @@ const GalleryAlbumSchema = z.object({
   titleAr: z.string().max(200).optional().nullable(),
   descriptionEn: z.string().max(1000).optional().nullable(),
   descriptionAr: z.string().max(1000).optional().nullable(),
-  coverImageUrl: z.string().url("Valid cover image URL required").optional().nullable().or(z.literal("")),
+  coverImageUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid cover image URL or path required").optional().nullable().or(z.literal("")),
   eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format: YYYY-MM-DD").optional().nullable().or(z.literal("")),
   dateNotes: z.string().max(250).optional().nullable(),
   academicYear: z.string().min(4, "Academic year required (e.g. 2024–2025)").max(30),
@@ -645,7 +661,11 @@ export async function saveGalleryAlbumAction(input: z.infer<typeof GalleryAlbumS
 
   const parsed = GalleryAlbumSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {
@@ -810,10 +830,10 @@ export async function deleteGalleryAlbumAction(id: string) {
 const MediaAssetSchema = z.object({
   id: z.string().optional(),
   albumId: z.string().min(1, "Album association is required"),
-  fileUrl: z.string().url("Valid media URL required"),
-  thumbnailUrl: z.string().url("Valid thumbnail URL required").optional().nullable().or(z.literal("")),
+  fileUrl: z.string().refine((val) => Boolean(val && (val.startsWith("/") || /^https?:\/\//i.test(val))), "Valid media URL or path required"),
+  thumbnailUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid thumbnail URL or path required").optional().nullable().or(z.literal("")),
   mediaType: z.enum(["image", "video"]).default("image"),
-  videoUrl: z.string().url("Valid video link required").optional().nullable().or(z.literal("")),
+  videoUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid video link required").optional().nullable().or(z.literal("")),
   captionEn: z.string().max(300).optional().nullable(),
   captionAr: z.string().max(300).optional().nullable(),
   altText: z.string().max(250).optional().nullable(),
@@ -836,7 +856,11 @@ export async function saveMediaAssetAction(input: z.infer<typeof MediaAssetSchem
 
   const parsed = MediaAssetSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {

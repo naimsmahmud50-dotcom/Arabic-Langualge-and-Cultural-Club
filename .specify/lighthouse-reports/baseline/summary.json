@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Home",
+    "url": "http://localhost:3005/",
+    "performance": 77,
+    "accessibility": 95,
+    "bestPractices": 100,
+    "seo": 100,
+    "opportunities": [
+      "Reduce unused JavaScript (savings: Est savings of 26 KiB)"
+    ]
+  },
+  {
+    "name": "About",
+    "url": "http://localhost:3005/about",
+    "performance": 83,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "opportunities": [
+      "Reduce unused JavaScript (savings: Est savings of 27 KiB)"
+    ]
+  },
+  {
+    "name": "Events",
+    "url": "http://localhost:3005/events",
+    "performance": 82,
+    "accessibility": 92,
+    "bestPractices": 100,
+    "seo": 100,
+    "opportunities": [
+      "Reduce unused JavaScript (savings: Est savings of 26 KiB)"
+    ]
+  },
+  {
+    "name": "Gallery",
+    "url": "http://localhost:3005/gallery",
+    "performance": 82,
+    "accessibility": 95,
+    "bestPractices": 96,
+    "seo": 100,
+    "opportunities": [
+      "Reduce unused JavaScript (savings: Est savings of 26 KiB)"
+    ]
+  },
+  {
+    "name": "Publications",
+    "url": "http://localhost:3005/publications",
+    "performance": 83,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "opportunities": [
+      "Reduce unused JavaScript (savings: Est savings of 27 KiB)"
+    ]
+  }
+]

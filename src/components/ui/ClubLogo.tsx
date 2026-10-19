@@ -8,20 +8,24 @@
  * DESIGN INVARIANTS:
  * - Employs authentic club crest (golden heraldic shield, Alif torch flame, "ARABIC CLUB").
  * - Supports variants: 'crest' (transparent shield), 'full' (with collegiate subscript), 'badge' (framed crest), and 'original'.
- * - Preserves native aspect ratio across all screen sizes and prevents layout shifts.
+ * - Uses next/image for automatic WebP/AVIF compression, responsive srcset, and zero layout shift.
+ * - Explicit width/height prevent CLS and satisfy Core Web Vitals.
  * - Respects Arabic RTL layout and light/dark theme contrast.
  * - Strictly human vibe; zero AI emojis.
  */
 
 import React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 
-export interface ClubLogoProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "size"> {
+export interface ClubLogoProps {
   variant?: "crest" | "full" | "original" | "badge";
   size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "custom";
   alt?: string;
   className?: string;
   showText?: boolean;
+  src?: string;
+  priority?: boolean;
 }
 
 const SIZE_MAP = {
@@ -32,6 +36,16 @@ const SIZE_MAP = {
   xl: "w-24 h-24",
   "2xl": "w-32 h-32",
   custom: "",
+};
+
+const DIMENSION_MAP: Record<string, { width: number; height: number }> = {
+  xs: { width: 24, height: 24 },
+  sm: { width: 32, height: 32 },
+  md: { width: 44, height: 44 },
+  lg: { width: 64, height: 64 },
+  xl: { width: 96, height: 96 },
+  "2xl": { width: 128, height: 128 },
+  custom: { width: 44, height: 44 },
 };
 
 const SRC_MAP = {
@@ -47,10 +61,12 @@ export const ClubLogo: React.FC<ClubLogoProps> = ({
   alt = "Arabic Language & Cultural Club Crest - Kabi Nazrul Government College, Dhaka",
   className,
   showText = false,
-  ...rest
+  src,
+  priority = false,
 }) => {
-  const imgSrc = SRC_MAP[variant] || SRC_MAP.crest;
+  const imgSrc = src || SRC_MAP[variant] || SRC_MAP.crest;
   const sizeClasses = SIZE_MAP[size] || SIZE_MAP.md;
+  const dim = DIMENSION_MAP[size] || DIMENSION_MAP.md;
 
   if (variant === "badge") {
     return (
@@ -61,13 +77,13 @@ export const ClubLogo: React.FC<ClubLogoProps> = ({
           className
         )}
       >
-        <img
+        <Image
           src={imgSrc}
           alt={alt}
+          width={dim.width}
+          height={dim.height}
+          priority={priority}
           className="w-full h-full object-contain filter drop-shadow-xs"
-          loading="eager"
-          decoding="async"
-          {...rest}
         />
       </div>
     );
@@ -75,13 +91,13 @@ export const ClubLogo: React.FC<ClubLogoProps> = ({
 
   return (
     <div className={cn("inline-flex items-center gap-3 shrink-0 select-none", className)}>
-      <img
+      <Image
         src={imgSrc}
         alt={alt}
+        width={dim.width}
+        height={dim.height}
+        priority={priority}
         className={cn("object-contain shrink-0", sizeClasses)}
-        loading="eager"
-        decoding="async"
-        {...rest}
       />
       {showText && (
         <div className="flex flex-col text-start">

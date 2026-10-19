@@ -775,46 +775,29 @@ export async function getPublicSiteSettings() {
   return map;
 }
 
+export { 
+  getSiteSettings, 
+  fetchSiteSettingsDirect,
+  type SiteSettings, 
+  type NavMenuItem,
+  DEFAULT_NAV_ITEMS,
+  DEFAULT_SITE_SETTINGS 
+} from "@/lib/settings";
+
+
+// ----------------------------------------------------------------------
+// EDITABLE CMS PAGES & SECTIONS QUERIES
 // ----------------------------------------------------------------------
 // EDITABLE CMS PAGES & SECTIONS QUERIES
 // ----------------------------------------------------------------------
 
-export interface SectionContentItem {
-  id?: string;
-  title: string;
-  arabicTitle?: string;
-  description: string;
-  arabicDescription?: string;
-  iconName?: string;
-  badge?: string;
-  year?: string;
-  date?: string;
-  citation?: string;
-  isVerified?: boolean;
-  imageUrl?: string;
-  imageCaption?: string;
-  documentUrl?: string;
-  documentTitle?: string;
-}
+import { 
+  safeParseSectionJson, 
+  type SectionContentData, 
+  type SectionContentItem 
+} from "@/lib/schemas/sections";
 
-export interface SectionContentData {
-  heading?: string;
-  subheading?: string;
-  badge?: string;
-  body?: string;
-  quote?: {
-    text: string;
-    arabicText?: string;
-    attribution?: string;
-  };
-  items?: SectionContentItem[];
-  imageUrl?: string;
-  imageCaption?: string;
-  documentUrl?: string;
-  documentTitle?: string;
-  documentSize?: string;
-  publicationStatus?: "draft" | "published" | "archived";
-}
+export type { SectionContentData, SectionContentItem };
 
 export interface ParsedPageSection {
   id: string;
@@ -838,17 +821,8 @@ export interface PageWithSections {
   sections: ParsedPageSection[];
 }
 
-function parseSectionJson(rawText: string | null): SectionContentData {
-  if (!rawText) return {};
-  try {
-    const trimmed = rawText.trim();
-    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
-      return JSON.parse(trimmed);
-    }
-    return { body: trimmed };
-  } catch {
-    return { body: rawText };
-  }
+export function parseSectionJson(rawText: string | null): SectionContentData {
+  return safeParseSectionJson(rawText);
 }
 
 /**

@@ -41,6 +41,7 @@ import {
 } from "@/components/admin";
 import { PageSectionModal, PageSectionData } from "./PageSectionModal";
 import { savePageMetadataAction, deletePageSectionAction } from "@/lib/actions/pages";
+import { safeParseSectionJson } from "@/lib/schemas/sections";
 
 export interface PageRecord {
   id: string;
@@ -406,16 +407,20 @@ export function AdminPagesClient({ initialPages }: AdminPagesClientProps) {
                       {
                         key: "sectionKey",
                         header: "Section Key",
-                        render: (sec) => (
-                          <div>
-                            <span className="font-mono text-xs font-bold text-[var(--text-primary)]">
-                              {sec.sectionKey}
-                            </span>
-                            <span className="block text-[10px] text-[var(--text-muted)] truncate max-w-xs">
-                              {sec.contentEn ? sec.contentEn.substring(0, 60) + "..." : "No text"}
-                            </span>
-                          </div>
-                        ),
+                        render: (sec) => {
+                          const parsed = safeParseSectionJson(sec.contentEn);
+                          const previewText = parsed.heading || parsed.body || "No text content";
+                          return (
+                            <div>
+                              <span className="font-mono text-xs font-bold text-[var(--text-primary)]">
+                                {sec.sectionKey}
+                              </span>
+                              <span className="block text-[10px] text-[var(--text-muted)] truncate max-w-xs">
+                                {previewText}
+                              </span>
+                            </div>
+                          );
+                        },
                       },
                       {
                         key: "updatedAt",

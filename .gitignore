@@ -9,20 +9,29 @@
 .env.test.local
 .env.production.local
 
-# Databases
+# Databases & Backups
 *.db
+*.db*
 *.db-journal
 *.db-shm
 *.db-wal
+*.backup*
+site_settings_backup*.json
+/backups/
 
-# Build artifacts
+# Build & Test artifacts
 /.next/
+/.next_backup*/
 /dist/
 /out/
 /build/
 *.tsbuildinfo
-/backups/
 /public/uploads/
+/storage/
+/data/
+/logs/
+/playwright-report/
+/test-results/
 
 # IDE & OS
 .DS_Store

@@ -217,6 +217,29 @@ export async function logoutAction(): Promise<void> {
 }
 
 /**
+ * Server Action: Logs out everywhere by terminating all active sessions for the current user.
+ */
+export async function logoutEverywhereAction(): Promise<void> {
+  const currentSession = await getSession();
+  const { ip } = await getClientContext();
+
+  if (currentSession) {
+    await recordAuditLog({
+      userId: currentSession.id,
+      userEmail: currentSession.email,
+      action: "LOGOUT_EVERYWHERE_SUCCESS",
+      targetEntity: "auth",
+      ipAddress: ip,
+    });
+
+    await destroyAllUserSessions(currentSession.id);
+  }
+
+  await destroySession();
+  redirect("/admin/login?logout=everywhere");
+}
+
+/**
  * Server Action: Dispatches a password reset token for authorized administrators.
  */
 export async function requestPasswordResetAction(

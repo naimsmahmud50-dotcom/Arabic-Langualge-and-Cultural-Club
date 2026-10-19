@@ -49,9 +49,9 @@ export function VerifiedContactSection({ settings = {} }: VerifiedContactSection
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
                     Campus Secretariat
-                  </h4>
+                  </h3>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
                     Department of Arabic & Islamic Studies<br />
                     Kabi Nazrul Government College, Laxmibazar, Dhaka-1100
@@ -64,9 +64,9 @@ export function VerifiedContactSection({ settings = {} }: VerifiedContactSection
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
                     Official Email
-                  </h4>
+                  </h3>
                   <p className="text-xs text-[var(--text-secondary)] mt-1 font-mono truncate">
                     {contactEmail}
                   </p>
@@ -81,9 +81,9 @@ export function VerifiedContactSection({ settings = {} }: VerifiedContactSection
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
                     Secretariat Hours
-                  </h4>
+                  </h3>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
                     Sunday – Thursday<br />
                     10:00 AM – 4:00 PM
@@ -96,9 +96,9 @@ export function VerifiedContactSection({ settings = {} }: VerifiedContactSection
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
                     Institutional Governance
-                  </h4>
+                  </h3>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
                     Chartered Student Society<br />
                     Zero Commercial Affiliations

@@ -1,0 +1,28 @@
+# DEVELOPER NOTE:
+# File: systemd/arabic-club.service
+# Description: Production systemd service for Arabic Language & Cultural Club web platform
+# Institution: Kabi Nazrul Government College, Dhaka
+# Port: 3005
+# Zero AI emojis.
+
+[Unit]
+Description=Arabic Language and Cultural Club Web Platform (KNGC)
+Documentation=https://github.com/organization/arabic-club
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/mahmud-hasan/Naims Project/Arabic Club
+EnvironmentFile=-/home/mahmud-hasan/Naims Project/Arabic Club/.env
+Environment="PATH=/home/mahmud-hasan/.local/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="NODE_ENV=production"
+Environment="PORT=3005"
+ExecStart=/home/mahmud-hasan/.local/bin/pnpm start -p 3005
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=default.target

@@ -64,7 +64,11 @@ export async function saveCommitteeTermAction(input: {
 
   const parsed = CommitteeTermSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   // Validate date span logic
@@ -206,7 +210,11 @@ export async function assignCommitteeMemberAction(input: {
 
   const parsed = CommitteeAssignmentSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {

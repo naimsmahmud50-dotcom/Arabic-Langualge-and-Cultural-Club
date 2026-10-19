@@ -49,7 +49,11 @@ export async function savePageMetadataAction(formData: {
 
   const parsed = PageMetadataSchema.safeParse(formData);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {
@@ -115,7 +119,11 @@ export async function savePageSectionAction(input: {
 
   const parsed = PageSectionSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {

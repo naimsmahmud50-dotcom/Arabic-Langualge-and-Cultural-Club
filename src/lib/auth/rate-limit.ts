@@ -53,10 +53,10 @@ export async function checkLoginRateLimit(
     const failureCount = recentFailures.length;
 
     if (failureCount >= MAX_FAILED_ATTEMPTS) {
-      // Find oldest failure in current block to compute cooldown
-      const latestAttemptTime = recentFailures[0]?.attemptedAt.getTime() || Date.now();
-      const elapsedSinceLatest = Date.now() - latestAttemptTime;
-      const retryAfterSeconds = Math.max(1, Math.ceil((WINDOW_MS - elapsedSinceLatest) / 1000));
+      // Compute cooldown until oldest failure falls outside the sliding window
+      const oldestFailureTime = recentFailures[recentFailures.length - 1]?.attemptedAt.getTime() || Date.now();
+      const elapsedSinceOldest = Date.now() - oldestFailureTime;
+      const retryAfterSeconds = Math.max(1, Math.ceil((WINDOW_MS - elapsedSinceOldest) / 1000));
 
       return {
         allowed: false,

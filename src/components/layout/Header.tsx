@@ -30,24 +30,39 @@ import { MobileNav } from "./MobileNav";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils/cn";
+import { type SiteSettings, DEFAULT_NAV_ITEMS } from "@/lib/types/settings";
 
-export function Header() {
+export interface HeaderProps {
+  settings?: SiteSettings;
+}
+
+export function Header({ settings }: HeaderProps) {
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { t, isRTL } = useTranslation();
 
-  const navLinks = [
-    { label: t("nav.about", "About"), href: "/about" },
-    { label: t("nav.history", "History"), href: "/history" },
-    { label: t("nav.founders", "Founders"), href: "/founders" },
-    { label: t("nav.leadership", "Leadership"), href: "/leadership" },
-    { label: t("nav.calendar", "Calendar"), href: "/events" },
-    { label: t("nav.gallery", "Gallery"), href: "/gallery" },
-    { label: t("nav.resources", "Resources"), href: "/resources" },
-    { label: t("nav.publications", "Publications"), href: "/publications" },
-    { label: t("nav.news", "News"), href: "/news" },
-    { label: t("nav.contact", "Contact"), href: "/contact" },
-  ];
+  const brandTitle = settings?.club_short_name_en || settings?.club_name_en || "Arabic Language & Cultural Club";
+  const collegeTitle = settings?.college_name_en || "Kabi Nazrul Government College, Dhaka";
+  const arabicTitle = settings?.club_name_ar || "نادي اللغة والثقافة العربية - كلية كابي نذرول الحكومية";
+  const logoCrestUrl = settings?.logo_crest_url || undefined;
+
+  const rawMenu = settings?.navigation_menu && settings.navigation_menu.length > 0 
+    ? settings.navigation_menu 
+    : DEFAULT_NAV_ITEMS;
+
+  const activeMenuItems = rawMenu
+    .filter((item) => item.isVisible !== false)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const navLinks = activeMenuItems.map((item) => ({
+    label: isRTL ? (item.labelAr || item.labelEn) : (item.labelEn || item.labelAr),
+    href: item.href,
+  }));
+
+  const ctaLabel = isRTL 
+    ? (settings?.nav_cta_label_ar || t("nav.joinClub", "انضم للنادي")) 
+    : (settings?.nav_cta_label_en || t("nav.joinClub", "Join Club"));
+  const ctaLink = settings?.nav_cta_link || "/membership";
 
   return (
     <>
@@ -58,24 +73,26 @@ export function Header() {
             <Link
               href="/"
               className="flex items-center gap-3.5 group select-none shrink-0"
-              aria-label="Arabic Language & Cultural Club Home"
+              title={`${brandTitle} - ${collegeTitle}`}
             >
               {/* Official Club Crest */}
               <ClubLogo 
                 variant="crest" 
                 size="md" 
+                src={logoCrestUrl}
+                priority
                 className="group-hover:scale-[1.03] transition-transform drop-shadow-xs" 
               />
               
               <div className="flex flex-col text-start">
                 <span className="font-bold text-sm sm:text-base leading-tight tracking-tight text-[var(--text-primary)] group-hover:text-[var(--brand-accent)] transition-colors">
-                  Arabic Language & Cultural Club
+                  {brandTitle}
                 </span>
                 <span className="text-[11px] sm:text-xs font-medium text-[var(--text-secondary)] leading-tight mt-0.5">
-                  Kabi Nazrul Government College, Dhaka
+                  {collegeTitle}
                 </span>
                 <span className="font-arabic text-[11px] sm:text-xs text-[var(--brand-accent)] font-medium leading-none mt-1" dir="rtl">
-                  نادي اللغة والثقافة العربية - كلية كابي نذرول الحكومية
+                  {arabicTitle}
                 </span>
               </div>
             </Link>
@@ -88,6 +105,7 @@ export function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
+                    prefetch={false}
                     className={cn(
                       "px-2.5 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-colors duration-150 whitespace-nowrap",
                       isActive
@@ -121,13 +139,13 @@ export function Header() {
               <ThemeToggle />
 
               {/* Apply / Join CTA */}
-              <Link href="/membership" className="hidden sm:inline-flex">
+              <Link href={ctaLink} className="hidden sm:inline-flex">
                 <Button 
                   variant="accent" 
                   size="sm" 
                   rightIcon={<ArrowUpRight className={cn("w-3.5 h-3.5", isRTL && "rotate-270")} />}
                 >
-                  {t("nav.joinClub", "Join Club")}
+                  {ctaLabel}
                 </Button>
               </Link>
 

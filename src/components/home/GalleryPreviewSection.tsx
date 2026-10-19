@@ -14,6 +14,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent, Badge, Button } from "@/components/ui";
 import { Image as ImageIcon, ArrowRight, Camera, Calendar } from "lucide-react";
 
@@ -65,12 +66,12 @@ export function GalleryPreviewSection({ albums }: GalleryPreviewSectionProps) {
                   {/* Photo Frame or Placeholder */}
                   <div className="relative aspect-4/3 bg-[var(--brand-dark)] flex items-center justify-center border-b border-[var(--border-subtle)] overflow-hidden">
                     {album.coverImageUrl ? (
-                      <img
+                      <Image
                         src={album.coverImageUrl}
                         alt={album.titleEn}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-300 hover:scale-105"
                       />
                     ) : (
                       <div className="text-center p-4 space-y-2">
@@ -118,7 +119,7 @@ export function GalleryPreviewSection({ albums }: GalleryPreviewSectionProps) {
         ) : (
           <div className="p-8 text-center border border-dashed border-[var(--border-color)] rounded-[6px] max-w-md mx-auto">
             <Camera className="w-8 h-8 text-[var(--brand-accent)] mx-auto mb-2 opacity-80" />
-            <h4 className="text-sm font-bold text-[var(--text-primary)]">Photo Ingestion in Process</h4>
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">Photo Ingestion in Process</h3>
             <p className="text-xs text-[var(--text-secondary)] mt-1">
               Curated photographic rolls are undergoing metadata and consent checks.
             </p>

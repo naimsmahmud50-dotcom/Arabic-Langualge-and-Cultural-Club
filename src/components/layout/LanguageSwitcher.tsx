@@ -75,7 +75,11 @@ export function LanguageSwitcher({
         )}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-label={`Current language: ${currentMeta.name}. Click to change language.`}
+        aria-label={
+          variant === "compact"
+            ? `${currentMeta.symbol} - Select language (current: ${currentMeta.name})`
+            : `${currentMeta.nativeName} - Select language`
+        }
       >
         <Globe className="w-3.5 h-3.5 text-[var(--brand-accent)] shrink-0" aria-hidden="true" />
         

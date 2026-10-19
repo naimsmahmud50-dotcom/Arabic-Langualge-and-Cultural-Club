@@ -24,6 +24,7 @@ import React from "react";
 import Link from "next/link";
 import { Button, GeometricPattern, Badge, ClubLogo } from "@/components/ui";
 import { ShieldCheck, ArrowRight, BookOpen, Calendar, Compass } from "lucide-react";
+import { type SiteSettings } from "@/lib/types/settings";
 
 interface HeroSectionProps {
   stats?: {
@@ -31,16 +32,43 @@ interface HeroSectionProps {
     upcomingEvents?: number;
     foundingYear?: number;
   };
+  settings?: SiteSettings;
 }
 
-export function HeroSection({ stats }: HeroSectionProps) {
-  const foundingYear = stats?.foundingYear || 2022;
+export function HeroSection({ stats, settings }: HeroSectionProps) {
+  const foundingYear = stats?.foundingYear || (settings?.founding_year ? parseInt(settings.founding_year, 10) : 2022);
+  const badgeText = settings?.hero_badge_en || "Official Collegiate Society • Kabi Nazrul Govt. College, Dhaka";
+  const arabicHeading = settings?.hero_arabic_heading || "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ • نَادِي اللُّغَةِ وَالثَّقَافَةِ الْعَرَبِيَّةِ - كُلِّيَّةُ كَابِي نَذْرُول الْحُكُومِيَّة";
+  const titleText = settings?.hero_title_en || "Preserving Heritage, Advancing Eloquence, Cultivating Leadership.";
+  const subtitleText = settings?.hero_subtitle_en || "An enduring collegiate forum at Kabi Nazrul Government College, Dhaka, dedicated to classical Arabic scholarship, rhetorical mastery, competitive debate, and intellectual fellowship.";
+  
+  const ctaPrimaryLabel = settings?.hero_cta_primary_label_en || "Apply for Membership";
+  const ctaPrimaryLink = settings?.hero_cta_primary_link || "/membership";
+  const ctaSecondaryLabel = settings?.hero_cta_secondary_label_en || "Explore Our Legacy";
+  const ctaSecondaryLink = settings?.hero_cta_secondary_link || "/about";
+  const ctaTertiaryLabel = settings?.hero_cta_tertiary_label_en || "12-Month Calendar";
+  const ctaTertiaryLink = settings?.hero_cta_tertiary_link || "/events";
+
+  const cardTitle = settings?.hero_card_title_en || "Lisan Al-Arab Heritage";
+  const cardQuote = settings?.hero_card_quote_ar || "«لُغَةُ الضَّادِ حِلْيَةُ الْأَدَبِ»";
+  const cardDesc = settings?.hero_card_desc_en || "Dedicated to students, scholars, and orators honoring the classical language of Islamic civilization and literature.";
+  const cardBadge = settings?.hero_card_badge_en || "University Chartered";
+  const logoSrc = settings?.logo_crest_url || undefined;
+  const bgImageUrl = settings?.hero_bg_image_url || null;
 
   return (
     <section 
       className="relative overflow-hidden bg-[var(--brand-dark)] text-[#F5F0E5] pt-24 pb-20 lg:pt-28 lg:pb-24 border-b border-[var(--border-color)]"
       aria-label="Institutional Welcome & Motto"
     >
+      {/* Background Image Overlay if Configured */}
+      {bgImageUrl && (
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-20 bg-cover bg-center"
+          style={{ backgroundImage: `url(${bgImageUrl})` }}
+          aria-hidden="true"
+        />
+      )}
       {/* Subtle Classical Geometric Background Watermark */}
       <div className="absolute inset-0 pointer-events-none opacity-10" aria-hidden="true">
         <GeometricPattern />
@@ -50,58 +78,58 @@ export function HeroSection({ stats }: HeroSectionProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Main Editorial Content Column */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[5px] bg-white/10 border border-white/20 text-xs font-semibold text-[var(--brand-accent)] uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[5px] bg-white/10 border border-white/20 text-xs font-semibold text-[#E5BE6A] uppercase tracking-wider">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Official Collegiate Society • Kabi Nazrul Govt. College, Dhaka</span>
+              <span>{badgeText}</span>
             </div>
 
             {/* Bilingual Typography Header */}
             <div className="space-y-4">
               <p 
-                className="font-arabic text-2xl sm:text-3xl text-[var(--brand-accent)] font-semibold leading-relaxed" 
+                className="font-arabic text-2xl sm:text-3xl text-[#E5BE6A] font-semibold leading-relaxed" 
                 dir="rtl"
                 lang="ar"
               >
-                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ • نَادِي اللُّغَةِ وَالثَّقَافَةِ الْعَرَبِيَّةِ - كُلِّيَّةُ كَابِي نَذْرُول الْحُكُومِيَّة
+                {arabicHeading}
               </p>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight font-serif">
-                Preserving Heritage, Advancing Eloquence, Cultivating Leadership.
+                {titleText}
               </h1>
             </div>
 
             <p className="text-lg sm:text-xl text-[#D8DFD7] leading-relaxed max-w-2xl font-light">
-              An enduring collegiate forum at Kabi Nazrul Government College, Dhaka, dedicated to classical Arabic scholarship, rhetorical mastery, competitive debate, and intellectual fellowship.
+              {subtitleText}
             </p>
 
             {/* Primary Meaningful Calls to Action */}
             <div className="pt-4 flex flex-wrap items-center gap-4">
-              <Link href="/membership">
+              <Link href={ctaPrimaryLink} prefetch={false}>
                 <Button 
                   variant="accent" 
                   size="lg" 
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
-                  Apply for Membership
+                  {ctaPrimaryLabel}
                 </Button>
               </Link>
-              <Link href="/about">
+              <Link href={ctaSecondaryLink} prefetch={false}>
                 <Button 
                   variant="outline" 
                   size="lg" 
                   className="border-white/30 text-white hover:bg-white/10"
                 >
-                  Explore Our Legacy
+                  {ctaSecondaryLabel}
                 </Button>
               </Link>
-              <Link href="/events">
+              <Link href={ctaTertiaryLink} prefetch={false}>
                 <Button 
                   variant="ghost" 
                   size="lg" 
-                  className="text-[var(--brand-accent)] hover:bg-white/5"
+                  className="text-[#E5BE6A] hover:bg-white/5"
                   leftIcon={<Calendar className="w-4 h-4" />}
                 >
-                  12-Month Calendar
+                  {ctaTertiaryLabel}
                 </Button>
               </Link>
             </div>
@@ -110,15 +138,15 @@ export function HeroSection({ stats }: HeroSectionProps) {
             <div className="pt-8 border-t border-white/15 grid grid-cols-2 sm:grid-cols-3 gap-6 text-xs text-[#C5D0C7]">
               <div>
                 <span className="block text-xl font-bold text-white font-mono">{foundingYear}</span>
-                <span className="text-[11px] uppercase tracking-wider text-[var(--brand-accent)]">Year of Foundation</span>
+                <span className="text-[11px] uppercase tracking-wider text-[#E5BE6A]">Year of Foundation</span>
               </div>
               <div>
                 <span className="block text-xl font-bold text-white font-mono">100%</span>
-                <span className="text-[11px] uppercase tracking-wider text-[var(--brand-accent)]">Verified Records</span>
+                <span className="text-[11px] uppercase tracking-wider text-[#E5BE6A]">Verified Records</span>
               </div>
               <div className="col-span-2 sm:col-span-1">
                 <span className="block text-xl font-bold text-white font-arabic" dir="rtl">اللغة الخالدة</span>
-                <span className="text-[11px] uppercase tracking-wider text-[var(--brand-accent)]">Classical Heritage</span>
+                <span className="text-[11px] uppercase tracking-wider text-[#E5BE6A]">Classical Heritage</span>
               </div>
             </div>
           </div>
@@ -129,22 +157,23 @@ export function HeroSection({ stats }: HeroSectionProps) {
               <ClubLogo 
                 variant="crest" 
                 size="xl" 
+                src={logoSrc}
                 className="mx-auto filter drop-shadow-lg hover:scale-105 transition-transform" 
               />
               <div className="space-y-1">
                 <h3 className="font-bold text-base text-white">
-                  Lisan Al-Arab Heritage
+                  {cardTitle}
                 </h3>
-                <p className="font-arabic text-sm text-[var(--brand-accent)]" dir="rtl">
-                  «لُغَةُ الضَّادِ حِلْيَةُ الْأَدَبِ»
+                <p className="font-arabic text-sm text-[#E5BE6A]" dir="rtl">
+                  {cardQuote}
                 </p>
               </div>
               <p className="text-xs text-[#B5C2B7] leading-relaxed">
-                Dedicated to students, scholars, and orators honoring the classical language of Islamic civilization and literature.
+                {cardDesc}
               </p>
               <div className="pt-2">
                 <Badge variant="outline" size="sm" className="border-[var(--brand-accent)] text-[var(--brand-accent)]">
-                  University Chartered
+                  {cardBadge}
                 </Badge>
               </div>
             </div>

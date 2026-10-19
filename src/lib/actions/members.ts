@@ -32,7 +32,7 @@ const MemberSchema = z.object({
   membershipId: z.string().max(40).optional(),
   fullNameEn: z.string().min(2, "English name is required").max(100),
   fullNameAr: z.string().max(120).optional().nullable(),
-  photoUrl: z.string().url("Valid photo URL required").optional().nullable().or(z.literal("")),
+  photoUrl: z.string().refine((val) => !val || val.startsWith("/") || /^https?:\/\//i.test(val), "Valid photo URL or path required").optional().nullable().or(z.literal("")),
   email: z.string().email("Valid institutional email is required"),
   phone: z.string().max(30).optional().nullable(),
   studentId: z.string().max(40).optional().nullable(),
@@ -67,7 +67,11 @@ export async function saveMemberAction(input: {
 
   const parsed = MemberSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message || "Validation failed." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message || "Validation failed.",
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   try {

@@ -13,12 +13,13 @@
 
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 import { getSession } from "../auth/session";
 import { assertPermission } from "../auth/rbac";
 import { recordAuditLog } from "../auth/audit";
 import { validatePasswordStrength, hashPassword, verifyPassword } from "../auth/password";
 import {
+  getAdminSiteSettings,
   updateSiteSettings,
   updateUserRole,
   updateUserStatus,
@@ -26,6 +27,7 @@ import {
   updateUserPassword,
   SiteSettingEntry,
 } from "../db/queries";
+import { siteSettingsSchema } from "../validations/settings";
 import { createDatabaseBackup } from "../utils/db-backup";
 import { Role, ActionResponse } from "../auth/types";
 import { db } from "../db";
@@ -33,28 +35,10 @@ import { users } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 
 /**
- * Validates a URL ensuring it is a well-formed http/https URI.
- */
-function isValidUrl(val: string): boolean {
-  if (!val || val.trim() === "") return true;
-  try {
-    const url = new URL(val.trim());
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Validates an email address.
- */
-function isValidEmail(email: string): boolean {
-  if (!email || email.trim() === "") return false;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-}
-
-/**
  * Persists institutional identity, contact coordinates, social media, and SEO configuration.
+ * DEFENSIVE PARTIAL UPDATE (034-fix-site-settings-wipe-bug):
+ * - Checks `formData.has()` for every field so missing tab inputs never overwrite existing values.
+ * - Validates input using strict Zod schema before database mutation.
  */
 export async function saveSiteSettingsAction(
   _prevState: ActionResponse | null,
@@ -68,55 +52,479 @@ export async function saveSiteSettingsAction(
   try {
     assertPermission(session.role, "settings:manage");
 
-    const getField = (name: string): string => (formData.get(name) as string || "").trim();
-
-    const contactEmail = getField("contact_email");
-    if (contactEmail && !isValidEmail(contactEmail)) {
-      return { success: false, message: "Invalid email format for official contact email." };
-    }
-
-    // Social and canonical URL validation
-    const urlsToValidate = [
-      { name: "Facebook Link", value: getField("social_facebook") },
-      { name: "YouTube Link", value: getField("social_youtube") },
-      { name: "Twitter / X Link", value: getField("social_twitter") },
-      { name: "Instagram Link", value: getField("social_instagram") },
-      { name: "LinkedIn Link", value: getField("social_linkedin") },
-      { name: "Canonical URL", value: getField("canonical_url") },
-      { name: "OpenGraph Image URL", value: getField("og_image_url") },
-    ];
-
-    for (const item of urlsToValidate) {
-      if (item.value && !isValidUrl(item.value)) {
-        return { success: false, message: `Invalid URL format for ${item.name}: Must begin with http:// or https://` };
+    // 1. Extract only explicitly submitted keys from FormData
+    const submittedRaw: Record<string, string> = {};
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === "string") {
+        submittedRaw[key] = value.trim();
       }
     }
 
-    const entries: SiteSettingEntry[] = [
-      // General Identity
-      { key: "club_name", valueEn: getField("club_name_en"), valueAr: getField("club_name_ar"), category: "general" },
-      { key: "club_tagline", valueEn: getField("club_tagline_en"), valueAr: getField("club_tagline_ar"), category: "general" },
-      { key: "club_motto", valueEn: getField("club_motto_en"), valueAr: getField("club_motto_ar"), category: "general" },
-      // Contact Coordinates
-      { key: "contact_email", valueEn: contactEmail, valueAr: contactEmail, category: "contact" },
-      { key: "contact_phone", valueEn: getField("contact_phone"), valueAr: getField("contact_phone"), category: "contact" },
-      { key: "headquarters_address", valueEn: getField("headquarters_address_en"), valueAr: getField("headquarters_address_ar"), category: "contact" },
-      { key: "office_hours", valueEn: getField("office_hours_en"), valueAr: getField("office_hours_ar"), category: "contact" },
-      // Social Media
-      { key: "social_facebook", valueEn: getField("social_facebook"), valueAr: getField("social_facebook"), category: "social" },
-      { key: "social_youtube", valueEn: getField("social_youtube"), valueAr: getField("social_youtube"), category: "social" },
-      { key: "social_twitter", valueEn: getField("social_twitter"), valueAr: getField("social_twitter"), category: "social" },
-      { key: "social_instagram", valueEn: getField("social_instagram"), valueAr: getField("social_instagram"), category: "social" },
-      { key: "social_linkedin", valueEn: getField("social_linkedin"), valueAr: getField("social_linkedin"), category: "social" },
-      // SEO & Meta
-      { key: "meta_description", valueEn: getField("meta_description_en"), valueAr: getField("meta_description_ar"), category: "seo" },
-      { key: "meta_keywords", valueEn: getField("meta_keywords"), valueAr: getField("meta_keywords"), category: "seo" },
-      { key: "canonical_url", valueEn: getField("canonical_url"), valueAr: getField("canonical_url"), category: "seo" },
-      { key: "og_image_url", valueEn: getField("og_image_url"), valueAr: getField("og_image_url"), category: "seo" },
-      // Theme and Localization Defaults
-      { key: "theme_default", valueEn: getField("theme_default") || "system", valueAr: getField("theme_default") || "system", category: "theme" },
-      { key: "language_default", valueEn: getField("language_default") || "en", valueAr: getField("language_default") || "en", category: "locale" },
-    ];
+    // 2. Validate submitted fields via Zod schema
+    const validationResult = siteSettingsSchema.safeParse(submittedRaw);
+    if (!validationResult.success) {
+      const firstIssue = validationResult.error.issues[0];
+      return {
+        success: false,
+        message: firstIssue ? firstIssue.message : "Validation error in submitted settings.",
+      };
+    }
+    const validData = validationResult.data;
+
+    // 3. Retrieve current settings map to preserve unsubmitted paired language values
+    const currentSettings = await getAdminSiteSettings();
+
+    // 4. Build entries defensively ONLY for fields that were submitted in formData
+    const entries: SiteSettingEntry[] = [];
+
+    // General Identity & Institutional Brand
+    if (formData.has("club_name_en") || formData.has("club_name_ar")) {
+      entries.push({
+        key: "club_name",
+        valueEn: formData.has("club_name_en") ? (validData.club_name_en ?? "") : (currentSettings["club_name"]?.valueEn ?? ""),
+        valueAr: formData.has("club_name_ar") ? (validData.club_name_ar ?? "") : (currentSettings["club_name"]?.valueAr ?? ""),
+        category: "general",
+      });
+    }
+
+    if (formData.has("club_short_name_en") || formData.has("club_short_name_ar")) {
+      entries.push({
+        key: "club_short_name",
+        valueEn: formData.has("club_short_name_en") ? (validData.club_short_name_en ?? "") : (currentSettings["club_short_name"]?.valueEn ?? ""),
+        valueAr: formData.has("club_short_name_ar") ? (validData.club_short_name_ar ?? "") : (currentSettings["club_short_name"]?.valueAr ?? ""),
+        category: "general",
+      });
+    }
+
+    if (formData.has("college_name_en") || formData.has("college_name_ar")) {
+      entries.push({
+        key: "college_name",
+        valueEn: formData.has("college_name_en") ? (validData.college_name_en ?? "") : (currentSettings["college_name"]?.valueEn ?? ""),
+        valueAr: formData.has("college_name_ar") ? (validData.college_name_ar ?? "") : (currentSettings["college_name"]?.valueAr ?? ""),
+        category: "general",
+      });
+    }
+
+    if (formData.has("club_tagline_en") || formData.has("club_tagline_ar")) {
+      entries.push({
+        key: "club_tagline",
+        valueEn: formData.has("club_tagline_en") ? (validData.club_tagline_en ?? "") : (currentSettings["club_tagline"]?.valueEn ?? ""),
+        valueAr: formData.has("club_tagline_ar") ? (validData.club_tagline_ar ?? "") : (currentSettings["club_tagline"]?.valueAr ?? ""),
+        category: "general",
+      });
+    }
+
+    if (formData.has("club_motto_en") || formData.has("club_motto_ar")) {
+      entries.push({
+        key: "club_motto",
+        valueEn: formData.has("club_motto_en") ? (validData.club_motto_en ?? "") : (currentSettings["club_motto"]?.valueEn ?? ""),
+        valueAr: formData.has("club_motto_ar") ? (validData.club_motto_ar ?? "") : (currentSettings["club_motto"]?.valueAr ?? ""),
+        category: "general",
+      });
+    }
+
+    if (formData.has("founding_year")) {
+      const yrVal = validData.founding_year ?? "";
+      entries.push({
+        key: "founding_year",
+        valueEn: yrVal,
+        valueAr: yrVal,
+        category: "general",
+      });
+    }
+
+    if (formData.has("logo_crest_url")) {
+      const crestVal = validData.logo_crest_url ?? "";
+      entries.push({
+        key: "logo_crest_url",
+        valueEn: crestVal,
+        valueAr: crestVal,
+        category: "branding",
+      });
+    }
+
+    if (formData.has("logo_full_url")) {
+      const logoVal = validData.logo_full_url ?? "";
+      entries.push({
+        key: "logo_full_url",
+        valueEn: logoVal,
+        valueAr: logoVal,
+        category: "branding",
+      });
+    }
+
+    // Contact Coordinates
+    if (formData.has("contact_email")) {
+      const emailVal = validData.contact_email ?? "";
+      entries.push({
+        key: "contact_email",
+        valueEn: emailVal,
+        valueAr: emailVal,
+        category: "contact",
+      });
+    }
+
+    if (formData.has("contact_phone")) {
+      const phoneVal = validData.contact_phone ?? "";
+      entries.push({
+        key: "contact_phone",
+        valueEn: phoneVal,
+        valueAr: phoneVal,
+        category: "contact",
+      });
+    }
+
+    if (formData.has("headquarters_address_en") || formData.has("headquarters_address_ar")) {
+      entries.push({
+        key: "headquarters_address",
+        valueEn: formData.has("headquarters_address_en") ? (validData.headquarters_address_en ?? "") : (currentSettings["headquarters_address"]?.valueEn ?? ""),
+        valueAr: formData.has("headquarters_address_ar") ? (validData.headquarters_address_ar ?? "") : (currentSettings["headquarters_address"]?.valueAr ?? ""),
+        category: "contact",
+      });
+    }
+
+    if (formData.has("office_hours_en") || formData.has("office_hours_ar")) {
+      entries.push({
+        key: "office_hours",
+        valueEn: formData.has("office_hours_en") ? (validData.office_hours_en ?? "") : (currentSettings["office_hours"]?.valueEn ?? ""),
+        valueAr: formData.has("office_hours_ar") ? (validData.office_hours_ar ?? "") : (currentSettings["office_hours"]?.valueAr ?? ""),
+        category: "contact",
+      });
+    }
+
+    // Social Media
+    const socialKeys = [
+      "social_facebook",
+      "social_youtube",
+      "social_twitter",
+      "social_instagram",
+      "social_linkedin",
+    ] as const;
+
+    for (const sKey of socialKeys) {
+      if (formData.has(sKey)) {
+        const val = validData[sKey] ?? "";
+        entries.push({
+          key: sKey,
+          valueEn: val,
+          valueAr: val,
+          category: "social",
+        });
+      }
+    }
+
+    // SEO & Metadata
+    if (formData.has("meta_description_en") || formData.has("meta_description_ar")) {
+      entries.push({
+        key: "meta_description",
+        valueEn: formData.has("meta_description_en") ? (validData.meta_description_en ?? "") : (currentSettings["meta_description"]?.valueEn ?? ""),
+        valueAr: formData.has("meta_description_ar") ? (validData.meta_description_ar ?? "") : (currentSettings["meta_description"]?.valueAr ?? ""),
+        category: "seo",
+      });
+    }
+
+    if (formData.has("meta_keywords")) {
+      const kwVal = validData.meta_keywords ?? "";
+      entries.push({
+        key: "meta_keywords",
+        valueEn: kwVal,
+        valueAr: kwVal,
+        category: "seo",
+      });
+    }
+
+    if (formData.has("canonical_url")) {
+      const canVal = validData.canonical_url ?? "";
+      entries.push({
+        key: "canonical_url",
+        valueEn: canVal,
+        valueAr: canVal,
+        category: "seo",
+      });
+    }
+
+    if (formData.has("og_image_url")) {
+      const ogVal = validData.og_image_url ?? "";
+      entries.push({
+        key: "og_image_url",
+        valueEn: ogVal,
+        valueAr: ogVal,
+        category: "seo",
+      });
+    }
+
+    // Navigation & Header CTA
+    if (formData.has("navigation_menu")) {
+      const navJson = validData.navigation_menu ?? "";
+      if (navJson) {
+        try {
+          JSON.parse(navJson);
+        } catch {
+          return { success: false, message: "Invalid JSON format for navigation menu." };
+        }
+      }
+      entries.push({
+        key: "navigation_menu",
+        valueEn: navJson,
+        valueAr: navJson,
+        category: "navigation",
+      });
+    }
+
+    if (formData.has("nav_cta_label_en") || formData.has("nav_cta_label_ar")) {
+      entries.push({
+        key: "nav_cta_label",
+        valueEn: formData.has("nav_cta_label_en") ? (validData.nav_cta_label_en ?? "") : (currentSettings["nav_cta_label"]?.valueEn ?? ""),
+        valueAr: formData.has("nav_cta_label_ar") ? (validData.nav_cta_label_ar ?? "") : (currentSettings["nav_cta_label"]?.valueAr ?? ""),
+        category: "navigation",
+      });
+    }
+
+    if (formData.has("nav_cta_link")) {
+      const linkVal = validData.nav_cta_link ?? "";
+      entries.push({
+        key: "nav_cta_link",
+        valueEn: linkVal,
+        valueAr: linkVal,
+        category: "navigation",
+      });
+    }
+
+    // Homepage Hero Section
+    if (formData.has("hero_badge_en") || formData.has("hero_badge_ar")) {
+      entries.push({
+        key: "hero_badge",
+        valueEn: formData.has("hero_badge_en") ? (validData.hero_badge_en ?? "") : (currentSettings["hero_badge"]?.valueEn ?? ""),
+        valueAr: formData.has("hero_badge_ar") ? (validData.hero_badge_ar ?? "") : (currentSettings["hero_badge"]?.valueAr ?? ""),
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_arabic_heading")) {
+      const headingVal = validData.hero_arabic_heading ?? "";
+      entries.push({
+        key: "hero_arabic_heading",
+        valueEn: headingVal,
+        valueAr: headingVal,
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_title_en") || formData.has("hero_title_ar")) {
+      entries.push({
+        key: "hero_title",
+        valueEn: formData.has("hero_title_en") ? (validData.hero_title_en ?? "") : (currentSettings["hero_title"]?.valueEn ?? ""),
+        valueAr: formData.has("hero_title_ar") ? (validData.hero_title_ar ?? "") : (currentSettings["hero_title"]?.valueAr ?? ""),
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_subtitle_en") || formData.has("hero_subtitle_ar")) {
+      entries.push({
+        key: "hero_subtitle",
+        valueEn: formData.has("hero_subtitle_en") ? (validData.hero_subtitle_en ?? "") : (currentSettings["hero_subtitle"]?.valueEn ?? ""),
+        valueAr: formData.has("hero_subtitle_ar") ? (validData.hero_subtitle_ar ?? "") : (currentSettings["hero_subtitle"]?.valueAr ?? ""),
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_bg_image_url")) {
+      const bgVal = validData.hero_bg_image_url ?? "";
+      entries.push({
+        key: "hero_bg_image_url",
+        valueEn: bgVal,
+        valueAr: bgVal,
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_cta_primary_label_en") || formData.has("hero_cta_primary_label_ar")) {
+      entries.push({
+        key: "hero_cta_primary_label",
+        valueEn: formData.has("hero_cta_primary_label_en") ? (validData.hero_cta_primary_label_en ?? "") : (currentSettings["hero_cta_primary_label"]?.valueEn ?? ""),
+        valueAr: formData.has("hero_cta_primary_label_ar") ? (validData.hero_cta_primary_label_ar ?? "") : (currentSettings["hero_cta_primary_label"]?.valueAr ?? ""),
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_cta_primary_link")) {
+      const pLink = validData.hero_cta_primary_link ?? "";
+      entries.push({
+        key: "hero_cta_primary_link",
+        valueEn: pLink,
+        valueAr: pLink,
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_cta_secondary_label_en") || formData.has("hero_cta_secondary_label_ar")) {
+      entries.push({
+        key: "hero_cta_secondary_label",
+        valueEn: formData.has("hero_cta_secondary_label_en") ? (validData.hero_cta_secondary_label_en ?? "") : (currentSettings["hero_cta_secondary_label"]?.valueEn ?? ""),
+        valueAr: formData.has("hero_cta_secondary_label_ar") ? (validData.hero_cta_secondary_label_ar ?? "") : (currentSettings["hero_cta_secondary_label"]?.valueAr ?? ""),
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_cta_secondary_link")) {
+      const sLink = validData.hero_cta_secondary_link ?? "";
+      entries.push({
+        key: "hero_cta_secondary_link",
+        valueEn: sLink,
+        valueAr: sLink,
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_cta_tertiary_label_en") || formData.has("hero_cta_tertiary_label_ar")) {
+      entries.push({
+        key: "hero_cta_tertiary_label",
+        valueEn: formData.has("hero_cta_tertiary_label_en") ? (validData.hero_cta_tertiary_label_en ?? "") : (currentSettings["hero_cta_tertiary_label"]?.valueEn ?? ""),
+        valueAr: formData.has("hero_cta_tertiary_label_ar") ? (validData.hero_cta_tertiary_label_ar ?? "") : (currentSettings["hero_cta_tertiary_label"]?.valueAr ?? ""),
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_cta_tertiary_link")) {
+      const tLink = validData.hero_cta_tertiary_link ?? "";
+      entries.push({
+        key: "hero_cta_tertiary_link",
+        valueEn: tLink,
+        valueAr: tLink,
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_card_title_en") || formData.has("hero_card_title_ar")) {
+      entries.push({
+        key: "hero_card_title",
+        valueEn: formData.has("hero_card_title_en") ? (validData.hero_card_title_en ?? "") : (currentSettings["hero_card_title"]?.valueEn ?? ""),
+        valueAr: formData.has("hero_card_title_ar") ? (validData.hero_card_title_ar ?? "") : (currentSettings["hero_card_title"]?.valueAr ?? ""),
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_card_quote_ar")) {
+      const quoteVal = validData.hero_card_quote_ar ?? "";
+      entries.push({
+        key: "hero_card_quote",
+        valueEn: quoteVal,
+        valueAr: quoteVal,
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_card_desc_en") || formData.has("hero_card_desc_ar")) {
+      entries.push({
+        key: "hero_card_desc",
+        valueEn: formData.has("hero_card_desc_en") ? (validData.hero_card_desc_en ?? "") : (currentSettings["hero_card_desc"]?.valueEn ?? ""),
+        valueAr: formData.has("hero_card_desc_ar") ? (validData.hero_card_desc_ar ?? "") : (currentSettings["hero_card_desc"]?.valueAr ?? ""),
+        category: "hero",
+      });
+    }
+
+    if (formData.has("hero_card_badge_en") || formData.has("hero_card_badge_ar")) {
+      entries.push({
+        key: "hero_card_badge",
+        valueEn: formData.has("hero_card_badge_en") ? (validData.hero_card_badge_en ?? "") : (currentSettings["hero_card_badge"]?.valueEn ?? ""),
+        valueAr: formData.has("hero_card_badge_ar") ? (validData.hero_card_badge_ar ?? "") : (currentSettings["hero_card_badge"]?.valueAr ?? ""),
+        category: "hero",
+      });
+    }
+
+    // Mission & Pillars
+    if (formData.has("mission_badge_en") || formData.has("mission_badge_ar")) {
+      entries.push({
+        key: "mission_badge",
+        valueEn: formData.has("mission_badge_en") ? (validData.mission_badge_en ?? "") : (currentSettings["mission_badge"]?.valueEn ?? ""),
+        valueAr: formData.has("mission_badge_ar") ? (validData.mission_badge_ar ?? "") : (currentSettings["mission_badge"]?.valueAr ?? ""),
+        category: "mission",
+      });
+    }
+
+    if (formData.has("mission_title_en") || formData.has("mission_title_ar")) {
+      entries.push({
+        key: "mission_title",
+        valueEn: formData.has("mission_title_en") ? (validData.mission_title_en ?? "") : (currentSettings["mission_title"]?.valueEn ?? ""),
+        valueAr: formData.has("mission_title_ar") ? (validData.mission_title_ar ?? "") : (currentSettings["mission_title"]?.valueAr ?? ""),
+        category: "mission",
+      });
+    }
+
+    if (formData.has("mission_subtitle_ar")) {
+      const subVal = validData.mission_subtitle_ar ?? "";
+      entries.push({
+        key: "mission_subtitle",
+        valueEn: subVal,
+        valueAr: subVal,
+        category: "mission",
+      });
+    }
+
+    if (formData.has("mission_desc_en") || formData.has("mission_desc_ar")) {
+      entries.push({
+        key: "mission_desc",
+        valueEn: formData.has("mission_desc_en") ? (validData.mission_desc_en ?? "") : (currentSettings["mission_desc"]?.valueEn ?? ""),
+        valueAr: formData.has("mission_desc_ar") ? (validData.mission_desc_ar ?? "") : (currentSettings["mission_desc"]?.valueAr ?? ""),
+        category: "mission",
+      });
+    }
+
+    // Footer & Legal
+    if (formData.has("footer_about_text_en") || formData.has("footer_about_text_ar")) {
+      entries.push({
+        key: "footer_about_text",
+        valueEn: formData.has("footer_about_text_en") ? (validData.footer_about_text_en ?? "") : (currentSettings["footer_about_text"]?.valueEn ?? ""),
+        valueAr: formData.has("footer_about_text_ar") ? (validData.footer_about_text_ar ?? "") : (currentSettings["footer_about_text"]?.valueAr ?? ""),
+        category: "footer",
+      });
+    }
+
+    if (formData.has("footer_motto_en") || formData.has("footer_motto_ar")) {
+      entries.push({
+        key: "footer_motto",
+        valueEn: formData.has("footer_motto_en") ? (validData.footer_motto_en ?? "") : (currentSettings["footer_motto"]?.valueEn ?? ""),
+        valueAr: formData.has("footer_motto_ar") ? (validData.footer_motto_ar ?? "") : (currentSettings["footer_motto"]?.valueAr ?? ""),
+        category: "footer",
+      });
+    }
+
+    if (formData.has("footer_copyright_en") || formData.has("footer_copyright_ar")) {
+      entries.push({
+        key: "footer_copyright",
+        valueEn: formData.has("footer_copyright_en") ? (validData.footer_copyright_en ?? "") : (currentSettings["footer_copyright"]?.valueEn ?? ""),
+        valueAr: formData.has("footer_copyright_ar") ? (validData.footer_copyright_ar ?? "") : (currentSettings["footer_copyright"]?.valueAr ?? ""),
+        category: "footer",
+      });
+    }
+
+    // Theme and Localization Defaults
+    if (formData.has("theme_default")) {
+      const themeVal = validData.theme_default || "system";
+      entries.push({
+        key: "theme_default",
+        valueEn: themeVal,
+        valueAr: themeVal,
+        category: "theme",
+      });
+    }
+
+    if (formData.has("language_default")) {
+      const langVal = validData.language_default || "en";
+      entries.push({
+        key: "language_default",
+        valueEn: langVal,
+        valueAr: langVal,
+        category: "locale",
+      });
+    }
+
+    if (entries.length === 0) {
+      return {
+        success: true,
+        message: "No configuration changes were submitted.",
+      };
+    }
 
     await updateSiteSettings(entries);
 
@@ -133,15 +541,30 @@ export async function saveSiteSettingsAction(
       },
     });
 
-    // Revalidate affected routes
+    // Invalidate cached site settings tag and affected routes
+    try {
+      (revalidateTag as any)("site-settings", "max");
+    } catch {}
+    try {
+      updateTag("site-settings");
+    } catch {}
+    revalidatePath("/", "layout");
     revalidatePath("/");
     revalidatePath("/about");
+    revalidatePath("/history");
+    revalidatePath("/founders");
+    revalidatePath("/leadership");
+    revalidatePath("/events");
+    revalidatePath("/gallery");
+    revalidatePath("/resources");
+    revalidatePath("/publications");
+    revalidatePath("/news");
     revalidatePath("/contact");
     revalidatePath("/admin/settings");
 
     return {
       success: true,
-      message: "Institutional configuration, contact details, and SEO parameters saved successfully.",
+      message: `Settings saved successfully. (${entries.length} setting${entries.length === 1 ? "" : "s"} updated)`,
     };
   } catch (error: any) {
     return {

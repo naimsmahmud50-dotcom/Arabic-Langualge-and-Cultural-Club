@@ -43,7 +43,7 @@ export function PageHeader({
               {title}
             </h1>
             {titleAr && (
-              <span className="font-arabic text-xl sm:text-2xl text-[var(--brand-accent)] font-semibold" dir="rtl">
+              <span className="font-arabic text-xl sm:text-2xl text-[var(--brand-accent-text)] font-semibold" dir="rtl">
                 {titleAr}
               </span>
             )}

@@ -1,146 +1,109 @@
-# BACKUP & DISASTER RECOVERY RUNBOOK
-## Arabic Language & Cultural Club Platform
-
-This runbook defines backup procedures, integrity verification, and recovery steps to protect institutional data against accidental loss, server corruption, or security incidents.
-
----
-
-### 1. Backup Architecture & Data Assets
-
-The platform consists of three core data assets requiring regular backup:
-
-| Asset | Storage Location | Backup Mechanism | Recommended Frequency |
-| :--- | :--- | :--- | :--- |
-| **Relational Database** | `./arabic_club.db` | SQLite Online Binary Backup (`.backup`) | Hourly / Daily |
-| **Audit Logs & Snapshots** | `./backups/*.json` | Cryptographic JSON Snapshot Engine | Daily |
-| **Uploaded Media Assets** | `./public/uploads/` (or Object Bucket) | Tar Archive / Rclone Sync | Daily |
+# SQLite Database Backup and Disaster Recovery Runbook
+**Institution:** Arabic Language & Cultural Club — Kabi Nazrul Government College, Dhaka  
+**Platform Stack:** Next.js App Router, SQLite (better-sqlite3), Drizzle ORM, Systemd  
+**Security Standard:** Strict Disaster Recovery & Historical Preservation Protocol  
 
 ---
 
-### 2. Built-in Cryptographic Snapshot Engine
-
-The platform includes a built-in snapshot utility (`src/lib/utils/db-backup.ts`) accessible to Super Administrators:
-
-#### Features
-- **Scope:** Exports records across all 22 relational tables.
-- **Credential Scrubbing:** Automatically scrubs password hashes from the `users` table (`[REDACTED_PASSWORD_HASH]`) to prevent credential leakage in backup artifacts.
-- **Integrity Verification:** Computes a SHA-256 cryptographic hash across the serialized JSON data.
-- **Storage:** Persisted locally to `./backups/backup-YYYY-MM-DD-HHMMSS.json`.
-
-#### Executing Snapshot via UI or CLI
-- **Via Admin UI:** Navigate to `/admin/settings` -> Select **"Backups & Recovery"** tab -> Click **"Create Database Backup"**.
-- **Via CLI:**
-  ```bash
-  pnpm exec tsx -e "import { generateDatabaseBackup } from './src/lib/utils/db-backup'; generateDatabaseBackup().then(console.log);"
-  ```
+## 1. Overview & Architecture
+The Arabic Language & Cultural Club platform uses SQLite (`arabic_club.db`) in WAL mode (`journal_mode = WAL`) with busy timeouts (`busy_timeout = 5000`). Database backups are generated using the native `better-sqlite3.backup()` online page-level streaming API. This approach provides:
+- **Zero Reader/Writer Blocking:** The live application can continue reading and writing during backups without lock contention or downtime.
+- **Physical Isolation:** Backups are stored strictly outside the codebase repository (`~/.local/share/arabic-club/backups/`) so deployments, rebuilds, and Git operations can never touch or expose archival data.
+- **14-Day Rolling Retention:** The system retains the 14 most recent backup snapshots and automatically rotates out older copies.
+- **Cryptographic & Relational Verification:** Each backup file is immediately verified via SQLite `PRAGMA integrity_check` and sealed with a SHA-256 checksum manifest (`.meta.json`).
 
 ---
 
-### 3. Automated Production Backup Script (Cron)
-
-For production Linux servers, use SQLite's native online backup API (`.backup`), which creates a transactionally consistent copy of `./arabic_club.db` without locking read or write operations:
-
-#### Backup Script: `/var/www/arabicclub/scripts/backup-production.sh`
-```bash
-#!/bin/bash
-set -euo pipefail
-
-# Configuration
-APP_DIR="/var/www/arabicclub"
-BACKUP_DIR="/var/backups/arabicclub"
-DATE=$(date +%Y%m%d_%H%M%S)
-DB_PATH="${APP_DIR}/arabic_club.db"
-TARGET_DB="${BACKUP_DIR}/db_backup_${DATE}.sqlite"
-TARGET_TAR="${BACKUP_DIR}/media_backup_${DATE}.tar.gz"
-
-mkdir -p "${BACKUP_DIR}"
-
-# 1. Transactionally safe binary database backup via sqlite3 CLI
-sqlite3 "${DB_PATH}" ".backup '${TARGET_DB}'"
-
-# 2. Compress database backup
-gzip -9 "${TARGET_DB}"
-
-# 3. Archive uploaded media files
-if [ -d "${APP_DIR}/public/uploads" ]; then
-    tar -czf "${TARGET_TAR}" -C "${APP_DIR}/public" uploads
-fi
-
-# 4. Generate SHA-256 checksums
-cd "${BACKUP_DIR}"
-sha256sum "db_backup_${DATE}.sqlite.gz" > "db_backup_${DATE}.sqlite.gz.sha256"
-
-# 5. Retention policy: Remove backups older than 30 days
-find "${BACKUP_DIR}" -type f -name "*backup_*.gz*" -mtime +30 -delete
-
-echo "[$(date -Iseconds)] Backup completed: db_backup_${DATE}.sqlite.gz"
+## 2. Directory Structure
 ```
-
-#### Crontab Configuration
-Schedule automatic daily backups at 02:00 UTC:
-```bash
-# Edit crontab as root or appuser
-crontab -e
-
-# Append daily backup schedule:
-0 2 * * * /bin/bash /var/www/arabicclub/scripts/backup-production.sh >> /var/log/arabicclub_backup.log 2>&1
+~/.local/share/arabic-club/backups/
+├── arabic_club_backup_2026-10-19_030000.db
+├── arabic_club_backup_2026-10-19_030000.db.meta.json
+├── arabic_club_backup_2026-10-18_030000.db
+└── ... (up to 14 copies retained)
 ```
 
 ---
 
-### 4. Step-by-Step Restoration Runbook
+## 3. Automated Daily Backup (Systemd Timer)
+The daily backup job is orchestrated via Systemd user units:
+- **Service:** `arabic-club-backup.service`
+- **Timer:** `arabic-club-backup.timer` (Triggers every day at 03:00 AM)
 
-#### Scenario A: Restoring from Binary SQLite Backup (`.sqlite.gz`)
-1. Stop the application server:
-   ```bash
-   sudo pm2 stop arabic-club
-   ```
-2. Move the damaged database aside:
-   ```bash
-   mv /var/www/arabicclub/arabic_club.db /var/www/arabicclub/arabic_club.db.corrupt.$(date +%s)
-   ```
-3. Verify integrity of the backup file:
-   ```bash
-   cd /var/backups/arabicclub
-   sha256sum -c db_backup_20261018_020000.sqlite.gz.sha256
-   ```
-4. Decompress and restore:
-   ```bash
-   gunzip -c db_backup_20261018_020000.sqlite.gz > /var/www/arabicclub/arabic_club.db
-   chown appuser:appuser /var/www/arabicclub/arabic_club.db
-   chmod 644 /var/www/arabicclub/arabic_club.db
-   ```
-5. Verify database integrity via SQLite CLI:
-   ```bash
-   sqlite3 /var/www/arabicclub/arabic_club.db "PRAGMA integrity_check;"
-   # Expected output: ok
-   ```
-6. Start the application:
-   ```bash
-   sudo pm2 start arabic-club
-   ```
-7. Verify health:
-   ```bash
-   curl http://localhost:3000/api/health
-   # Expected status: "ok"
-   ```
-
-#### Scenario B: Restoring Media Assets
+### Installation & Activation Commands:
 ```bash
-tar -xzf /var/backups/arabicclub/media_backup_20261018_020000.tar.gz -C /var/www/arabicclub/public/
-chown -R appuser:appuser /var/www/arabicclub/public/uploads
+# 1. Copy units to systemd user configuration directory
+mkdir -p ~/.config/systemd/user/
+cp systemd/arabic-club-backup.service ~/.config/systemd/user/
+cp systemd/arabic-club-backup.timer ~/.config/systemd/user/
+
+# 2. Reload daemon and enable timer
+systemctl --user daemon-reload
+systemctl --user enable --now arabic-club-backup.timer
+
+# 3. Check timer schedule and status
+systemctl --user list-timers --all | grep arabic-club
+systemctl --user status arabic-club-backup.timer
 ```
 
 ---
 
-### 5. Disaster Recovery Verification Checklist
+## 4. Manual / On-Demand Backup
+To trigger an immediate, verified database backup:
+```bash
+pnpm tsx scripts/backup-sqlite.ts
+```
 
-Conduct a restoration drill quarterly:
-1. Restore backup to a staging or local environment.
-2. Verify table row counts match expected historical volumes:
-   ```bash
-   pnpm exec tsx -e "import { db } from './src/lib/db'; import { members, events } from './src/lib/db/schema'; console.log('Members:', db.select().from(members).all().length); console.log('Events:', db.select().from(events).all().length);"
-   ```
-3. Confirm that administrative login succeeds with existing credentials.
-4. Verify that public pages (`/about`, `/leadership`, `/gallery`, `/events`) render without missing content.
-5. Record drill results in `audit_logs`.
+### Expected Output:
+```
+[Backup] Initiating online SQLite backup...
+[Backup] Source: /home/mahmud-hasan/Naims Project/Arabic Club/arabic_club.db
+[Backup] Target: /home/mahmud-hasan/.local/share/arabic-club/backups/arabic_club_backup_2026-10-19_131500.db
+[Backup] Progress: 100% (pages copied)
+[Backup] Successfully generated arabic_club_backup_2026-10-19_131500.db (380.00 KB, SHA256: ...)
+[Backup] Retained copies count in archive: 14
+[Backup] Process completed successfully.
+```
+
+---
+
+## 5. Disaster Recovery & Database Restoration
+When restoring after data corruption, accidental deletion, or server migration, use the automated restore engine `scripts/restore-sqlite.ts`.
+
+### Safety Guarantee:
+Before modifying `arabic_club.db`, the restore engine automatically creates an emergency safety snapshot:
+`arabic_club.db.pre_restore_YYYY-MM-DD_HHmmss.db`
+
+### Procedure:
+
+#### Step 1: Restore to the latest available backup
+```bash
+pnpm tsx scripts/restore-sqlite.ts
+```
+
+#### Step 2: (Optional) Restore to a specific backup file
+```bash
+pnpm tsx scripts/restore-sqlite.ts ~/.local/share/arabic-club/backups/arabic_club_backup_2026-10-19_030000.db
+```
+
+#### Step 3: Restart the web platform daemon
+```bash
+systemctl --user restart arabic-club.service
+```
+
+#### Step 4: Verify platform health
+```bash
+# Verify process status
+systemctl --user status arabic-club.service
+
+# Verify public HTTP response on port 3005
+curl -I http://localhost:3005/
+```
+
+---
+
+## 6. Verification Checklist
+- [x] `PRAGMA integrity_check` returns `ok`.
+- [x] All core tables populated (`users`, `site_settings`, `members`, `events`, `announcements`).
+- [x] WAL/SHM locks cleanly rebuilt upon platform launch.
+- [x] Public site loads without missing media references or broken links.

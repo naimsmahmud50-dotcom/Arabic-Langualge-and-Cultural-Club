@@ -29,16 +29,16 @@ export function MembershipInvitationSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Narrative Call */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[5px] bg-white/10 border border-white/20 text-xs font-semibold text-[var(--brand-accent)] uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[5px] bg-white/10 border border-white/20 text-xs font-semibold text-[#E5BE6A] uppercase tracking-wider">
               <UserPlus className="w-3.5 h-3.5" />
               <span>Admissions & Fellowship Intake</span>
             </div>
 
             <div className="space-y-3">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif leading-tight">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif leading-tight text-white">
                 Join the Scholarly Brotherhood of the Arabic Language Club
               </h2>
-              <p className="font-arabic text-xl text-[var(--brand-accent)] font-medium" dir="rtl">
+              <p className="font-arabic text-xl text-[#E5BE6A] font-medium" dir="rtl">
                 «انْضَمَّ إِلَى رِحَابِ اللُّغَةِ وَالْأَدَبِ» • بَابُ الِانْتِسَابِ مَفْتُوحٌ لِكُلِّ شَغُوفٍ
               </p>
             </div>
@@ -65,7 +65,7 @@ export function MembershipInvitationSection() {
           <div className="lg:col-span-5">
             <Card className="border-white/20 bg-white/10 backdrop-blur-md p-8 text-white space-y-6">
               <div className="border-b border-white/15 pb-4">
-                <span className="text-xs uppercase font-bold tracking-wider text-[var(--brand-accent)] block">
+                <span className="text-xs uppercase font-bold tracking-wider text-[#E5BE6A] block">
                   Fellowship Entitlements
                 </span>
                 <h3 className="text-lg font-bold text-white mt-1">
@@ -76,13 +76,13 @@ export function MembershipInvitationSection() {
               <ul className="space-y-3.5 text-xs text-[#E3ECE5]">
                 {benefits.map((benefit, idx) => (
                   <li key={idx} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[var(--brand-accent)] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#E5BE6A] shrink-0 mt-0.5" />
                     <span className="leading-relaxed">{benefit}</span>
                   </li>
                 ))}
               </ul>
 
-              <div className="pt-4 border-t border-white/15 text-[11px] text-[#A6B8AA]">
+              <div className="pt-4 border-t border-white/15 text-[11px] text-[#D0DDD2]">
                 Applications undergo expedited review by the Membership Officer within 3 academic working days.
               </div>
             </Card>
