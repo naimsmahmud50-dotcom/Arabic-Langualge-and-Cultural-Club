@@ -133,6 +133,36 @@ if (settingsCount.count === 0) {
   console.log("[Docker Migration] Core institutional site settings established.");
 }
 
+// 6. Ensure Baseline Editable Pages exist (Required for Next.js build-time prerendering)
+const pagesCount = sqlite.prepare("SELECT count(*) as count FROM editable_pages").get();
+if (pagesCount.count === 0) {
+  console.log("[Docker Migration] Initializing baseline editable pages for static prerendering...");
+  const insertPage = sqlite.prepare(`
+    INSERT INTO editable_pages (id, slug, title_en, title_ar, is_published, updated_at)
+    VALUES (?, ?, ?, ?, 1, ?)
+  `);
+
+  const pages = [
+    ["page_about", "about", "About the Club", "عن النادي"],
+    ["page_history", "history", "Club History & Genesis", "تاريخ النادي ونشأته"],
+    ["page_home", "home", "Flagship Institutional Homepage", "الصفحة الرئيسية"],
+    ["page_founders", "founders", "Founders & Conveners", "المؤسسون"],
+    ["page_leadership", "leadership", "Governing Councils", "مجلس الإدارة"],
+    ["page_events", "events", "Events & Symposia", "الفعاليات"],
+    ["page_gallery", "gallery", "Photographic Archive", "معرض الصور"],
+    ["page_resources", "resources", "Linguistic Resources", "المصادر اللغوية"],
+    ["page_news", "news", "Announcements & Gazettes", "الأخبار والإعلانات"],
+    ["page_publications", "publications", "Periodicals & Monographs", "المنشورات"],
+    ["page_contact", "contact", "Secretariat & Coordinates", "اتصل بنا"],
+    ["page_membership", "membership", "Admissions & Membership", "العضوية"],
+  ];
+
+  for (const p of pages) {
+    insertPage.run(p[0], p[1], p[2], p[3], now);
+  }
+  console.log("[Docker Migration] Baseline editable pages established.");
+}
+
 sqlite.close();
 console.log("==================================================================");
 console.log("[Docker Migration] SQLite database migration and initialization complete.");

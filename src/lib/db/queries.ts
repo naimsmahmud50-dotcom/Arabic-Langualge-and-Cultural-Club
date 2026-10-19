@@ -830,32 +830,37 @@ export function parseSectionJson(rawText: string | null): SectionContentData {
  * Safely parses JSON structured content for headings, body copy, quotes, items, and documents.
  */
 export async function getPageWithSections(slug: string): Promise<PageWithSections | null> {
-  const [page] = await db.select()
-    .from(editablePages)
-    .where(and(eq(editablePages.slug, slug), eq(editablePages.isPublished, true)))
-    .limit(1);
+  try {
+    const [page] = await db.select()
+      .from(editablePages)
+      .where(and(eq(editablePages.slug, slug), eq(editablePages.isPublished, true)))
+      .limit(1);
 
-  if (!page) return null;
+    if (!page) return null;
 
-  const rawSections = await db.select()
-    .from(pageSections)
-    .where(eq(pageSections.pageId, page.id))
-    .orderBy(asc(pageSections.sortOrder));
+    const rawSections = await db.select()
+      .from(pageSections)
+      .where(eq(pageSections.pageId, page.id))
+      .orderBy(asc(pageSections.sortOrder));
 
-  const sections: ParsedPageSection[] = rawSections.map((s) => ({
-    id: s.id,
-    pageId: s.pageId,
-    sectionKey: s.sectionKey,
-    sortOrder: s.sortOrder,
-    contentEn: parseSectionJson(s.contentEn),
-    contentAr: parseSectionJson(s.contentAr),
-    updatedAt: s.updatedAt,
-  }));
+    const sections: ParsedPageSection[] = rawSections.map((s) => ({
+      id: s.id,
+      pageId: s.pageId,
+      sectionKey: s.sectionKey,
+      sortOrder: s.sortOrder,
+      contentEn: parseSectionJson(s.contentEn),
+      contentAr: parseSectionJson(s.contentAr),
+      updatedAt: s.updatedAt,
+    }));
 
-  return {
-    ...page,
-    sections,
-  };
+    return {
+      ...page,
+      sections,
+    };
+  } catch (err) {
+    console.warn(`[getPageWithSections] Database query error for slug '${slug}', utilizing safe fallback:`, err);
+    return null;
+  }
 }
 
 // ----------------------------------------------------------------------

@@ -50,6 +50,12 @@ RUN npm install -g pnpm@12.14.0
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Ensure storage and data directories exist during build
+RUN mkdir -p /app/data /app/storage/uploads
+
+# Pre-initialize SQLite schema so Next.js static page prerendering (/about, /history, etc.) does not fail
+RUN node scripts/docker-migrate.mjs
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
