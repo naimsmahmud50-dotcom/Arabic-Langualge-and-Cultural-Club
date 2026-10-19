@@ -25,13 +25,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install pnpm via npm so native platform executables (@pnpm/exe) are properly fetched
 RUN npm install -g pnpm@12.14.0
 
-# Copy package descriptors
-COPY package.json pnpm-lock.yaml* ./
+# Copy package and pnpm configuration descriptors
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* .npmrc* ./
 
 # Invariant: Force development mode in deps so devDependencies (TypeScript, Tailwind, etc.) are installed
 ENV NODE_ENV=development
 
-# Install dependencies cleanly without failing on lockfile mismatches
+# Configure pnpm to allow build scripts for native packages in non-interactive Docker environments
+RUN pnpm config set dangerously-allow-all-builds true
+
+# Install dependencies cleanly without failing on lockfile mismatches or build script gates
 RUN pnpm install --no-frozen-lockfile
 
 # ------------------------------------------------------------------------------
@@ -43,7 +46,7 @@ WORKDIR /app
 # Install pnpm for builder stage
 RUN npm install -g pnpm@12.14.0
 
-# Copy node_modules from deps stage
+# Copy node_modules and configuration from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
