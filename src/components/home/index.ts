@@ -16,3 +16,4 @@ export * from "./NewsAnnouncementsSection";
 export * from "./GalleryPreviewSection";
 export * from "./MembershipInvitationSection";
 export * from "./VerifiedContactSection";
+export * from "./OverviewGatewaySection";

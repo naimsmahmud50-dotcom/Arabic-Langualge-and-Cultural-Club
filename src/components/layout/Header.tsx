@@ -44,6 +44,7 @@ export function Header() {
     { label: t("nav.calendar", "Calendar"), href: "/events" },
     { label: t("nav.gallery", "Gallery"), href: "/gallery" },
     { label: t("nav.resources", "Resources"), href: "/resources" },
+    { label: t("nav.publications", "Publications"), href: "/publications" },
     { label: t("nav.news", "News"), href: "/news" },
     { label: t("nav.contact", "Contact"), href: "/contact" },
   ];
@@ -80,7 +81,7 @@ export function Header() {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden xl:flex items-center gap-1.5" aria-label="Main Navigation">
+            <nav className="hidden xl:flex items-center gap-1" aria-label="Main Navigation">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                 return (
@@ -88,7 +89,7 @@ export function Header() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "px-3 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-colors duration-150",
+                      "px-2.5 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-colors duration-150 whitespace-nowrap",
                       isActive
                         ? "bg-[var(--bg-surface-hover)] text-[var(--brand-primary)] dark:text-[var(--brand-accent)] font-bold"
                         : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]/60"

@@ -127,10 +127,11 @@ export function MobileNav({ isOpen, onClose, links }: MobileNavProps) {
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={onClose}
                   className={cn(
-                    "flex items-center justify-between px-3.5 py-2.5 rounded-[6px] text-sm font-semibold transition-colors",
+                    "flex items-center justify-between px-3.5 py-2.5 rounded-[6px] text-sm font-semibold transition-colors min-h-[44px]",
                     isActive
-                      ? "bg-[var(--brand-primary)] text-[var(--brand-primary-fg)]"
+                      ? "bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] font-bold shadow-2xs"
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]"
                   )}
                 >

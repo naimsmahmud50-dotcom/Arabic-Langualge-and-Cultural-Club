@@ -51,6 +51,7 @@ import {
   History
 } from "lucide-react";
 import { getPageWithSections, SectionContentItem } from "@/lib/db/queries";
+import { CulturalProgramsSection } from "@/components/home";
 
 export const revalidate = 60; // Incremental Static Regeneration every 60s
 
@@ -296,7 +297,12 @@ export default async function AboutPage() {
           </section>
         )}
 
-        {/* 5. Constitution & Governance Charter (Downloadable Document & Verification) */}
+        {/* 5. Cultural Initiatives & Experiential Programs */}
+        <div className="rounded-[8px] overflow-hidden border border-[var(--border-color)]">
+          <CulturalProgramsSection />
+        </div>
+
+        {/* 6. Constitution & Governance Charter (Downloadable Document & Verification) */}
         {constitutionSection && (
           <section className="bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-[8px] p-8 md:p-10 space-y-6" id="constitution">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

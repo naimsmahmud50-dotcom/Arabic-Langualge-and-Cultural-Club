@@ -1,39 +1,28 @@
 /**
  * DEVELOPER NOTE:
  * Page/Component: src/app/(public)/page.tsx
- * Updated flagship homepage SEO metadata and branding to Kabi Nazrul Government College, Dhaka.
- * Strictly human vibe; zero AI emojis.
- *
- * @file src/app/(public)/page.tsx
- * @route /
- * @description Master Flagship Institutional Homepage for the Arabic Language & Cultural Club.
+ * Module: Master Flagship Institutional Homepage & Overview Dashboard
+ * Institution: Kabi Nazrul Government College, Dhaka (কবি নজরুল সরকারি কলেজ, ঢাকা)
+ * Society: Arabic Language & Cultural Club (نادي اللغة والثقافة العربية)
  * 
- * ARCHITECTURE & ROLE:
- * - Public entryway to the club's digital repository, academic fellowship, and cultural activities.
- * - Implements all 14 required institutional sections:
- *   1. Institutional hero with clear headline, description, and meaningful calls to action.
- *   2. Introduction to the club (Mission, Vision, and Four Pillars).
- *   3. Founders & Archival Origins preview.
- *   4. Current Governing Committee preview.
- *   5. Upcoming Academic Events & Lectures.
- *   6. 12-Month Annual Operational Plan milestones.
- *   7. Signature Cultural Programs & Circles.
- *   8. Arabic Learning Resources & Digital Library.
- *   9. Collegiate Achievements & Official Publications.
- *   10. Latest Secretariat Bulletins & Announcements.
- *   11. Visual Archives & Photographic Albums.
- *   12. Membership Invitation & Fellowship privileges.
- *   13. Verified Campus Coordinates & Contacts.
- *   14. Full Institutional Footer (rendered by shared public layout).
+ * ARCHITECTURE & ROLE (Feature 033 Refactoring):
+ * - Serves as the central executive overview dashboard for the institution.
+ * - Eliminates redundant monolithic cascading of all sub-pages into one continuous vertical scroll.
+ * - Each major division is cleanly routed to its own standalone page:
+ *   1. /about — Permanent charter, institutional narrative, mission, pillars, and cultural circles.
+ *   2. /history — Chronological timeline of milestones and genesis.
+ *   3. /founders — Verified Roll of Honor for founding conveners and scholars.
+ *   4. /leadership — Governing Councils, executive committees by academic term.
+ *   5. /events — 12-month annual plan and calendar of colloquia, debates, and symposia.
+ *   6. /gallery — Permanent photographic archive and media collections.
+ *   7. /resources — Arabic linguistic guides, grammar treatises, and digital library.
+ *   8. /news — Official secretarial gazettes, communiqués, and bulletins.
+ *   9. /publications — Literary periodicals (Al-Bayan), monographs, and distinction awards.
+ *   10. /contact — Secretariat headquarters, verified coordinates, and correspondence portal.
+ *   11. /membership — Admissions portal, applicant criteria, and registration.
  * 
- * INSTITUTIONAL DATA INTEGRITY:
- * - Fetches real published records from the database in parallel.
- * - Zero fabricated people, statistics, dates, or trophies.
- * - Graceful fallback and empty states when content is in archival ingestion.
- * 
- * MEETS REQUIREMENTS:
- * - SPEC-HOM-01 through SPEC-HOM-14
- * - REQ-PUB-01, REQ-PUB-02
+ * HUMAN VIBE POLICY:
+ * - Strictly zero AI emojis. Uses authentic institutional typography and Lucide SVG icons.
  */
 
 import React from "react";
@@ -41,26 +30,16 @@ import type { Metadata } from "next";
 import {
   HeroSection,
   IntroductionSection,
-  FoundersPreviewSection,
-  CommitteePreviewSection,
+  OverviewGatewaySection,
   UpcomingEventsSection,
-  AnnualPlanSection,
-  CulturalProgramsSection,
-  LearningResourcesSection,
-  AchievementsSection,
-  NewsAnnouncementsSection,
   GalleryPreviewSection,
   MembershipInvitationSection,
   VerifiedContactSection,
 } from "@/components/home";
 import {
-  getPublicFounders,
   getCommitteeTerms,
-  getCommitteeMembersByTerm,
   getPublicEvents,
-  getPublicAnnualPlans,
   getPublicLearningResources,
-  getPublicAchievements,
   getPublicPublications,
   getPublicAnnouncements,
   getPublicGalleryAlbums,
@@ -91,34 +70,30 @@ export default async function HomePage() {
   const terms = await getCommitteeTerms().catch(() => []);
   const activeTerm = terms.find((t) => t.isCurrent) || terms[0];
 
-  // 2. Query all dynamic sections concurrently in parallel
+  // 2. Query dynamic sections concurrently in parallel
   const [
-    founders,
-    officers,
     eventsResult,
-    plans,
     resourcesResult,
-    achievements,
     publications,
     announcementsResult,
     albumsResult,
     settings,
   ] = await Promise.all([
-    getPublicFounders().catch(() => []),
-    activeTerm ? getCommitteeMembersByTerm(activeTerm.id).catch(() => []) : Promise.resolve([]),
     getPublicEvents({ status: "upcoming", limit: 3 }).catch(() => ({ data: [] })),
-    getPublicAnnualPlans().catch(() => []),
     getPublicLearningResources({ limit: 4 }).catch(() => ({ data: [] })),
-    getPublicAchievements().catch(() => []),
     getPublicPublications().catch(() => []),
     getPublicAnnouncements({ limit: 3 }).catch(() => ({ data: [] })),
     getPublicGalleryAlbums({ limit: 4 }).catch(() => ({ data: [] })),
     getPublicSiteSettings().catch(() => ({})),
   ]);
 
+  const nextUpcomingEvent = eventsResult.data[0];
+  const latestAnnouncement = announcementsResult.data[0];
+  const latestAlbum = albumsResult.data[0];
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Institutional Hero */}
+      {/* 1. Flagship Institutional Hero */}
       <HeroSection
         stats={{
           foundingYear: 2022,
@@ -126,50 +101,36 @@ export default async function HomePage() {
         }}
       />
 
-      {/* 2. Introduction to the Club & Four Pillars */}
+      {/* 2. Institutional Overview: Mission, Vision & Core Pillars */}
       <IntroductionSection />
 
-      {/* 3. Founders & Archival Genesis Preview */}
-      <FoundersPreviewSection founders={founders} />
-
-      {/* 4. Current Governing Committee Preview */}
-      <CommitteePreviewSection
-        termTitle={activeTerm?.titleEn}
-        academicYear={activeTerm?.academicYear}
-        officers={officers}
+      {/* 3. Central Gateway Hub: Connecting Visitors to Dedicated Standalone Pages */}
+      <OverviewGatewaySection
+        stats={{
+          upcomingEventsCount: eventsResult.data.length,
+          nextEventTitle: nextUpcomingEvent?.titleEn,
+          nextEventDate: nextUpcomingEvent?.startTime ? new Date(nextUpcomingEvent.startTime).toISOString().split("T")[0] : null,
+          albumsCount: albumsResult.data.length,
+          latestAlbumTitle: latestAlbum?.titleEn,
+          resourcesCount: resourcesResult.data.length,
+          announcementsCount: announcementsResult.data.length,
+          latestAnnouncementTitle: latestAnnouncement?.titleEn,
+          activeTermTitle: activeTerm?.titleEn,
+          publicationsCount: publications.length,
+        }}
       />
 
-      {/* 5. Upcoming Events & Scholarly Assemblies */}
+      {/* 4. Upcoming Events Snapshot */}
       <UpcomingEventsSection events={eventsResult.data} />
 
-      {/* 6. 12-Month Annual Operational Plan Highlights */}
-      <AnnualPlanSection plans={plans} />
-
-      {/* 7. Signature Cultural Programs & Rhetoric Circles */}
-      <CulturalProgramsSection />
-
-      {/* 8. Arabic Learning Resources & Digital Library */}
-      <LearningResourcesSection resources={resourcesResult.data} />
-
-      {/* 9. Honors, Accolades & Official Publications */}
-      <AchievementsSection
-        achievements={achievements}
-        publications={publications}
-      />
-
-      {/* 10. Latest News & Institutional Notices */}
-      <NewsAnnouncementsSection announcements={announcementsResult.data} />
-
-      {/* 11. Visual Archives & Photo Gallery Preview */}
+      {/* 5. Curated Visual Archives Preview */}
       <GalleryPreviewSection albums={albumsResult.data} />
 
-      {/* 12. Membership Invitation & Fellowship Privileges */}
+      {/* 6. Membership Fellowship Invitation */}
       <MembershipInvitationSection />
 
-      {/* 13. Verified Institutional Coordinates & Contacts */}
+      {/* 7. Verified Institutional Coordinates & Contacts */}
       <VerifiedContactSection settings={settings} />
-
-      {/* 14. Full Institutional Footer is rendered globally via src/app/(public)/layout.tsx */}
     </div>
   );
 }
