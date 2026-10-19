@@ -74,7 +74,7 @@ console.log(`[Docker Migration] Verified database tables: ${tables.length} table
 
 // 4. Ensure Super Administrator accounts exist
 const userCount = sqlite.prepare("SELECT count(*) as count FROM users").get();
-const initialPassword = process.env.INITIAL_ADMIN_PASSWORD || "Admin@ArabicClub2026!";
+const initialPassword = process.env.INITIAL_ADMIN_PASSWORD || "AdminSecure2026!";
 const passwordHash = bcrypt.hashSync(initialPassword, 12);
 const now = Date.now();
 

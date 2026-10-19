@@ -15,7 +15,11 @@ import {
   SectionStatItemSchema,
 } from "@/lib/schemas/sections";
 import { siteSettingsSchema } from "@/lib/validations/settings";
-import { ContactInquirySchema } from "@/lib/actions/contact-inquiry";
+import { ContactInquirySchema } from "@/lib/validations/inquiry";
+import { 
+  MembershipApplicationSchema, 
+  StatusTrackingSchema 
+} from "@/lib/validations/membership";
 
 describe("SectionContentDataSchema Validation", () => {
   it("validates a complete structured section with all fields", () => {
@@ -150,6 +154,58 @@ describe("ContactInquirySchema Validation", () => {
       email: "student@kngc.edu.bd",
       subject: "Important Matter",
       message: "Too short",
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("MembershipApplicationSchema Validation", () => {
+  it("validates a complete student membership application", () => {
+    const validApplication = {
+      applicantName: "Ahmad Al-Mansur",
+      applicantNameAr: "أحمد المنصور",
+      email: "ahmad@kngc.edu.bd",
+      phone: "+8801711223344",
+      studentId: "KNGC-2026-089",
+      department: "Arabic",
+      faculty: "Arts",
+      academicLevel: "Honours 3rd Year",
+      category: "general_student",
+      arabicProficiency: "intermediate" as const,
+      motivation: "Eager to participate in linguistic research, elocution competitions, and calligraphy exhibitions.",
+      consentAgreed: true,
+      directoryConsent: true,
+    };
+
+    const result = MembershipApplicationSchema.safeParse(validApplication);
+    expect(result.success).toBe(true);
+  });
+
+  it("requires consent to club constitution", () => {
+    const result = MembershipApplicationSchema.safeParse({
+      applicantName: "Hasan Tariq",
+      email: "hasan@kngc.edu.bd",
+      phone: "+8801811223344",
+      motivation: "Interested in Arabic literature and debating workshops.",
+      consentAgreed: false,
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("StatusTrackingSchema Validation", () => {
+  it("validates valid reference number and email", () => {
+    const result = StatusTrackingSchema.safeParse({
+      referenceNo: "KNGC-2026-X89A",
+      email: "student@kngc.edu.bd",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects invalid email format", () => {
+    const result = StatusTrackingSchema.safeParse({
+      referenceNo: "KNGC-2026-X89A",
+      email: "invalid-email-string",
     });
     expect(result.success).toBe(false);
   });
