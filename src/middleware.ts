@@ -1,16 +1,22 @@
 /**
  * @file src/middleware.ts
- * @description Next.js Edge Middleware for Administrative Route Protection & RBAC Enforcement.
+ * @description Next.js Edge Middleware for Administrative Route Protection, RBAC Enforcement & Subdomain Routing.
  * 
  * DEVELOPER NOTE:
- * - Runs ahead of both administrative page routes (`/admin/*`) and administrative API endpoints (`/api/admin/*`).
+ * - Supports Dual-Mode Admin Access:
+ *   1. Dedicated Subdomain (e.g. `admin.arabicclub.org` or `admin.localhost:3005`):
+ *      - Requests to `/` rewrite internally to `/admin`.
+ *      - Requests to clean paths (`/settings`, `/events`, `/gallery`, `/login`) rewrite to `/admin/*`.
+ *   2. Path-based Admin Access (`/admin/*` and `/api/admin/*`):
+ *      - Full backward-compatibility for direct `/admin` routes on the primary domain or IP.
  * - Public auth routes (/admin/login, /admin/forgot-password, /admin/reset-password, /admin/forbidden)
  *   are permitted through without session token verification.
- * - For web routes (`/admin/*`), unauthenticated visitors are redirected to `/admin/login?next=...`.
- * - For API routes (`/api/admin/*`), unauthenticated or unauthorized callers receive immediate JSON 401/403.
+ * - Unauthenticated visitors are redirected to the respective login route (`/login` on subdomain, `/admin/login` otherwise).
+ * - Administrative API routes (`/api/admin/*`) return immediate JSON 401/403 to unauthenticated/unauthorized callers.
  * - Cryptographically verifies HMAC-SHA256 session signatures at the edge.
- * - Evaluates Role-Based Access Control policy matrix before server handlers execute.
+ * - Evaluates Role-Based Access Control (RBAC) policy matrix before server handlers execute.
  * - Forwards authenticated user context via request headers (`x-user-id`, `x-user-role`, `x-user-email`).
+ * Strictly human vibe; zero AI emojis.
  */
 
 import { NextResponse } from "next/server";
@@ -19,50 +25,89 @@ import { verifySignedToken, SESSION_COOKIE_NAME } from "./lib/auth/token";
 import { canAccessRoute } from "./lib/auth/rbac";
 
 export async function middleware(request: NextRequest) {
+  const host = request.headers.get("host") || "";
+  const hostWithoutPort = host.split(":")[0].toLowerCase();
   const { pathname } = request.nextUrl;
-  const isApiRoute = pathname.startsWith("/api/admin");
-  const isAdminRoute = pathname.startsWith("/admin");
 
-  // 1. Only process /admin and /api/admin routes
-  if (!isAdminRoute && !isApiRoute) {
+  // 1. Detect if the request arrives via a dedicated admin subdomain
+  const configuredAdminDomain = process.env.ADMIN_DOMAIN?.toLowerCase();
+  const isAdminSubdomain = 
+    hostWithoutPort.startsWith("admin.") ||
+    (Boolean(configuredAdminDomain) && hostWithoutPort === configuredAdminDomain);
+
+  // Determine effective admin paths
+  const isDirectAdminRoute = pathname.startsWith("/admin");
+  const isApiAdminRoute = pathname.startsWith("/api/admin");
+
+  // If not on an admin subdomain and not accessing an admin route, pass through immediately
+  if (!isAdminSubdomain && !isDirectAdminRoute && !isApiAdminRoute) {
     return NextResponse.next();
   }
 
-  // 2. Public auth routes inside /admin are exempt from authentication guards
-  if (
-    pathname === "/admin/login" ||
-    pathname.startsWith("/admin/login/") ||
-    pathname === "/admin/forgot-password" ||
-    pathname === "/admin/reset-password" ||
-    pathname === "/admin/forbidden"
-  ) {
-    return NextResponse.next();
+  // Calculate target internal path
+  let targetPath = pathname;
+  if (isAdminSubdomain && !isDirectAdminRoute && !isApiAdminRoute) {
+    targetPath = pathname === "/" ? "/admin" : `/admin${pathname}`;
   }
 
-  // 3. Extract session cookie
+  const isPublicAuthRoute = 
+    targetPath === "/admin/login" ||
+    targetPath.startsWith("/admin/login/") ||
+    targetPath === "/admin/forgot-password" ||
+    targetPath === "/admin/reset-password" ||
+    targetPath === "/admin/forbidden";
+
+  // 2. Extract and verify session cookie
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME);
+  const payload = sessionCookie?.value ? await verifySignedToken(sessionCookie.value) : null;
+
+  // 3. Handle public authentication routes
+  if (isPublicAuthRoute) {
+    // If user is already authenticated and visits login page, redirect to dashboard
+    if (payload && (targetPath === "/admin/login" || targetPath.startsWith("/admin/login/"))) {
+      const dashboardUrl = isAdminSubdomain 
+        ? new URL("/", request.url)
+        : new URL("/admin", request.url);
+      return NextResponse.redirect(dashboardUrl);
+    }
+
+    // Rewrite clean subdomain URL (e.g. admin.arabicclub.org/login -> /admin/login)
+    if (isAdminSubdomain && !isDirectAdminRoute) {
+      return NextResponse.rewrite(new URL(targetPath, request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // 4. Guard protected routes: Reject unauthenticated requests
   if (!sessionCookie?.value) {
-    if (isApiRoute) {
+    if (isApiAdminRoute) {
       return NextResponse.json(
         { error: "Unauthorized: Active administrative session required." },
         { status: 401 }
       );
     }
-    const loginUrl = new URL("/admin/login", request.url);
+
+    const loginUrl = isAdminSubdomain 
+      ? new URL("/login", request.url)
+      : new URL("/admin/login", request.url);
+
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // 4. Cryptographically verify session token
-  const payload = await verifySignedToken(sessionCookie.value);
+  // 5. Guard invalid or expired sessions
   if (!payload) {
-    if (isApiRoute) {
+    if (isApiAdminRoute) {
       return NextResponse.json(
         { error: "Unauthorized: Session is invalid or has expired." },
         { status: 401 }
       );
     }
-    const loginUrl = new URL("/admin/login", request.url);
+
+    const loginUrl = isAdminSubdomain 
+      ? new URL("/login", request.url)
+      : new URL("/admin/login", request.url);
+
     loginUrl.searchParams.set("error", "session_expired");
     loginUrl.searchParams.set("next", pathname);
 
@@ -71,29 +116,41 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // 5. Evaluate Role-Based Access Control policy
-  // For API routes, map /api/admin/audit-logs/... to /admin/audit-logs to match RBAC route tree
-  const routeToCheck = isApiRoute ? pathname.replace(/^\/api/, "") : pathname;
+  // 6. Evaluate Role-Based Access Control (RBAC) policy
+  const routeToCheck = isApiAdminRoute ? pathname.replace(/^\/api/, "") : targetPath;
   const isAuthorized = canAccessRoute(payload.role, routeToCheck);
 
   if (!isAuthorized) {
-    if (isApiRoute) {
+    if (isApiAdminRoute) {
       return NextResponse.json(
         { error: "Forbidden: Insufficient role permissions for this endpoint." },
         { status: 403 }
       );
     }
-    const forbiddenUrl = new URL("/admin/forbidden", request.url);
+
+    const forbiddenUrl = isAdminSubdomain 
+      ? new URL("/forbidden", request.url)
+      : new URL("/admin/forbidden", request.url);
+
     forbiddenUrl.searchParams.set("from", pathname);
     forbiddenUrl.searchParams.set("role", payload.role);
     return NextResponse.redirect(forbiddenUrl);
   }
 
-  // 6. Forward authenticated user metadata to server components & route handlers
+  // 7. Forward authenticated user metadata to server components & route handlers
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-user-id", payload.uid);
   requestHeaders.set("x-user-role", payload.role);
   requestHeaders.set("x-user-email", payload.email);
+
+  // If on admin subdomain and clean path was used, rewrite internally to target /admin path
+  if (isAdminSubdomain && !isDirectAdminRoute && !isApiAdminRoute) {
+    return NextResponse.rewrite(new URL(targetPath, request.url), {
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
 
   return NextResponse.next({
     request: {
@@ -103,5 +160,15 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/api/admin/:path*",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt, and public static assets
+     */
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|assets/).*)",
+  ],
 };

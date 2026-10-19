@@ -47,7 +47,7 @@ sudo nginx -t
 
 ### Step 3: Obtain Automated Free SSL Certificates with Let's Encrypt
 ```bash
-sudo certbot --nginx -d arabicclub.org -d www.arabicclub.org --non-interactive --agree-tos --email arabicclubkngc2025@gmail.com
+sudo certbot --nginx -d arabicclub.org -d www.arabicclub.org -d admin.arabicclub.org --non-interactive --agree-tos --email arabicclubkngc2025@gmail.com
 ```
 
 Certbot automatically schedules systemd renewal timers at `/etc/cron.d/certbot` or `certbot.timer`.
@@ -61,6 +61,10 @@ When routing through Cloudflare DNS and WAF:
 1. **DNS Records**:
    - `A` record: `arabicclub.org` -> `YOUR_SERVER_PUBLIC_IP` (Proxy status: **Proxied** / Orange Cloud)
    - `CNAME` record: `www` -> `arabicclub.org` (Proxy status: **Proxied**)
+   - `CNAME` record: `admin` -> `arabicclub.org` (Proxy status: **Proxied**)
+
+> [!NOTE]
+> Setting up `admin` as a CNAME pointing to `arabicclub.org` allows administrators to access the dashboard via `https://admin.arabicclub.org` directly, while Edge Middleware and Nginx route traffic cleanly to the internal `/admin` tree.
 
 2. **SSL/TLS Encryption Mode**:
    - Set to **Full (Strict)** in the Cloudflare SSL/TLS dashboard.

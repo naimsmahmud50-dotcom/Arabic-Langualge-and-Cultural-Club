@@ -19,8 +19,9 @@
 
 ### 1. Administrative Authentication & Security
 1. **Accessing the Portal:**
-   - Navigate to `/admin/login`.
-   - Enter your authorized administrative email (e.g. `admin@arabicclub.org` or `arabicclubkngc2025@gmail.com`) and master password.
+   - **Dedicated Subdomain (Recommended):** Navigate to `https://admin.arabicclub.org` (or `https://admin.arabicclub.org/login`).
+   - **Direct Root Path (Backward-Compatible):** Navigate to `https://arabicclub.org/admin` (or `/admin/login`).
+   - Enter your authorized administrative email (e.g. `arabicclubkngc2025@gmail.com` or `admin@arabicclub.org`) and master password.
    - System sessions are secured with sliding HTTP-only cryptographic cookies lasting 7 days.
 2. **Brute Force Protection:**
    - 5 consecutive failed login attempts trigger an automated 15-minute IP lockout.
@@ -131,9 +132,10 @@ Edit the structured bilingual content for `/about`, `/history`, and `/policies`:
 # বাংলা নির্দেশিকা (Bangla Guide)
 
 ### ১. অ্যাডমিন প্যানেলে লগইন ও নিরাপত্তা
-1. **লগইন ঠিকানা:**
-   - ব্রাউজারে `/admin/login` ঠিকানায় যান।
-   - আপনার প্রাতিষ্ঠানিক ইমেইল (`admin@arabicclub.org` অথবা `arabicclubkngc2025@gmail.com`) এবং পাসওয়ার্ড প্রদান করুন।
+1. **লগইন ঠিকানা (প্রবেশের দুটি পথ):**
+   - **ডেডিকেটেড সাবডোমেইন (প্রস্তাবিত):** ব্রাউজারে সরাসরি `https://admin.arabicclub.org` (বা `/login`) ঠিকানায় যান।
+   - **প্রধান ওয়েবসাইট পাথ (বিকল্প):** ব্রাউজারে `https://arabicclub.org/admin` (বা `/admin/login`) ঠিকানায় যান।
+   - আপনার প্রাতিষ্ঠানিক ইমেইল (`arabicclubkngc2025@gmail.com` অথবা `admin@arabicclub.org`) এবং পাসওয়ার্ড প্রদান করুন।
    - নিরাপত্তা নিশ্চিত করতে প্রতিবার লগইন সেশন ৭ দিনের জন্য স্বয়ংক্রিয়ভাবে সক্রিয় থাকে।
 2. **অ্যাকাউন্ট লকআউট প্রতিরক্ষা:**
    - পরপর ৫ বার ভুল পাসওয়ার্ড দিলে উক্ত আইপি থেকে ১৫ মিনিটের জন্য লগইন সাময়িকভাবে স্থগিত থাকবে।
