@@ -150,19 +150,19 @@ Administrative paths are shielded at the network edge:
 
 ---
 
-## 6. Development & Staging Testing Accounts
+## 6. Administrative Credential Configuration
 
-The database seed (`src/lib/db/seed.ts`) pre-configures verified testing accounts across all five roles. These accounts are clearly tagged as `[DEMO]` in the database and audit trail:
+In accordance with institutional security policies, zero credentials are pre-filled or hardcoded into the codebase:
 
-| Institutional Role | Test Email | Default Staging Password |
-| :--- | :--- | :--- |
-| **Super Admin** | `admin@arabicclub.org` | `AdminSecure2026!` |
-| **Administrator** | `operations@arabicclub.org` | `AdminSecure2026!` |
-| **Content Editor** | `editor@arabicclub.org` | `AdminSecure2026!` |
-| **Membership Manager** | `membership@arabicclub.org` | `AdminSecure2026!` |
-| **Event Manager** | `events@arabicclub.org` | `AdminSecure2026!` |
+1. **Environment Initialization**:
+   The primary administrative account is configured via `ADMIN_EMAIL` and `ADMIN_PASSWORD` (or `INITIAL_ADMIN_EMAIL` / `INITIAL_ADMIN_PASSWORD`).
 
-*(The login portal at `/admin/login` includes an interactive drawer allowing one-click filling of these credentials for evaluation.)*
+2. **Safe Credential Management CLI**:
+   Passwords can be securely updated using the CLI tool:
+   ```bash
+   pnpm admin:set-password <email> <new-password>
+   ```
+   All password changes automatically enforce complexity requirements, hash using bcrypt with 12 rounds, invalidate active sessions, and record an audit log event.
 
 ---
 

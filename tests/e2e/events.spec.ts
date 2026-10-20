@@ -12,9 +12,12 @@ import { test, expect } from "@playwright/test";
 test.describe("Event Management & Scheduling Lifecycle", () => {
   test.beforeEach(async ({ page }) => {
     // Authenticate as Super Admin
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.INITIAL_ADMIN_EMAIL || "arabicclubkngc2025@gmail.com";
+    const adminPassword = process.env.ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD || "TestAuthPhrase#2026!";
+
     await page.goto("/admin/login");
-    await page.fill('input[name="email"]', "admin@arabicclub.org");
-    await page.fill('input[name="password"]', "AdminSecure2026!");
+    await page.fill('input[name="email"]', adminEmail);
+    await page.fill('input[name="password"]', adminPassword);
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/admin(\/)?$/, { timeout: 15000 });
   });

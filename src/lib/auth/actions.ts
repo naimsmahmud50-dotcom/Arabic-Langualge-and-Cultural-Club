@@ -147,7 +147,7 @@ export async function loginAction(
 
     return {
       success: false,
-      message: "Invalid credentials or inactive account.",
+      message: "Invalid email or password.",
     };
   }
 
@@ -166,7 +166,7 @@ export async function loginAction(
 
     return {
       success: false,
-      message: "Invalid credentials or inactive account.",
+      message: "Invalid email or password.",
     };
   }
 

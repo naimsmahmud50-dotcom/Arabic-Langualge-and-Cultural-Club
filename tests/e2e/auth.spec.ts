@@ -31,8 +31,11 @@ test.describe("Administrative Authentication & Session Control", () => {
   test("successfully authenticates with valid credentials and accesses command center", async ({ page }) => {
     await page.goto("/admin/login");
 
-    await page.fill('input[name="email"]', "admin@arabicclub.org");
-    await page.fill('input[name="password"]', "AdminSecure2026!");
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.INITIAL_ADMIN_EMAIL || "arabicclubkngc2025@gmail.com";
+    const adminPassword = process.env.ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD || "TestAuthPhrase#2026!";
+
+    await page.fill('input[name="email"]', adminEmail);
+    await page.fill('input[name="password"]', adminPassword);
     await page.click('button[type="submit"]');
 
     // Wait for redirect to /admin dashboard

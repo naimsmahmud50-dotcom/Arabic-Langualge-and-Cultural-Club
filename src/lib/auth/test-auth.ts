@@ -43,10 +43,10 @@ async function runTests() {
   // ----------------------------------------------------------------------
   console.log("[Suite 1] Scrypt Password Hashing & Complexity Validation");
 
-  const rawPassword = "AdminSecure2026!";
+  const rawPassword = "TestDynamicSecretPhrase#2026";
   const hash = hashPassword(rawPassword);
 
-  assert(hash.startsWith("scrypt$v1$"), "Password hash format uses scrypt$v1$ prefix");
+  assert(hash.startsWith("$2b$") || hash.startsWith("scrypt$v1$"), "Password hash format uses bcrypt or scrypt prefix");
   assert(verifyPassword(rawPassword, hash) === true, "Verifies authentic password correctly");
   assert(verifyPassword("WrongPassword123!", hash) === false, "Rejects incorrect password");
   assert(verifyPassword("", hash) === false, "Rejects empty password input");

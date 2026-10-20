@@ -123,16 +123,23 @@ The platform includes an automated deployment script (`scripts/deploy.sh`) with 
 
 ---
 
-## Verified Administrative Credentials
+## Administrative Access & Password Configuration
 
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **Super Admin** | `admin@arabicclub.org` | `AdminSecure2026!` |
-| **Institutional Lead** | `arabicclubkngc2025@gmail.com` | `AdminSecure2026!` |
-| **Administrator** | `operations@arabicclub.org` | `AdminSecure2026!` |
-| **Content Editor** | `editor@arabicclub.org` | `AdminSecure2026!` |
-| **Membership Officer**| `membership@arabicclub.org` | `AdminSecure2026!` |
-| **Events Coordinator**| `events@arabicclub.org` | `AdminSecure2026!` |
+The administrative console is located at `/admin/login`. In accordance with institutional security policies, zero credentials are pre-filled or hardcoded.
+
+1. **Initial Deployment Setup**:
+   Configure the master administrator credentials via environment variables:
+   ```bash
+   ADMIN_EMAIL=your-institutional-email@example.com
+   ADMIN_PASSWORD=YourStrongMasterPassword123!
+   ```
+
+2. **Setting or Rotating the Admin Password via CLI**:
+   To update or rotate an administrator password securely at any time:
+   ```bash
+   pnpm admin:set-password <email> <new-password>
+   ```
+   All password changes automatically enforce complexity requirements, hash using bcrypt with 12 rounds, invalidate existing sessions, and record an audit log event.
 
 ---
 

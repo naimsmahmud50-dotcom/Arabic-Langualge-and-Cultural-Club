@@ -16,6 +16,7 @@
     "db:migrate": "tsx src/lib/db/migrate.ts",
     "db:seed": "tsx src/lib/db/seed.ts",
     "admin:provision": "tsx src/lib/auth/provision-super-admin.ts",
+    "admin:set-password": "tsx scripts/admin-set-password.ts",
     "test:admin": "tsx src/lib/db/test-super-admin-auth.ts",
     "test:gallery": "tsx src/lib/db/test-gallery-cms.ts",
     "test:storage": "tsx src/lib/db/test-persistent-storage.ts",

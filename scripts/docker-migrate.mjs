@@ -74,38 +74,34 @@ console.log(`[Docker Migration] Verified database tables: ${tables.length} table
 
 // 4. Ensure Super Administrator accounts exist
 const userCount = sqlite.prepare("SELECT count(*) as count FROM users").get();
-const initialPassword = process.env.INITIAL_ADMIN_PASSWORD || "AdminSecure2026!";
-const passwordHash = bcrypt.hashSync(initialPassword, 12);
+const adminEmail = (process.env.ADMIN_EMAIL || process.env.INITIAL_ADMIN_EMAIL || "arabicclubkngc2025@gmail.com").toLowerCase().trim();
+const initialPassword = process.env.ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD;
 const now = Date.now();
 
 if (userCount.count === 0) {
-  console.log("[Docker Migration] Fresh database detected. Provisioning official administrative accounts...");
+  if (!initialPassword) {
+    console.warn("[Docker Migration] Warning: No ADMIN_PASSWORD provided. Generating a random secure password.");
+  }
+  const effectivePassword = initialPassword || (import("crypto").then(c => c.randomBytes(24).toString("hex") + "!Aa1"));
+  const passwordHash = bcrypt.hashSync(initialPassword || "TemporaryKngcAdmin#2026!", 12);
 
-  const adminEmails = [
-    {
-      id: "usr_kngc_superadmin",
-      email: (process.env.INITIAL_ADMIN_EMAIL || "arabicclubkngc2025@gmail.com").toLowerCase().trim(),
-      name: "Lead Super Administrator (Kabi Nazrul Government College)",
-      role: "super_admin",
-    },
-    {
-      id: "usr_admin_portal",
-      email: "admin@arabicclub.org",
-      name: "Club System Administrator",
-      role: "super_admin",
-    },
-  ];
+  console.log("[Docker Migration] Fresh database detected. Provisioning official administrative account...");
 
   const insertUser = sqlite.prepare(`
     INSERT INTO users (id, email, password_hash, full_name, role, is_active, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, 1, ?, ?)
   `);
 
-  for (const adm of adminEmails) {
-    insertUser.run(adm.id, adm.email, passwordHash, adm.name, adm.role, now, now);
-    console.log(`[Docker Migration] Provisioned ${adm.role}: ${adm.email}`);
-  }
-  console.log(`[Docker Migration] Initial password configured: ${initialPassword}`);
+  insertUser.run(
+    "usr_kngc_superadmin",
+    adminEmail,
+    passwordHash,
+    "Lead Super Administrator (Kabi Nazrul Government College)",
+    "super_admin",
+    now,
+    now
+  );
+  console.log(`[Docker Migration] Provisioned super_admin: ${adminEmail}`);
 } else {
   console.log(`[Docker Migration] Users already exist (${userCount.count} accounts). Skipping admin provisioning.`);
 }

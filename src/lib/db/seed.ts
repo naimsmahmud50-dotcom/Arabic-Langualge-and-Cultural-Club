@@ -6,6 +6,7 @@
  * Strictly human vibe; zero AI emojis.
  */
 
+import crypto from "crypto";
 import { db } from "./index";
 import { hashPassword } from "../auth/password";
 import {
@@ -113,13 +114,31 @@ export async function seedDatabase() {
     { id: "pos_adv", titleEn: "Faculty Adviser", titleAr: "المشرف الأكاديمي", defaultRank: 10, category: "advisor", createdAt: now },
   ]).onConflictDoNothing();
 
-  // 3. Test & Administrative Users with Scrypt hashed password ("AdminSecure2026!")
-  const securePwHash = hashPassword("AdminSecure2026!");
+  // 3. Administrative User Provisioning (Server-Side Hash via Environment Variables)
+  const initialAdminEmail = (
+    process.env.ADMIN_EMAIL ||
+    process.env.INITIAL_ADMIN_EMAIL ||
+    "arabicclubkngc2025@gmail.com"
+  ).toLowerCase().trim();
+
+  let adminPasswordHash: string;
+  if (process.env.ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD) {
+    const rawPassword = process.env.ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD!;
+    adminPasswordHash = hashPassword(rawPassword);
+  } else {
+    // Generate secure random password hash - zero hardcoded passwords
+    const randomSecret = crypto.randomBytes(32).toString("hex") + "!Aa1";
+    adminPasswordHash = hashPassword(randomSecret);
+  }
+
+  // Generate distinct non-guessable random hashes for legacy placeholder records
+  const disabledPlaceholderHash = () => hashPassword(crypto.randomBytes(32).toString("hex") + "!Aa1");
+
   await db.insert(users).values([
     {
       id: "usr_kngc_superadmin",
-      email: "arabicclubkngc2025@gmail.com",
-      passwordHash: securePwHash,
+      email: initialAdminEmail,
+      passwordHash: adminPasswordHash,
       fullName: "Lead Super Administrator (Kabi Nazrul Government College)",
       role: "super_admin",
       isActive: true,
@@ -128,78 +147,75 @@ export async function seedDatabase() {
     },
     {
       id: "usr_superadmin",
-      email: "admin@arabicclub.org",
-      passwordHash: securePwHash,
-      fullName: "Lead Systems Administrator [DEMO]",
+      email: "archived-superadmin@arabicclub.local",
+      passwordHash: disabledPlaceholderHash(),
+      fullName: "Lead Systems Administrator [Archived]",
       role: "super_admin",
-      isActive: true,
+      isActive: false,
       createdAt: now,
       updatedAt: now,
     },
     {
       id: "usr_admin",
-      email: "operations@arabicclub.org",
-      passwordHash: securePwHash,
-      fullName: "General Administrator [DEMO]",
+      email: "archived-operations@arabicclub.local",
+      passwordHash: disabledPlaceholderHash(),
+      fullName: "General Administrator [Archived]",
       role: "administrator",
-      isActive: true,
+      isActive: false,
       createdAt: now,
       updatedAt: now,
     },
     {
       id: "usr_editor",
-      email: "editor@arabicclub.org",
-      passwordHash: securePwHash,
-      fullName: "Content & Editorial Manager [DEMO]",
+      email: "archived-editor@arabicclub.local",
+      passwordHash: disabledPlaceholderHash(),
+      fullName: "Content & Editorial Manager [Archived]",
       role: "content_editor",
-      isActive: true,
+      isActive: false,
       createdAt: now,
       updatedAt: now,
     },
     {
       id: "usr_membership",
-      email: "membership@arabicclub.org",
-      passwordHash: securePwHash,
-      fullName: "Membership Officer [DEMO]",
+      email: "archived-membership@arabicclub.local",
+      passwordHash: disabledPlaceholderHash(),
+      fullName: "Membership Officer [Archived]",
       role: "membership_manager",
-      isActive: true,
+      isActive: false,
       createdAt: now,
       updatedAt: now,
     },
     {
       id: "usr_events",
-      email: "events@arabicclub.org",
-      passwordHash: securePwHash,
-      fullName: "Events Coordinator [DEMO]",
+      email: "archived-events@arabicclub.local",
+      passwordHash: disabledPlaceholderHash(),
+      fullName: "Events Coordinator [Archived]",
       role: "event_manager",
-      isActive: true,
+      isActive: false,
       createdAt: now,
       updatedAt: now,
     },
     {
       id: "usr_president",
-      email: "president@arabicclub.org",
-      passwordHash: securePwHash,
-      fullName: "Executive President [DEMO]",
+      email: "archived-president@arabicclub.local",
+      passwordHash: disabledPlaceholderHash(),
+      fullName: "Executive President [Archived]",
       role: "president",
-      isActive: true,
+      isActive: false,
       createdAt: now,
       updatedAt: now,
     },
     {
       id: "usr_media",
-      email: "media@arabicclub.org",
-      passwordHash: securePwHash,
-      fullName: "Media Director [DEMO]",
+      email: "archived-media@arabicclub.local",
+      passwordHash: disabledPlaceholderHash(),
+      fullName: "Media Director [Archived]",
       role: "media_manager",
-      isActive: true,
+      isActive: false,
       createdAt: now,
       updatedAt: now,
     },
   ]).onConflictDoNothing();
-
-  // Ensure existing demo users are updated with the verified Scrypt hash
-  await db.update(users).set({ passwordHash: securePwHash });
 
   // 4. Founders [DEMO FIXTURES - PENDING OFFICIAL RECORDS]
   await db.insert(founders).values([
