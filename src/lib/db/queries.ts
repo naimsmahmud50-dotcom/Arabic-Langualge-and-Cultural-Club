@@ -2543,35 +2543,55 @@ export interface ContactSettings {
  * Never invents phone numbers, office hours, addresses, or social media links.
  */
 export async function getContactSettings(): Promise<ContactSettings> {
-  const settingsRows = await db.select()
-    .from(siteSettings)
-    .where(or(
-      eq(siteSettings.category, "contact"),
-      eq(siteSettings.category, "social"),
-      eq(siteSettings.category, "general")
-    ));
+  try {
+    const settingsRows = await db.select()
+      .from(siteSettings)
+      .where(or(
+        eq(siteSettings.category, "contact"),
+        eq(siteSettings.category, "social"),
+        eq(siteSettings.category, "general")
+      ));
 
-  const settingsMap = new Map<string, { valueEn: string | null; valueAr: string | null }>();
-  settingsRows.forEach(row => {
-    settingsMap.set(row.key, { valueEn: row.valueEn, valueAr: row.valueAr });
-  });
+    const settingsMap = new Map<string, { valueEn: string | null; valueAr: string | null }>();
+    settingsRows.forEach(row => {
+      settingsMap.set(row.key, { valueEn: row.valueEn, valueAr: row.valueAr });
+    });
 
-  return {
-    clubNameEn: settingsMap.get("club_name")?.valueEn || "Arabic Language & Cultural Club",
-    clubNameAr: settingsMap.get("club_name")?.valueAr || "نادي اللغة والثقافة العربية",
-    clubTaglineEn: settingsMap.get("club_tagline")?.valueEn || null,
-    clubTaglineAr: settingsMap.get("club_tagline")?.valueAr || null,
-    contactEmail: settingsMap.get("contact_email")?.valueEn || null,
-    contactPhone: settingsMap.get("contact_phone")?.valueEn || null,
-    headquartersAddressEn: settingsMap.get("headquarters_address")?.valueEn || null,
-    headquartersAddressAr: settingsMap.get("headquarters_address")?.valueAr || null,
-    officeHoursEn: settingsMap.get("office_hours")?.valueEn || null,
-    officeHoursAr: settingsMap.get("office_hours")?.valueAr || null,
-    socialFacebook: settingsMap.get("social_facebook")?.valueEn || null,
-    socialYoutube: settingsMap.get("social_youtube")?.valueEn || null,
-    socialTwitter: settingsMap.get("social_twitter")?.valueEn || null,
-    socialLinkedin: settingsMap.get("social_linkedin")?.valueEn || null,
-  };
+    return {
+      clubNameEn: settingsMap.get("club_name")?.valueEn || "Arabic Language & Cultural Club",
+      clubNameAr: settingsMap.get("club_name")?.valueAr || "نادي اللغة والثقافة العربية",
+      clubTaglineEn: settingsMap.get("club_tagline")?.valueEn || null,
+      clubTaglineAr: settingsMap.get("club_tagline")?.valueAr || null,
+      contactEmail: settingsMap.get("contact_email")?.valueEn || null,
+      contactPhone: settingsMap.get("contact_phone")?.valueEn || null,
+      headquartersAddressEn: settingsMap.get("headquarters_address")?.valueEn || null,
+      headquartersAddressAr: settingsMap.get("headquarters_address")?.valueAr || null,
+      officeHoursEn: settingsMap.get("office_hours")?.valueEn || null,
+      officeHoursAr: settingsMap.get("office_hours")?.valueAr || null,
+      socialFacebook: settingsMap.get("social_facebook")?.valueEn || null,
+      socialYoutube: settingsMap.get("social_youtube")?.valueEn || null,
+      socialTwitter: settingsMap.get("social_twitter")?.valueEn || null,
+      socialLinkedin: settingsMap.get("social_linkedin")?.valueEn || null,
+    };
+  } catch (err) {
+    console.warn("[getContactSettings] Database query error, utilizing resilient defaults:", err);
+    return {
+      clubNameEn: "Arabic Language & Cultural Club",
+      clubNameAr: "نادي اللغة والثقافة العربية",
+      clubTaglineEn: null,
+      clubTaglineAr: null,
+      contactEmail: null,
+      contactPhone: null,
+      headquartersAddressEn: null,
+      headquartersAddressAr: null,
+      officeHoursEn: null,
+      officeHoursAr: null,
+      socialFacebook: null,
+      socialYoutube: null,
+      socialTwitter: null,
+      socialLinkedin: null,
+    };
+  }
 }
 
 export interface SubmitContactInquiryInput {
