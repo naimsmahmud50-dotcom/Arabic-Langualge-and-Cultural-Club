@@ -27,6 +27,8 @@ export const en: TranslationDictionary = {
     publications: "Publications",
     news: "News",
     contact: "Contact",
+    activities: "Activities",
+    library: "Library",
     joinClub: "Join Club",
     adminPortal: "Admin",
   },

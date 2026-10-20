@@ -27,6 +27,8 @@ export const bn: TranslationDictionary = {
     publications: "প্রকাশনা ও সম্মাননা",
     news: "সংবাদ ও বিজ্ঞপ্তি",
     contact: "যোগাযোগ",
+    activities: "কার্যক্রম",
+    library: "গ্রন্থাগার",
     joinClub: "সদস্যপদ আবেদন",
     adminPortal: "প্রশাসন পোর্টাল",
   },

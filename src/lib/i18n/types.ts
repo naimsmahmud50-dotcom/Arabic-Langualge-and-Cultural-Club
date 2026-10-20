@@ -35,6 +35,8 @@ export interface TranslationDictionary {
     publications: string;
     news: string;
     contact: string;
+    activities?: string;
+    library?: string;
     joinClub: string;
     adminPortal: string;
   };

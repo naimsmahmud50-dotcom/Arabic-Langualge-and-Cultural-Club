@@ -28,6 +28,8 @@ export const ar: TranslationDictionary = {
     publications: "الإصدارات والجوائز",
     news: "الأخبار والإعلانات",
     contact: "تواصل معنا",
+    activities: "الأنشطة والفعاليات",
+    library: "المكتبة اللغوية",
     joinClub: "انضم للنادي",
     adminPortal: "بوابة الإدارة",
   },
