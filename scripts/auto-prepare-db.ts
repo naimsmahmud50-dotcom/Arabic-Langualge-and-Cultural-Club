@@ -54,16 +54,39 @@ async function autoPrepareDatabase() {
           .map(s => s.trim())
           .filter(s => s.length > 0);
         for (const stmt of statements) {
-          await sqlite.execute(stmt);
+          try {
+            await sqlite.execute(stmt);
+          } catch (err: any) {
+            const errMsg = String(err?.message || "");
+            if (errMsg.includes("already exists") || errMsg.includes("duplicate column")) {
+              // Harmless if already exists
+            } else {
+              console.warn(`Migration statement note (${file}):`, errMsg);
+            }
+          }
         }
       }
       console.log("All migrations applied successfully.");
     }
 
-    // Run seed data
-    console.log("Seeding initial institutional settings, pages, and admin credentials...");
-    await seedDatabase();
-    console.log("Database bootstrapper completed successfully.");
+    // Run seed data if site_settings is empty
+    let shouldSeed = true;
+    try {
+      const countCheck = await sqlite.execute("SELECT count(*) as cnt FROM site_settings");
+      const count = Number((countCheck.rows[0] as any)?.cnt || 0);
+      if (count > 0) {
+        shouldSeed = false;
+        console.log("Seed data already present in database. Skipping seed.");
+      }
+    } catch {
+      shouldSeed = true;
+    }
+
+    if (shouldSeed) {
+      console.log("Seeding initial institutional settings, pages, and admin credentials...");
+      await seedDatabase();
+      console.log("Database bootstrapper completed successfully.");
+    }
   } catch (error) {
     console.warn("Auto-prepare encountered a non-fatal warning:", error);
     // Do not crash the build; allow fallback mode

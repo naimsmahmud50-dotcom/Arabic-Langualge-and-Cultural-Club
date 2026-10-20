@@ -16,12 +16,17 @@ import fs from "fs";
  * - Strictly human vibe: zero AI emojis.
  */
 
-const tursoUrl = process.env.TURSO_DATABASE_URL || 
+const tursoUrl = 
+  process.env.TURSO_DATABASE_URL || 
+  process.env.LIBSQL_DATABASE_URL ||
   (process.env.DATABASE_URL?.startsWith("libsql://") || process.env.DATABASE_URL?.startsWith("https://") 
     ? process.env.DATABASE_URL 
     : null);
 
-const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN;
+const tursoAuthToken = 
+  process.env.TURSO_AUTH_TOKEN || 
+  process.env.LIBSQL_AUTH_TOKEN || 
+  process.env.DATABASE_AUTH_TOKEN;
 
 let client: Client;
 
@@ -31,13 +36,18 @@ if (tursoUrl) {
     authToken: tursoAuthToken,
   });
 } else {
-  const rawPath = process.env.DATABASE_URL || "file:arabic_club.db";
+  const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+  const rawPath = process.env.DATABASE_URL || (isServerless ? "file:/tmp/arabic_club.db" : "file:arabic_club.db");
   let finalUrl = rawPath;
   if (!rawPath.startsWith("file:") && !rawPath.startsWith("http:") && !rawPath.startsWith("https:")) {
     const resolvedPath = path.resolve(/*turbopackIgnore: true*/ rawPath);
     const dbDir = path.dirname(resolvedPath);
     if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
+      try {
+        fs.mkdirSync(dbDir, { recursive: true });
+      } catch {
+        // Ignore read-only filesystem in serverless environments
+      }
     }
     finalUrl = `file:${resolvedPath}`;
   }
