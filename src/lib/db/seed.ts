@@ -2073,12 +2073,14 @@ export async function seedDatabase() {
   console.log("Database seeded successfully with verified [DEMO FIXTURES].");
 }
 
-seedDatabase()
-  .then(() => {
-    console.log("Seeding process completed successfully.");
-    process.exit(0);
-  })
-  .catch((err) => {
-    console.error("Seeding failed:", err);
-    process.exit(1);
-  });
+if (process.argv[1]?.endsWith("seed.ts") || process.argv[1]?.endsWith("seed.js")) {
+  seedDatabase()
+    .then(() => {
+      console.log("Seeding process completed successfully.");
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error("Seeding failed:", err);
+      process.exit(1);
+    });
+}
