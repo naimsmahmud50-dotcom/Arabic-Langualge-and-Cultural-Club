@@ -22,7 +22,7 @@ export async function GET() {
 
   try {
     // Probe database connectivity with lightweight read
-    const settings = db.select({ id: siteSettings.id }).from(siteSettings).limit(1).all();
+    const settings = await db.select({ id: siteSettings.id }).from(siteSettings).limit(1);
     const dbLatencyMs = Date.now() - startTime;
 
     return NextResponse.json(

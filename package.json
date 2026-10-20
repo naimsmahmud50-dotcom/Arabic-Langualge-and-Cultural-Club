@@ -11,7 +11,7 @@
     "lint": "echo 'TypeScript strict check passed' && tsc --noEmit",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
-    "test": "vitest run",
+    "test": "tsx src/lib/db/test-e2e-comprehensive.ts",
     "check": "pnpm typecheck && pnpm test:unit && pnpm build",
     "db:migrate": "tsx src/lib/db/migrate.ts",
     "db:seed": "tsx src/lib/db/seed.ts",
@@ -21,7 +21,6 @@
     "test:storage": "tsx src/lib/db/test-persistent-storage.ts",
     "test:import": "tsx src/lib/db/test-historical-import.ts",
     "test:integration": "tsx src/lib/db/test-event-gallery-integration.ts",
-    "test": "tsx src/lib/db/test-e2e-comprehensive.ts",
     "test:all": "tsx src/lib/db/test-e2e-comprehensive.ts"
   },
   "keywords": [],
@@ -55,6 +54,7 @@
     "vitest": "^5.0.5"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.3",
     "clsx": "^2.1.1",

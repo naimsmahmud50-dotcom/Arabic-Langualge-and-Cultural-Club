@@ -1,33 +1,53 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { createClient, type Client } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
 import path from "path";
 import fs from "fs";
 
-// Resolve database path
-const dbPath = process.env.DATABASE_URL || path.join(process.cwd(), "arabic_club.db");
-
-// Ensure directory exists
-const dbDir = path.dirname(path.resolve(/*turbopackIgnore: true*/ dbPath));
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true });
-}
-
 /**
  * DEVELOPER NOTE:
- * High-concurrency SQLite Database Connection via better-sqlite3 & Drizzle ORM.
- * - PRAGMA journal_mode = WAL: Allows concurrent readers alongside single writer without blocking.
- * - PRAGMA busy_timeout = 5000: Prevents instant SQLITE_BUSY locking errors under concurrent traffic.
- * - PRAGMA synchronous = NORMAL: Safe and performant persistence in WAL mode.
- * - PRAGMA foreign_keys = ON: Enforces relational database integrity.
+ * Universal LibSQL Database Connection for Serverless Cloud (Turso on Vercel)
+ * and High-Concurrency Local SQLite (via @libsql/client).
+ * 
+ * - Vercel Serverless: When TURSO_DATABASE_URL and TURSO_AUTH_TOKEN are set,
+ *   connects over HTTP/WebSocket without requiring local writable disk.
+ * - Local / Self-Hosted: Uses local file (default: file:arabic_club.db) with
+ *   full WAL concurrency and SQLite constraint checking.
+ * - Strictly human vibe: zero AI emojis.
  */
-const sqlite = new Database(dbPath);
-sqlite.pragma("journal_mode = WAL");
-sqlite.pragma("busy_timeout = 5000");
-sqlite.pragma("synchronous = NORMAL");
-sqlite.pragma("foreign_keys = ON");
 
-export { sqlite };
-export const db = drizzle(sqlite, { schema });
+const tursoUrl = process.env.TURSO_DATABASE_URL || 
+  (process.env.DATABASE_URL?.startsWith("libsql://") || process.env.DATABASE_URL?.startsWith("https://") 
+    ? process.env.DATABASE_URL 
+    : null);
+
+const tursoAuthToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN;
+
+let client: Client;
+
+if (tursoUrl) {
+  client = createClient({
+    url: tursoUrl,
+    authToken: tursoAuthToken,
+  });
+} else {
+  const rawPath = process.env.DATABASE_URL || "file:arabic_club.db";
+  let finalUrl = rawPath;
+  if (!rawPath.startsWith("file:") && !rawPath.startsWith("http:") && !rawPath.startsWith("https:")) {
+    const resolvedPath = path.resolve(/*turbopackIgnore: true*/ rawPath);
+    const dbDir = path.dirname(resolvedPath);
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+    finalUrl = `file:${resolvedPath}`;
+  }
+  client = createClient({
+    url: finalUrl,
+  });
+}
+
+export const sqlite = client;
+export const db = drizzle(client, { schema });
 export type DB = typeof db;
 export * from "./schema";
+
