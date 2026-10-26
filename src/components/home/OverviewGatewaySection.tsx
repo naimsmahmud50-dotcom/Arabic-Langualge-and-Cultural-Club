@@ -126,28 +126,28 @@ export function OverviewGatewaySection({ stats }: OverviewGatewaySectionProps) {
 
   return (
     <section 
-      className="py-16 sm:py-20 bg-[var(--bg-surface)] border-b border-[var(--border-color)]"
+      className="py-10 sm:py-16 lg:py-20 bg-[var(--bg-surface)] border-b border-[var(--border-color)]"
       aria-label="Institutional Gateway Portals"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
+        <div className="text-center max-w-3xl mx-auto space-y-2 sm:space-y-3">
           <Badge variant="accent" size="sm">
             Institutional Portals
           </Badge>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)] font-serif tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)] font-serif tracking-tight leading-tight">
             Explore Society Divisions & Archives
           </h2>
           <p className="font-arabic text-sm sm:text-base text-[var(--brand-accent)] font-medium" dir="rtl">
             تصفح الأقسام الأكاديمية والفعاليات والأرشيف الرقمي المستقل
           </p>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed pt-1">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed pt-0.5 sm:pt-1">
             Each major division operates as a dedicated standalone portal with full archival records, deep-linking, and independent filtering.
           </p>
         </div>
 
         {/* 6 Grid Gateways */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {gateways.map((item, idx) => {
             const Icon = item.icon;
             return (
@@ -156,7 +156,7 @@ export function OverviewGatewaySection({ stats }: OverviewGatewaySectionProps) {
                 hoverElevate 
                 className="border-[var(--border-color)] bg-[var(--bg-surface-elevated)] flex flex-col justify-between transition-all duration-200"
               >
-                <CardContent className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
                     {/* Top Row: Icon and Badge */}
                     <div className="flex items-center justify-between">
@@ -198,8 +198,8 @@ export function OverviewGatewaySection({ stats }: OverviewGatewaySectionProps) {
                     <Link href={item.href} className="block">
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="w-full justify-between text-xs font-semibold text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/10 px-2"
+                        size="md"
+                        className="w-full justify-between min-h-[44px] text-xs font-semibold text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/10 px-3"
                         rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
                       >
                         <span>{item.cta}</span>

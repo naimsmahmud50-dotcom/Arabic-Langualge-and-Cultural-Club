@@ -243,7 +243,7 @@ export function MembershipApplicationForm() {
   // APPLICATION INPUT FORM
   // --------------------------------------------------------------------------
   return (
-    <Card className="border-[var(--border-color)] p-8 space-y-8 shadow-sm">
+    <Card className="border-[var(--border-color)] p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 shadow-sm">
       <div className="space-y-2 border-b border-[var(--border-color)] pb-6">
         <Badge variant="accent" size="sm">Official Enrollment Form</Badge>
         <h2 className="text-2xl font-bold text-[var(--text-primary)]">
@@ -338,7 +338,7 @@ export function MembershipApplicationForm() {
                 name="academicLevel"
                 value={formData.academicLevel}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 rounded-[5px] text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)]"
+                className="w-full px-3.5 py-2.5 rounded-[5px] text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)] min-h-[44px]"
               >
                 <option value="1st Year (Freshman)">1st Year (Freshman)</option>
                 <option value="2nd Year (Sophomore)">2nd Year (Sophomore)</option>
@@ -395,7 +395,7 @@ export function MembershipApplicationForm() {
               name="arabicProficiency"
               value={formData.arabicProficiency}
               onChange={handleChange}
-              className="w-full px-3.5 py-2.5 rounded-[5px] text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)]"
+              className="w-full px-3.5 py-2.5 rounded-[5px] text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-accent)] min-h-[44px]"
             >
               <option value="beginner">Beginner — Learning alphabet, phonetics, and basic vocabulary</option>
               <option value="intermediate">Intermediate — Functional conversation, elementary grammar (Nahw)</option>
@@ -472,7 +472,7 @@ export function MembershipApplicationForm() {
           variant="accent"
           size="lg"
           disabled={isPending}
-          className="w-full justify-center bg-[var(--brand-primary)] hover:bg-[var(--brand-dark)] text-white font-semibold py-3"
+          className="w-full justify-center bg-[var(--brand-primary)] hover:bg-[var(--brand-dark)] text-white font-semibold py-3 min-h-[44px]"
         >
           {isPending ? (
             <span>Persisting Admissions Dossier...</span>

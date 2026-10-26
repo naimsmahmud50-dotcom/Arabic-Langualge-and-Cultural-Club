@@ -313,36 +313,36 @@ export function Header({ settings }: HeaderProps) {
         className={cn(
           "sticky top-0 z-40 w-full box-border border-b transition-[height,background-color,box-shadow,border-color] duration-200 motion-reduce:transition-none",
           isScrolled
-            ? "h-[72px] bg-[var(--bg-surface)]/95 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.35)] border-[var(--border-color)]"
-            : "h-[80px] bg-[var(--bg-surface)]/90 backdrop-blur-sm border-[var(--border-color)]/70"
+            ? "h-14 sm:h-16 lg:h-[72px] bg-[var(--bg-surface)]/95 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.35)] border-[var(--border-color)]"
+            : "h-16 sm:h-20 lg:h-[80px] bg-[var(--bg-surface)]/90 backdrop-blur-sm border-[var(--border-color)]/70"
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-          <div className="flex items-center justify-between gap-2 sm:gap-4 h-full">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 h-full min-w-0">
             {/* 1. Brand Identity Block */}
             <Link
               href="/"
-              className="flex items-center gap-2.5 sm:gap-3.5 group select-none shrink-0"
+              className="flex items-center gap-2 sm:gap-3.5 group select-none shrink min-w-0"
               title={`${brandTitle} — ${collegeTitle}`}
             >
-              {/* Official Crest: 48-52px */}
+              {/* Official Crest: 38-50px */}
               <ClubLogo
                 variant="crest"
                 size="custom"
                 src={logoCrestUrl}
                 priority
-                className="w-11 h-11 sm:w-12 sm:h-12 lg:w-[50px] lg:h-[50px] shrink-0 object-contain drop-shadow-xs transition-transform duration-200 group-hover:scale-[1.03] motion-reduce:transform-none"
+                className="w-9 h-9 sm:w-11 sm:h-11 lg:w-[50px] lg:h-[50px] shrink-0 object-contain drop-shadow-xs transition-transform duration-200 group-hover:scale-[1.03] motion-reduce:transform-none"
               />
 
-              <div className="flex flex-col justify-center text-start">
-                {/* Club Name: Bold 20-22px on one line desktop, clean truncate on small screens */}
-                <span className="font-bold text-[16px] xs:text-[18px] sm:text-[20px] lg:text-[21px] xl:text-[22px] leading-tight tracking-tight text-[var(--text-primary)] max-w-[200px] xs:max-w-[240px] sm:max-w-none truncate sm:whitespace-nowrap group-hover:text-[var(--brand-accent)] transition-colors">
+              <div className="flex flex-col justify-center text-start min-w-0">
+                {/* Club Name: Bold 14.5px mobile, 20-22px desktop */}
+                <span className="font-bold text-[14.5px] xs:text-[16px] sm:text-[19px] lg:text-[21px] xl:text-[22px] leading-tight tracking-tight text-[var(--text-primary)] truncate group-hover:text-[var(--brand-accent)] transition-colors">
                   {brandTitle}
                 </span>
 
-                {/* College Name: 12-13px muted, with Arabic line beside it on sm+ */}
-                <div className="flex items-center gap-2 mt-0.5 whitespace-nowrap">
-                  <span className="text-[11.5px] sm:text-[12.5px] font-medium text-[var(--text-secondary)] leading-tight whitespace-nowrap">
+                {/* College Name: 11-13px muted, with Arabic line beside it on sm+ */}
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 whitespace-nowrap min-w-0">
+                  <span className="text-[11px] sm:text-[12.5px] font-medium text-[var(--text-secondary)] leading-tight truncate">
                     {collegeTitle}
                   </span>
                   <span className="hidden sm:inline-block text-[var(--border-subtle)] text-[10px]" aria-hidden="true">•</span>
@@ -374,7 +374,6 @@ export function Header({ settings }: HeaderProps) {
                     <Link
                       key={group.id}
                       href={group.href}
-                      prefetch={false}
                       className={cn(
                         "relative inline-flex items-center py-2 px-3 rounded-[6px] text-[13.5px] font-semibold tracking-wide transition-colors duration-150 select-none whitespace-nowrap",
                         "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--brand-accent)]",
@@ -515,7 +514,7 @@ export function Header({ settings }: HeaderProps) {
               {hasAdminSession && (
                 <Link
                   href="/admin"
-                  className="hidden sm:inline-flex p-2 rounded-[6px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--brand-accent)] hover:border-[var(--brand-accent)] hover:bg-[var(--bg-surface-hover)] transition-all cursor-pointer shadow-2xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--brand-accent)]"
+                  className="hidden md:inline-flex p-2 rounded-[6px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--brand-accent)] hover:border-[var(--brand-accent)] hover:bg-[var(--bg-surface-hover)] transition-all cursor-pointer shadow-2xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--brand-accent)]"
                   title={t("nav.adminPortal", "Admin Portal")}
                   aria-label={t("nav.adminPortal", "Admin Portal")}
                 >
@@ -523,23 +522,23 @@ export function Header({ settings }: HeaderProps) {
                 </Link>
               )}
 
-              {/* Compact Language Selector Dropdown (visible sm+) */}
-              <div className="hidden sm:inline-block">
+              {/* Compact Language Selector Dropdown (visible lg+) */}
+              <div className="hidden lg:inline-block">
                 <LanguageSwitcher variant="compact" />
               </div>
 
-              {/* Compact Theme Switcher (visible sm+) */}
-              <div className="hidden sm:inline-block">
+              {/* Compact Theme Switcher (visible lg+) */}
+              <div className="hidden lg:inline-block">
                 <ThemeToggle />
               </div>
 
-              {/* Primary Gold CTA Button: Join Club (No text wrapping, clear padding, arrow icon) */}
-              <Link href={ctaLink} className="hidden sm:inline-flex shrink-0">
+              {/* Primary Gold CTA Button: Join Club (visible md+) */}
+              <Link href={ctaLink} className="hidden md:inline-flex shrink-0">
                 <button
                   type="button"
                   className={cn(
-                    "group inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2 rounded-[6px]",
-                    "bg-[var(--brand-accent)] text-[#17211D] font-bold text-[13px] sm:text-[13.5px] tracking-wide",
+                    "group inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-[6px]",
+                    "bg-[var(--brand-accent)] text-[#17211D] font-bold text-[12.5px] sm:text-[13px] tracking-wide",
                     "hover:brightness-105 active:scale-[0.98] transition-all duration-150 shadow-xs cursor-pointer select-none",
                     "whitespace-nowrap shrink-0",
                     "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--brand-accent)]"
@@ -556,11 +555,11 @@ export function Header({ settings }: HeaderProps) {
                 </button>
               </Link>
 
-              {/* Responsive Hamburger Trigger (Visible below 1024px) */}
+              {/* Responsive Hamburger Trigger (Visible below 1024px) - Minimum 44x44px touch target */}
               <button
                 type="button"
                 onClick={() => setMobileNavOpen(true)}
-                className="lg:hidden p-2 rounded-[6px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--brand-accent)]"
+                className="lg:hidden w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-[6px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--brand-accent)] shrink-0"
                 aria-label="Open navigation menu"
                 aria-expanded={mobileNavOpen}
               >

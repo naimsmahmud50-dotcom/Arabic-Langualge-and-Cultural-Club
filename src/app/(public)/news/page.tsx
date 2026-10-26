@@ -99,7 +99,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-10">
         {/* 2. Filter Bar & Search */}
         <div className="bg-[var(--bg-surface)] p-4 sm:p-6 rounded-[8px] border border-[var(--border-color)] space-y-4">
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
@@ -116,7 +116,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                   <Link
                     key={c.value}
                     href={targetUrl}
-                    className={`px-3.5 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-all border ${
+                    className={`px-3.5 py-1.5 rounded-[5px] text-xs font-semibold tracking-wide transition-all border min-h-[36px] flex items-center ${
                       isSelected
                         ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-sm"
                         : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border-color)] hover:border-[var(--brand-accent)] hover:text-[var(--text-primary)]"
@@ -137,7 +137,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                 name="q"
                 defaultValue={searchQuery}
                 placeholder="Search circulars..."
-                className="w-full pl-9 pr-4 py-1.5 text-xs rounded-[5px] bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--brand-accent)]"
+                className="w-full pl-9 pr-4 py-2.5 text-xs rounded-[5px] bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--brand-accent)] min-h-[44px]"
               />
             </form>
           </div>
@@ -211,9 +211,9 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                     </div>
                   </CardContent>
 
-                  <div className="p-6 pt-0">
+                  <div className="p-4 sm:p-6 pt-0">
                     <Link href={`/news/${item.slug}`} className="w-full block">
-                      <Button variant="primary" size="sm" className="w-full justify-between" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+                      <Button variant="primary" size="sm" className="w-full justify-between min-h-[44px]" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
                         <span>Read Full Official Dossier</span>
                       </Button>
                     </Link>
@@ -234,14 +234,14 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
           )}
 
           {regularAnnouncements.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {regularAnnouncements.map((item) => (
                 <Card
                   key={item.id}
                   hoverElevate
                   className="border-[var(--border-color)] flex flex-col justify-between"
                 >
-                  <CardContent className="p-6 space-y-4">
+                  <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                     <div className="flex items-center justify-between">
                       <Badge variant={item.category === "notice" ? "accent" : "neutral"} size="sm" className="capitalize">
                         {item.category || "Official Notice"}
@@ -273,9 +273,9 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                     </div>
                   </CardContent>
 
-                  <div className="p-6 pt-0">
+                  <div className="p-4 sm:p-6 pt-0">
                     <Link href={`/news/${item.slug}`} className="w-full block">
-                      <Button variant="outline" size="sm" className="w-full justify-between" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+                      <Button variant="outline" size="sm" className="w-full justify-between min-h-[44px]" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
                         <span>Read Circular</span>
                       </Button>
                     </Link>

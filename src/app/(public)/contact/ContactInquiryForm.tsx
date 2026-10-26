@@ -204,7 +204,7 @@ export function ContactInquiryForm() {
   // ACTIVE FORM STATE
   return (
     <Card className="border border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur-sm shadow-sm">
-      <CardContent className="p-6 md:p-8 space-y-6">
+      <CardContent className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
         <div>
           <Badge variant="neutral" size="sm">Direct Correspondence</Badge>
           <h3 className="text-xl font-serif font-bold text-stone-900 dark:text-stone-100 mt-2">
@@ -277,7 +277,7 @@ export function ContactInquiryForm() {
                 name="department"
                 value={formData.department}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 rounded-[6px] text-xs bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#173D32]"
+                className="w-full px-3.5 py-2.5 rounded-[6px] text-xs bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#173D32] min-h-[44px]"
               >
                 <option value="general">General Secretariat (General Inquiries)</option>
                 <option value="academic">Academic & Arabic Learning Inquiries</option>
@@ -339,7 +339,7 @@ export function ContactInquiryForm() {
             <Button
               type="submit"
               disabled={isPending}
-              className="bg-[#173D32] hover:bg-[#122e26] text-white text-xs font-medium px-6 py-2.5 rounded-lg flex items-center gap-2"
+              className="w-full sm:w-auto min-h-[44px] justify-center bg-[#173D32] hover:bg-[#122e26] text-white text-xs font-medium px-6 py-2.5 rounded-lg flex items-center gap-2"
             >
               {isPending ? (
                 <>

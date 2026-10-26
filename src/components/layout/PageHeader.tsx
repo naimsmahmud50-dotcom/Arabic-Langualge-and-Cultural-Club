@@ -27,10 +27,10 @@ export function PageHeader({
   breadcrumbs,
 }: PageHeaderProps) {
   return (
-    <div className="relative pt-10 pb-8 border-b border-[var(--border-color)] bg-[var(--bg-surface-elevated)]/60">
+    <div className="relative py-6 sm:py-8 lg:py-10 border-b border-[var(--border-color)] bg-[var(--bg-surface-elevated)]/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb Navigation */}
-        <div className="mb-4">
+        <div className="mb-3 sm:mb-4">
           <Breadcrumbs items={breadcrumbs} />
         </div>
 
@@ -38,19 +38,19 @@ export function PageHeader({
         <div className="space-y-2">
           {badge && <Badge variant="accent" size="sm">{badge}</Badge>}
           
-          <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--text-primary)]">
+          <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1.5 sm:gap-2">
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl font-bold tracking-tight text-[var(--text-primary)] leading-tight">
               {title}
             </h1>
             {titleAr && (
-              <span className="font-arabic text-xl sm:text-2xl text-[var(--brand-accent-text)] font-semibold" dir="rtl">
+              <span className="font-arabic text-lg sm:text-xl md:text-2xl text-[var(--brand-accent-text)] font-semibold leading-relaxed" dir="rtl">
                 {titleAr}
               </span>
             )}
           </div>
 
           {description && (
-            <p className="text-base text-[var(--text-secondary)] max-w-3xl leading-relaxed pt-1">
+            <p className="text-xs sm:text-sm md:text-base text-[var(--text-secondary)] max-w-3xl leading-relaxed pt-0.5 sm:pt-1">
               {description}
             </p>
           )}

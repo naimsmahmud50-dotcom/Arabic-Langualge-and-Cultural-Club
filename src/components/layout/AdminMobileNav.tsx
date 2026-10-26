@@ -110,7 +110,7 @@ export function AdminMobileNav({ isOpen, onClose, user }: AdminMobileNavProps) {
             type="button"
             onClick={onClose}
             aria-label="Close navigation menu"
-            className="p-1.5 rounded-[4px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors"
+            className="w-11 h-11 flex items-center justify-center rounded-[6px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -136,7 +136,7 @@ export function AdminMobileNav({ isOpen, onClose, user }: AdminMobileNavProps) {
                         key={item.href}
                         href={item.href}
                         onClick={onClose}
-                        className={`flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-semibold transition-colors ${
+                        className={`flex items-center gap-2.5 px-3 py-2.5 min-h-[44px] rounded-[6px] text-xs font-semibold transition-colors ${
                           isActive
                             ? "bg-[var(--brand-primary)] text-[var(--brand-primary-fg)] shadow-xs"
                             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]"

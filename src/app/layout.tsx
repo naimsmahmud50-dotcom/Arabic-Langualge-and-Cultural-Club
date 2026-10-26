@@ -17,13 +17,14 @@
  * - Human-crafted: strictly zero AI emojis; clean semantic tokens.
  */
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Manrope, Amiri, Noto_Naskh_Arabic, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getSiteSettings } from "@/lib/settings";
 import { ToastProvider } from "@/components/ui";
+import { RouteProgressBar } from "@/components/layout/RouteProgressBar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -62,6 +63,16 @@ const notoBengali = Noto_Sans_Bengali({
   variable: "--font-noto-bengali",
   preload: false,
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F5F0E5" },
+    { media: "(prefers-color-scheme: dark)", color: "#17211D" },
+  ],
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -216,6 +227,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <LanguageProvider>
+          <RouteProgressBar />
           <ToastProvider>
             {children}
           </ToastProvider>

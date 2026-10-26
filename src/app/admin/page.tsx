@@ -133,14 +133,14 @@ export default async function AdminDashboardPage() {
         ]}
       />
 
-      <div className="p-4 sm:p-6 lg:p-8 space-y-8 max-w-7xl">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-w-7xl">
         {/* Metric Overview Grid (6 Truthful Cards) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {statCards.map((stat, idx) => {
             const Icon = stat.icon;
             return (
               <Card key={idx} hoverElevate className="border-[var(--border-color)]">
-                <CardContent className="p-5 space-y-3.5">
+                <CardContent className="p-4 sm:p-5 space-y-3 sm:space-y-3.5">
                   <div className="flex items-center justify-between">
                     <div className="w-9 h-9 rounded-[6px] bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center">
                       <Icon className="w-5 h-5 stroke-[1.75]" />
@@ -151,7 +151,7 @@ export default async function AdminDashboardPage() {
                   </div>
 
                   <div>
-                    <span className="text-3xl font-bold font-mono text-[var(--text-primary)]">
+                    <span className="text-2xl sm:text-3xl font-bold font-mono text-[var(--text-primary)]">
                       {stat.value}
                     </span>
                     <h3 className="text-xs font-bold text-[var(--text-primary)] mt-1 uppercase tracking-wider">
@@ -165,7 +165,7 @@ export default async function AdminDashboardPage() {
                   <div className="pt-2 border-t border-[var(--border-subtle)]">
                     <Link
                       href={stat.href}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--brand-accent)] hover:underline"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--brand-accent)] hover:underline min-h-[32px]"
                     >
                       Manage Module <ArrowRight className="w-3 h-3" />
                     </Link>
@@ -177,48 +177,48 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Quick Operations & Recent Audit Logs */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Quick Action Shortcuts */}
           <div className="space-y-6">
-            <Card className="border-[var(--border-color)] p-6 space-y-4">
+            <Card className="border-[var(--border-color)] p-4 sm:p-6 space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--brand-accent)]">
                 Institutional Actions
               </h3>
               <div className="space-y-2">
                 <Link href="/admin/events" className="block">
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                  <Button variant="outline" size="sm" className="w-full justify-start text-xs min-h-[44px]">
                     + Add New Calendar Event
                   </Button>
                 </Link>
                 <Link href="/admin/news" className="block">
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                  <Button variant="outline" size="sm" className="w-full justify-start text-xs min-h-[44px]">
                     + Post Official Announcement
                   </Button>
                 </Link>
                 <Link href="/admin/gallery" className="block">
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs font-semibold text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/10">
+                  <Button variant="outline" size="sm" className="w-full justify-start text-xs font-semibold text-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/10 min-h-[44px]">
                     + Upload Photos & Manage Albums (Gallery)
                   </Button>
                 </Link>
                 <Link href="/admin/resources" className="block">
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                  <Button variant="outline" size="sm" className="w-full justify-start text-xs min-h-[44px]">
                     + Publish Arabic Learning Material
                   </Button>
                 </Link>
                 <Link href="/admin/applications" className="block">
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                  <Button variant="outline" size="sm" className="w-full justify-start text-xs min-h-[44px]">
                     Review Membership Queue
                   </Button>
                 </Link>
                 <Link href="/admin/inquiries" className="block">
-                  <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                  <Button variant="outline" size="sm" className="w-full justify-start text-xs min-h-[44px]">
                     Review Secretariat Inquiries
                   </Button>
                 </Link>
               </div>
             </Card>
 
-            <Card className="border-[var(--border-color)] bg-[var(--bg-surface-elevated)] p-6 space-y-3">
+            <Card className="border-[var(--border-color)] bg-[var(--bg-surface-elevated)] p-4 sm:p-6 space-y-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
@@ -237,7 +237,7 @@ export default async function AdminDashboardPage() {
 
           {/* Real-time Audit Trail Table */}
           <div className="lg:col-span-2">
-            <Card className="border-[var(--border-color)] p-6 space-y-4">
+            <Card className="border-[var(--border-color)] p-4 sm:p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-[var(--text-primary)]">

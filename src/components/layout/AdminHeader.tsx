@@ -121,9 +121,9 @@ export function AdminHeader({
               type="button"
               onClick={toggleMobileNav}
               aria-label="Open mobile navigation menu"
-              className="md:hidden p-1.5 rounded-[5px] border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors shrink-0 cursor-pointer"
+              className="md:hidden w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[5px] border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors shrink-0 cursor-pointer"
             >
-              <Menu className="w-4 h-4" />
+              <Menu className="w-5 h-5" />
             </button>
           )}
 

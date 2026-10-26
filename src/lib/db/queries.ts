@@ -34,6 +34,7 @@ import {
   users
 } from "./schema";
 import { eq, ne, desc, asc, and, like, or, count, sql, inArray } from "drizzle-orm";
+import { createCachedQuery } from "@/lib/cache/query-cache";
 
 // ----------------------------------------------------------------------
 // PUBLIC QUERIES (Zero Sensitive Data Exposure)
@@ -42,178 +43,202 @@ import { eq, ne, desc, asc, and, like, or, count, sql, inArray } from "drizzle-o
 /**
  * Fetch verified founders for the public narrative.
  */
-export async function getPublicFounders() {
-  return await db.select({
-    id: founders.id,
-    nameEn: founders.nameEn,
-    nameAr: founders.nameAr,
-    portraitUrl: founders.portraitUrl,
-    roleTitleEn: founders.roleTitleEn,
-    roleTitleAr: founders.roleTitleAr,
-    bioEn: founders.bioEn,
-    bioAr: founders.bioAr,
-    foundingYear: founders.foundingYear,
-  })
-  .from(founders)
-  .where(eq(founders.isPublished, true))
-  .orderBy(asc(founders.sortOrder));
-}
+export const getPublicFounders = createCachedQuery(
+  async function getPublicFoundersDirect() {
+    return await db.select({
+      id: founders.id,
+      nameEn: founders.nameEn,
+      nameAr: founders.nameAr,
+      portraitUrl: founders.portraitUrl,
+      roleTitleEn: founders.roleTitleEn,
+      roleTitleAr: founders.roleTitleAr,
+      bioEn: founders.bioEn,
+      bioAr: founders.bioAr,
+      foundingYear: founders.foundingYear,
+    })
+    .from(founders)
+    .where(eq(founders.isPublished, true))
+    .orderBy(asc(founders.sortOrder));
+  },
+  ["public-founders"],
+  { tags: ["founders"], revalidate: 60 }
+);
 
 /**
  * Fetch active committee term and historical terms list.
  */
-export async function getCommitteeTerms() {
-  return await db.select({
-    id: committeeTerms.id,
-    academicYear: committeeTerms.academicYear,
-    titleEn: committeeTerms.titleEn,
-    titleAr: committeeTerms.titleAr,
-    isCurrent: committeeTerms.isCurrent,
-    startDate: committeeTerms.startDate,
-    endDate: committeeTerms.endDate,
-    summaryEn: committeeTerms.summaryEn,
-    summaryAr: committeeTerms.summaryAr,
-  })
-  .from(committeeTerms)
-  .orderBy(desc(committeeTerms.startDate));
-}
+export const getCommitteeTerms = createCachedQuery(
+  async function getCommitteeTermsDirect() {
+    return await db.select({
+      id: committeeTerms.id,
+      academicYear: committeeTerms.academicYear,
+      titleEn: committeeTerms.titleEn,
+      titleAr: committeeTerms.titleAr,
+      isCurrent: committeeTerms.isCurrent,
+      startDate: committeeTerms.startDate,
+      endDate: committeeTerms.endDate,
+      summaryEn: committeeTerms.summaryEn,
+      summaryAr: committeeTerms.summaryAr,
+    })
+    .from(committeeTerms)
+    .orderBy(desc(committeeTerms.startDate));
+  },
+  ["committee-terms"],
+  { tags: ["committee-terms"], revalidate: 60 }
+);
 
 /**
  * Fetch committee members for a specific term (Current or Historical Archive).
  * Notice: Email, phone, studentId are completely excluded from the projection.
  */
-export async function getCommitteeMembersByTerm(termId: string) {
-  return await db.select({
-    assignmentId: committeeAssignments.id,
-    positionTitleEn: committeeAssignments.positionTitleEn,
-    positionTitleAr: committeeAssignments.positionTitleAr,
-    rankOrder: committeeAssignments.rankOrder,
-    roleDescription: committeeAssignments.roleDescription,
-    memberId: members.id,
-    membershipId: members.membershipId,
-    fullNameEn: members.fullNameEn,
-    fullNameAr: members.fullNameAr,
-    photoUrl: members.photoUrl,
-    bioEn: members.bioEn,
-    bioAr: members.bioAr,
-  })
-  .from(committeeAssignments)
-  .innerJoin(members, eq(committeeAssignments.memberId, members.id))
-  .where(eq(committeeAssignments.termId, termId))
-  .orderBy(asc(committeeAssignments.rankOrder));
-}
+export const getCommitteeMembersByTerm = createCachedQuery(
+  async function getCommitteeMembersByTermDirect(termId: string) {
+    return await db.select({
+      assignmentId: committeeAssignments.id,
+      positionTitleEn: committeeAssignments.positionTitleEn,
+      positionTitleAr: committeeAssignments.positionTitleAr,
+      rankOrder: committeeAssignments.rankOrder,
+      roleDescription: committeeAssignments.roleDescription,
+      memberId: members.id,
+      membershipId: members.membershipId,
+      fullNameEn: members.fullNameEn,
+      fullNameAr: members.fullNameAr,
+      photoUrl: members.photoUrl,
+      bioEn: members.bioEn,
+      bioAr: members.bioAr,
+    })
+    .from(committeeAssignments)
+    .innerJoin(members, eq(committeeAssignments.memberId, members.id))
+    .where(eq(committeeAssignments.termId, termId))
+    .orderBy(asc(committeeAssignments.rankOrder));
+  },
+  ["committee-members-by-term"],
+  { tags: ["committee-terms", "committee-members"], revalidate: 60 }
+);
 
 /**
  * Fetch public member directory.
  * Strictly respects isPublic = true and excludes private personal contacts.
  */
-export async function getPublicMembers(params: { page?: number; limit?: number; search?: string } = {}) {
-  const page = Math.max(1, params.page || 1);
-  const limit = Math.min(50, Math.max(1, params.limit || 12));
-  const offset = (page - 1) * limit;
+export const getPublicMembers = createCachedQuery(
+  async function getPublicMembersDirect(params: { page?: number; limit?: number; search?: string } = {}) {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.min(50, Math.max(1, params.limit || 12));
+    const offset = (page - 1) * limit;
 
-  const conditions = [eq(members.isPublic, true), eq(members.status, "active")];
-  if (params.search) {
-    const s = `%${params.search}%`;
-    conditions.push(or(like(members.fullNameEn, s), like(members.fullNameAr, s))!);
-  }
+    const conditions = [eq(members.isPublic, true), eq(members.status, "active")];
+    if (params.search) {
+      const s = `%${params.search}%`;
+      conditions.push(or(like(members.fullNameEn, s), like(members.fullNameAr, s))!);
+    }
 
-  const data = await db.select({
-    id: members.id,
-    membershipId: members.membershipId,
-    fullNameEn: members.fullNameEn,
-    fullNameAr: members.fullNameAr,
-    photoUrl: members.photoUrl,
-    status: members.status,
-    bioEn: members.bioEn,
-    bioAr: members.bioAr,
-    joinedAt: members.joinedAt,
-  })
-  .from(members)
-  .where(and(...conditions))
-  .orderBy(asc(members.fullNameEn))
-  .limit(limit)
-  .offset(offset);
-
-  const [{ total }] = await db.select({ total: count() })
+    const data = await db.select({
+      id: members.id,
+      membershipId: members.membershipId,
+      fullNameEn: members.fullNameEn,
+      fullNameAr: members.fullNameAr,
+      photoUrl: members.photoUrl,
+      status: members.status,
+      bioEn: members.bioEn,
+      bioAr: members.bioAr,
+      joinedAt: members.joinedAt,
+    })
     .from(members)
-    .where(and(...conditions));
+    .where(and(...conditions))
+    .orderBy(asc(members.fullNameEn))
+    .limit(limit)
+    .offset(offset);
 
-  return {
-    data,
-    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
-  };
-}
+    const [{ total }] = await db.select({ total: count() })
+      .from(members)
+      .where(and(...conditions));
+
+    return {
+      data,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+    };
+  },
+  ["public-members"],
+  { tags: ["members"], revalidate: 60 }
+);
 
 /**
  * Fetch upcoming and past events with pagination and category filtering.
  */
-export async function getPublicEvents(params: { 
-  status?: "upcoming" | "past"; 
-  category?: string; 
-  page?: number; 
-  limit?: number; 
-} = {}) {
-  const page = Math.max(1, params.page || 1);
-  const limit = Math.min(50, Math.max(1, params.limit || 9));
-  const offset = (page - 1) * limit;
-  const now = new Date();
+export const getPublicEvents = createCachedQuery(
+  async function getPublicEventsDirect(params: { 
+    status?: "upcoming" | "past"; 
+    category?: string; 
+    page?: number; 
+    limit?: number; 
+  } = {}) {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.min(50, Math.max(1, params.limit || 9));
+    const offset = (page - 1) * limit;
+    const now = new Date();
 
-  const conditions = [eq(events.isPublished, true)];
+    const conditions = [eq(events.isPublished, true)];
 
-  if (params.status === "upcoming") {
-    conditions.push(sql`${events.startTime} >= ${Math.floor(now.getTime() / 1000)}`);
-  } else if (params.status === "past") {
-    conditions.push(sql`${events.startTime} < ${Math.floor(now.getTime() / 1000)}`);
-  }
+    if (params.status === "upcoming") {
+      conditions.push(sql`${events.startTime} >= ${Math.floor(now.getTime() / 1000)}`);
+    } else if (params.status === "past") {
+      conditions.push(sql`${events.startTime} < ${Math.floor(now.getTime() / 1000)}`);
+    }
 
-  if (params.category && params.category !== "all") {
-    conditions.push(eq(events.category, params.category));
-  }
+    if (params.category && params.category !== "all") {
+      conditions.push(eq(events.category, params.category));
+    }
 
-  const data = await db.select({
-    id: events.id,
-    slug: events.slug,
-    titleEn: events.titleEn,
-    titleAr: events.titleAr,
-    summaryEn: events.summaryEn,
-    summaryAr: events.summaryAr,
-    category: events.category,
-    startTime: events.startTime,
-    endTime: events.endTime,
-    venue: events.venue,
-    coverImageUrl: events.coverImageUrl,
-    status: events.status,
-    capacity: events.capacity,
-    isRegistrationOpen: events.isRegistrationOpen,
-  })
-  .from(events)
-  .where(and(...conditions))
-  .orderBy(params.status === "past" ? desc(events.startTime) : asc(events.startTime))
-  .limit(limit)
-  .offset(offset);
-
-  const [{ total }] = await db.select({ total: count() })
+    const data = await db.select({
+      id: events.id,
+      slug: events.slug,
+      titleEn: events.titleEn,
+      titleAr: events.titleAr,
+      summaryEn: events.summaryEn,
+      summaryAr: events.summaryAr,
+      category: events.category,
+      startTime: events.startTime,
+      endTime: events.endTime,
+      venue: events.venue,
+      coverImageUrl: events.coverImageUrl,
+      status: events.status,
+      capacity: events.capacity,
+      isRegistrationOpen: events.isRegistrationOpen,
+    })
     .from(events)
-    .where(and(...conditions));
+    .where(and(...conditions))
+    .orderBy(params.status === "past" ? desc(events.startTime) : asc(events.startTime))
+    .limit(limit)
+    .offset(offset);
 
-  return {
-    data,
-    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
-  };
-}
+    const [{ total }] = await db.select({ total: count() })
+      .from(events)
+      .where(and(...conditions));
+
+    return {
+      data,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+    };
+  },
+  ["public-events"],
+  { tags: ["events"], revalidate: 60 }
+);
 
 /**
  * Fetch single event details by slug.
  */
-export async function getPublicEventBySlug(slug: string) {
-  const result = await db.select()
-    .from(events)
-    .where(and(eq(events.slug, slug), eq(events.isPublished, true)))
-    .limit(1);
+export const getPublicEventBySlug = createCachedQuery(
+  async function getPublicEventBySlugDirect(slug: string) {
+    const result = await db.select()
+      .from(events)
+      .where(and(eq(events.slug, slug), eq(events.isPublished, true)))
+      .limit(1);
 
-  return result[0] || null;
-}
+    return result[0] || null;
+  },
+  ["public-event-by-slug"],
+  { tags: ["events"], revalidate: 60 }
+);
 
 /**
  * Fetch registration statistics and seating availability for an event.
@@ -372,64 +397,72 @@ export async function registerAttendeeForEvent(data: {
  * Supports filtering by academic year, category, and status.
  * Left-joins related event slug and title for seamless registration links.
  */
-export async function getPublicAnnualPlans(options: { 
-  academicYear?: string; 
-  category?: string; 
-  status?: string; 
-} | string = {}) {
-  const opts = typeof options === "string" ? { academicYear: options } : options;
-  const conditions = [eq(annualPlans.isPublished, true)];
+export const getPublicAnnualPlans = createCachedQuery(
+  async function getPublicAnnualPlansDirect(options: { 
+    academicYear?: string; 
+    category?: string; 
+    status?: string; 
+  } | string = {}) {
+    const opts = typeof options === "string" ? { academicYear: options } : options;
+    const conditions = [eq(annualPlans.isPublished, true)];
 
-  if (opts.academicYear && opts.academicYear !== "all") {
-    conditions.push(eq(annualPlans.academicYear, opts.academicYear));
-  }
-  if (opts.category && opts.category !== "all") {
-    conditions.push(eq(annualPlans.category, opts.category));
-  }
-  if (opts.status && opts.status !== "all") {
-    conditions.push(eq(annualPlans.status, opts.status as any));
-  }
+    if (opts.academicYear && opts.academicYear !== "all") {
+      conditions.push(eq(annualPlans.academicYear, opts.academicYear));
+    }
+    if (opts.category && opts.category !== "all") {
+      conditions.push(eq(annualPlans.category, opts.category));
+    }
+    if (opts.status && opts.status !== "all") {
+      conditions.push(eq(annualPlans.status, opts.status as any));
+    }
 
-  return await db.select({
-    id: annualPlans.id,
-    academicYear: annualPlans.academicYear,
-    monthNumber: annualPlans.monthNumber,
-    activityTitleEn: annualPlans.activityTitleEn,
-    activityTitleAr: annualPlans.activityTitleAr,
-    descriptionEn: annualPlans.descriptionEn,
-    descriptionAr: annualPlans.descriptionAr,
-    category: annualPlans.category,
-    status: annualPlans.status,
-    targetDate: annualPlans.targetDate,
-    time: annualPlans.time,
-    location: annualPlans.location,
-    relatedEventId: annualPlans.relatedEventId,
-    relatedEventSlug: events.slug,
-    relatedEventTitle: events.titleEn,
-    documentUrl: annualPlans.documentUrl,
-    documentTitle: annualPlans.documentTitle,
-    notes: annualPlans.notes,
-    isPublished: annualPlans.isPublished,
-  })
-  .from(annualPlans)
-  .leftJoin(events, eq(annualPlans.relatedEventId, events.id))
-  .where(and(...conditions))
-  .orderBy(asc(annualPlans.monthNumber), asc(annualPlans.targetDate));
-}
+    return await db.select({
+      id: annualPlans.id,
+      academicYear: annualPlans.academicYear,
+      monthNumber: annualPlans.monthNumber,
+      activityTitleEn: annualPlans.activityTitleEn,
+      activityTitleAr: annualPlans.activityTitleAr,
+      descriptionEn: annualPlans.descriptionEn,
+      descriptionAr: annualPlans.descriptionAr,
+      category: annualPlans.category,
+      status: annualPlans.status,
+      targetDate: annualPlans.targetDate,
+      time: annualPlans.time,
+      location: annualPlans.location,
+      relatedEventId: annualPlans.relatedEventId,
+      relatedEventSlug: events.slug,
+      relatedEventTitle: events.titleEn,
+      documentUrl: annualPlans.documentUrl,
+      documentTitle: annualPlans.documentTitle,
+      notes: annualPlans.notes,
+      isPublished: annualPlans.isPublished,
+    })
+    .from(annualPlans)
+    .leftJoin(events, eq(annualPlans.relatedEventId, events.id))
+    .where(and(...conditions))
+    .orderBy(asc(annualPlans.monthNumber), asc(annualPlans.targetDate));
+  },
+  ["public-annual-plans"],
+  { tags: ["annual-plans"], revalidate: 60 }
+);
 
 /**
  * Fetch all distinct academic years that have published annual plans.
  */
-export async function getAnnualPlanYears(): Promise<string[]> {
-  const results = await db.selectDistinct({
-    academicYear: annualPlans.academicYear,
-  })
-  .from(annualPlans)
-  .where(eq(annualPlans.isPublished, true))
-  .orderBy(desc(annualPlans.academicYear));
+export const getAnnualPlanYears = createCachedQuery(
+  async function getAnnualPlanYearsDirect(): Promise<string[]> {
+    const results = await db.selectDistinct({
+      academicYear: annualPlans.academicYear,
+    })
+    .from(annualPlans)
+    .where(eq(annualPlans.isPublished, true))
+    .orderBy(desc(annualPlans.academicYear));
 
-  return results.map(r => r.academicYear);
-}
+    return results.map(r => r.academicYear);
+  },
+  ["annual-plan-years"],
+  { tags: ["annual-plans"], revalidate: 60 }
+);
 
 /**
  * ============================================================================
@@ -456,83 +489,91 @@ export interface GetPublicGalleryAlbumsParams {
 /**
  * Fetch photo gallery albums with pagination, category filtering, search, and event linking.
  */
-export async function getPublicGalleryAlbums(params: GetPublicGalleryAlbumsParams = {}) {
-  const page = Math.max(1, params.page || 1);
-  const limit = Math.min(50, Math.max(1, params.limit || 12));
-  const offset = (page - 1) * limit;
-  const conditions = [
-    eq(galleryAlbums.isPublished, true),
-    eq(galleryAlbums.isArchived, false),
-  ];
+export const getPublicGalleryAlbums = createCachedQuery(
+  async function getPublicGalleryAlbumsDirect(params: GetPublicGalleryAlbumsParams = {}) {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.min(50, Math.max(1, params.limit || 12));
+    const offset = (page - 1) * limit;
+    const conditions = [
+      eq(galleryAlbums.isPublished, true),
+      eq(galleryAlbums.isArchived, false),
+    ];
 
-  if (params.year && params.year !== "all") {
-    conditions.push(eq(galleryAlbums.academicYear, params.year));
-  }
+    if (params.year && params.year !== "all") {
+      conditions.push(eq(galleryAlbums.academicYear, params.year));
+    }
 
-  if (params.category && params.category !== "all") {
-    conditions.push(eq(galleryAlbums.category, params.category));
-  }
+    if (params.category && params.category !== "all") {
+      conditions.push(eq(galleryAlbums.category, params.category));
+    }
 
-  if (params.search && params.search.trim()) {
-    const s = `%${params.search.trim()}%`;
-    conditions.push(or(
-      like(galleryAlbums.titleEn, s),
-      like(galleryAlbums.titleAr, s),
-      like(galleryAlbums.descriptionEn, s),
-      like(galleryAlbums.descriptionAr, s),
-      like(galleryAlbums.location, s)
-    )!);
-  }
+    if (params.search && params.search.trim()) {
+      const s = `%${params.search.trim()}%`;
+      conditions.push(or(
+        like(galleryAlbums.titleEn, s),
+        like(galleryAlbums.titleAr, s),
+        like(galleryAlbums.descriptionEn, s),
+        like(galleryAlbums.descriptionAr, s),
+        like(galleryAlbums.location, s)
+      )!);
+    }
 
-  const data = await db.select({
-    id: galleryAlbums.id,
-    slug: galleryAlbums.slug,
-    titleEn: galleryAlbums.titleEn,
-    titleAr: galleryAlbums.titleAr,
-    descriptionEn: galleryAlbums.descriptionEn,
-    descriptionAr: galleryAlbums.descriptionAr,
-    coverImageUrl: galleryAlbums.coverImageUrl,
-    eventDate: galleryAlbums.eventDate,
-    academicYear: galleryAlbums.academicYear,
-    category: galleryAlbums.category,
-    relatedEventId: galleryAlbums.relatedEventId,
-    relatedEventSlug: events.slug,
-    relatedEventTitle: events.titleEn,
-    photographerCredit: galleryAlbums.photographerCredit,
-    location: galleryAlbums.location,
-    isFeatured: galleryAlbums.isFeatured,
-    isPublished: galleryAlbums.isPublished,
-    createdAt: galleryAlbums.createdAt,
-    updatedAt: galleryAlbums.updatedAt,
-    mediaCount: sql<number>`(SELECT COUNT(*) FROM media_assets WHERE media_assets.album_id = ${galleryAlbums.id} AND media_assets.is_published = 1)`.mapWith(Number),
-  })
-  .from(galleryAlbums)
-  .leftJoin(events, eq(galleryAlbums.relatedEventId, events.id))
-  .where(and(...conditions))
-  .orderBy(desc(galleryAlbums.eventDate), desc(galleryAlbums.createdAt))
-  .limit(limit)
-  .offset(offset);
-
-  const [{ total }] = await db.select({ total: count() })
+    const data = await db.select({
+      id: galleryAlbums.id,
+      slug: galleryAlbums.slug,
+      titleEn: galleryAlbums.titleEn,
+      titleAr: galleryAlbums.titleAr,
+      descriptionEn: galleryAlbums.descriptionEn,
+      descriptionAr: galleryAlbums.descriptionAr,
+      coverImageUrl: galleryAlbums.coverImageUrl,
+      eventDate: galleryAlbums.eventDate,
+      academicYear: galleryAlbums.academicYear,
+      category: galleryAlbums.category,
+      relatedEventId: galleryAlbums.relatedEventId,
+      relatedEventSlug: events.slug,
+      relatedEventTitle: events.titleEn,
+      photographerCredit: galleryAlbums.photographerCredit,
+      location: galleryAlbums.location,
+      isFeatured: galleryAlbums.isFeatured,
+      isPublished: galleryAlbums.isPublished,
+      createdAt: galleryAlbums.createdAt,
+      updatedAt: galleryAlbums.updatedAt,
+      mediaCount: sql<number>`(SELECT COUNT(*) FROM media_assets WHERE media_assets.album_id = ${galleryAlbums.id} AND media_assets.is_published = 1)`.mapWith(Number),
+    })
     .from(galleryAlbums)
-    .where(and(...conditions));
+    .leftJoin(events, eq(galleryAlbums.relatedEventId, events.id))
+    .where(and(...conditions))
+    .orderBy(desc(galleryAlbums.eventDate), desc(galleryAlbums.createdAt))
+    .limit(limit)
+    .offset(offset);
 
-  return {
-    data,
-    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
-  };
-}
+    const [{ total }] = await db.select({ total: count() })
+      .from(galleryAlbums)
+      .where(and(...conditions));
+
+    return {
+      data,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+    };
+  },
+  ["public-gallery-albums"],
+  { tags: ["gallery-albums"], revalidate: 60 }
+);
 
 /**
  * Fetch all media assets inside an album.
  * Security: Filters `mediaAssets.isPublished = true` and orders by `sortOrder` ASC.
  */
-export async function getAlbumMediaAssets(albumId: string) {
-  return await db.select()
-    .from(mediaAssets)
-    .where(and(eq(mediaAssets.albumId, albumId), eq(mediaAssets.isPublished, true)))
-    .orderBy(asc(mediaAssets.sortOrder), asc(mediaAssets.createdAt));
-}
+export const getAlbumMediaAssets = createCachedQuery(
+  async function getAlbumMediaAssetsDirect(albumId: string) {
+    return await db.select()
+      .from(mediaAssets)
+      .where(and(eq(mediaAssets.albumId, albumId), eq(mediaAssets.isPublished, true)))
+      .orderBy(asc(mediaAssets.sortOrder), asc(mediaAssets.createdAt));
+  },
+  ["album-media-assets"],
+  { tags: ["gallery-albums", "media-assets"], revalidate: 60 }
+);
 
 /**
  * Fetch all media assets inside an album for admin management (includes drafts and unpublished).
@@ -547,149 +588,165 @@ export async function getAdminAlbumMediaAssets(albumId: string) {
 /**
  * Fetch distinct academic years represented in published gallery albums.
  */
-export async function getPublicGalleryYears(): Promise<string[]> {
-  const results = await db.selectDistinct({
-    academicYear: galleryAlbums.academicYear,
-  })
-  .from(galleryAlbums)
-  .where(and(eq(galleryAlbums.isPublished, true), eq(galleryAlbums.isArchived, false)))
-  .orderBy(desc(galleryAlbums.academicYear));
+export const getPublicGalleryYears = createCachedQuery(
+  async function getPublicGalleryYearsDirect(): Promise<string[]> {
+    const results = await db.selectDistinct({
+      academicYear: galleryAlbums.academicYear,
+    })
+    .from(galleryAlbums)
+    .where(and(eq(galleryAlbums.isPublished, true), eq(galleryAlbums.isArchived, false)))
+    .orderBy(desc(galleryAlbums.academicYear));
 
-  return results.map(r => r.academicYear);
-}
+    return results.map(r => r.academicYear);
+  },
+  ["public-gallery-years"],
+  { tags: ["gallery-albums"], revalidate: 60 }
+);
 
 /**
  * Fetch public announcements with category filtering, search, and pagination.
  * Security constraint: Only retrieves isPublished === true AND status === 'published'.
  * Drafts and archived bulletins are strictly excluded from public listing.
  */
-export async function getPublicAnnouncements(params: { 
-  category?: string; 
-  search?: string; 
-  page?: number; 
-  limit?: number; 
-} = {}) {
-  const page = Math.max(1, params.page || 1);
-  const limit = Math.min(50, Math.max(1, params.limit || 10));
-  const offset = (page - 1) * limit;
+export const getPublicAnnouncements = createCachedQuery(
+  async function getPublicAnnouncementsDirect(params: { 
+    category?: string; 
+    search?: string; 
+    page?: number; 
+    limit?: number; 
+  } = {}) {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.min(50, Math.max(1, params.limit || 10));
+    const offset = (page - 1) * limit;
 
-  const conditions = [
-    eq(announcements.isPublished, true),
-    eq(announcements.status, "published"),
-  ];
+    const conditions = [
+      eq(announcements.isPublished, true),
+      eq(announcements.status, "published"),
+    ];
 
-  if (params.category && params.category !== "all") {
-    conditions.push(eq(announcements.category, params.category));
-  }
+    if (params.category && params.category !== "all") {
+      conditions.push(eq(announcements.category, params.category));
+    }
 
-  if (params.search) {
-    const s = `%${params.search}%`;
-    conditions.push(or(
-      like(announcements.titleEn, s),
-      like(announcements.titleAr, s),
-      like(announcements.summaryEn, s),
-      like(announcements.contentEn, s)
-    )!);
-  }
+    if (params.search) {
+      const s = `%${params.search}%`;
+      conditions.push(or(
+        like(announcements.titleEn, s),
+        like(announcements.titleAr, s),
+        like(announcements.summaryEn, s),
+        like(announcements.contentEn, s)
+      )!);
+    }
 
-  const data = await db.select({
-    id: announcements.id,
-    slug: announcements.slug,
-    titleEn: announcements.titleEn,
-    titleAr: announcements.titleAr,
-    summaryEn: announcements.summaryEn,
-    summaryAr: announcements.summaryAr,
-    contentEn: announcements.contentEn,
-    contentAr: announcements.contentAr,
-    category: announcements.category,
-    coverImageUrl: announcements.coverImageUrl,
-    authorName: announcements.authorName,
-    status: announcements.status,
-    isPinned: announcements.isPinned,
-    publishedAt: announcements.publishedAt,
-  })
-  .from(announcements)
-  .where(and(...conditions))
-  .orderBy(desc(announcements.isPinned), desc(announcements.publishedAt))
-  .limit(limit)
-  .offset(offset);
-
-  const [{ total }] = await db.select({ total: count() })
+    const data = await db.select({
+      id: announcements.id,
+      slug: announcements.slug,
+      titleEn: announcements.titleEn,
+      titleAr: announcements.titleAr,
+      summaryEn: announcements.summaryEn,
+      summaryAr: announcements.summaryAr,
+      contentEn: announcements.contentEn,
+      contentAr: announcements.contentAr,
+      category: announcements.category,
+      coverImageUrl: announcements.coverImageUrl,
+      authorName: announcements.authorName,
+      status: announcements.status,
+      isPinned: announcements.isPinned,
+      publishedAt: announcements.publishedAt,
+    })
     .from(announcements)
-    .where(and(...conditions));
+    .where(and(...conditions))
+    .orderBy(desc(announcements.isPinned), desc(announcements.publishedAt))
+    .limit(limit)
+    .offset(offset);
 
-  return {
-    data,
-    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
-  };
-}
+    const [{ total }] = await db.select({ total: count() })
+      .from(announcements)
+      .where(and(...conditions));
+
+    return {
+      data,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+    };
+  },
+  ["public-announcements"],
+  { tags: ["announcements"], revalidate: 60 }
+);
 
 /**
  * Fetch a single public announcement by slug.
  * Strictly enforces isPublished === true AND status === 'published'.
  * Non-existent or unpublished announcements return null.
  */
-export async function getPublicAnnouncementBySlug(slug: string) {
-  const row = await db.select()
-    .from(announcements)
-    .where(and(
-      eq(announcements.slug, slug),
-      eq(announcements.isPublished, true),
-      eq(announcements.status, "published")
-    ))
-    .limit(1)
-    .then(rows => rows[0] || null);
+export const getPublicAnnouncementBySlug = createCachedQuery(
+  async function getPublicAnnouncementBySlugDirect(slug: string) {
+    const row = await db.select()
+      .from(announcements)
+      .where(and(
+        eq(announcements.slug, slug),
+        eq(announcements.isPublished, true),
+        eq(announcements.status, "published")
+      ))
+      .limit(1)
+      .then(rows => rows[0] || null);
 
-  return row;
-}
+    return row;
+  },
+  ["public-announcement-by-slug"],
+  { tags: ["announcements"], revalidate: 60 }
+);
 
 /**
  * Fetch Arabic learning resources with skill level, category and search filtering.
  */
-export async function getPublicLearningResources(params: {
-  category?: string;
-  skillLevel?: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-} = {}) {
-  const page = Math.max(1, params.page || 1);
-  const limit = Math.min(50, Math.max(1, params.limit || 12));
-  const offset = (page - 1) * limit;
+export const getPublicLearningResources = createCachedQuery(
+  async function getPublicLearningResourcesDirect(params: {
+    category?: string;
+    skillLevel?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  } = {}) {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.min(50, Math.max(1, params.limit || 12));
+    const offset = (page - 1) * limit;
 
-  const conditions = [eq(learningResources.isPublished, true)];
+    const conditions = [eq(learningResources.isPublished, true)];
 
-  if (params.category && params.category !== "all") {
-    conditions.push(eq(learningResources.category, params.category as any));
-  }
-  if (params.skillLevel && params.skillLevel !== "all") {
-    conditions.push(eq(learningResources.skillLevel, params.skillLevel as any));
-  }
-  if (params.search) {
-    const s = `%${params.search}%`;
-    conditions.push(or(
-      like(learningResources.titleEn, s), 
-      like(learningResources.titleAr, s),
-      like(learningResources.contentEn, s)
-    )!);
-  }
+    if (params.category && params.category !== "all") {
+      conditions.push(eq(learningResources.category, params.category as any));
+    }
+    if (params.skillLevel && params.skillLevel !== "all") {
+      conditions.push(eq(learningResources.skillLevel, params.skillLevel as any));
+    }
+    if (params.search) {
+      const s = `%${params.search}%`;
+      conditions.push(or(
+        like(learningResources.titleEn, s), 
+        like(learningResources.titleAr, s),
+        like(learningResources.contentEn, s)
+      )!);
+    }
 
-  const data = await db.select()
-    .from(learningResources)
-    .where(and(...conditions))
-    .orderBy(desc(learningResources.createdAt))
-    .limit(limit)
-    .offset(offset);
+    const data = await db.select()
+      .from(learningResources)
+      .where(and(...conditions))
+      .orderBy(desc(learningResources.createdAt))
+      .limit(limit)
+      .offset(offset);
 
-  const [{ total }] = await db.select({ total: count() })
-    .from(learningResources)
-    .where(and(...conditions));
+    const [{ total }] = await db.select({ total: count() })
+      .from(learningResources)
+      .where(and(...conditions));
 
-  return {
-    data,
-    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
-  };
-}
+    return {
+      data,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+    };
+  },
+  ["public-learning-resources"],
+  { tags: ["learning-resources"], revalidate: 60 }
+);
 
 /**
  * Atomically increment download count for a learning resource upon user access (supports either id or slug).
@@ -704,59 +761,67 @@ export async function incrementResourceDownloadCount(idOrSlug: string) {
 /**
  * Fetch published achievements.
  */
-export async function getPublicAchievements(params: { category?: string } = {}) {
-  const conditions = [eq(achievements.isPublished, true)];
+export const getPublicAchievements = createCachedQuery(
+  async function getPublicAchievementsDirect(params: { category?: string } = {}) {
+    const conditions = [eq(achievements.isPublished, true)];
 
-  if (params.category && params.category !== "all") {
-    conditions.push(eq(achievements.category, params.category));
-  }
+    if (params.category && params.category !== "all") {
+      conditions.push(eq(achievements.category, params.category));
+    }
 
-  return await db.select()
-    .from(achievements)
-    .where(and(...conditions))
-    .orderBy(desc(achievements.dateAchieved));
-}
+    return await db.select()
+      .from(achievements)
+      .where(and(...conditions))
+      .orderBy(desc(achievements.dateAchieved));
+  },
+  ["public-achievements"],
+  { tags: ["achievements"], revalidate: 60 }
+);
 
 /**
  * Fetch published magazines and publications with optional type filter.
  */
-export async function getPublicPublications(params: { 
-  type?: string; 
-  publicationType?: string;
-  search?: string; 
-  page?: number; 
-  limit?: number; 
-} = {}) {
-  const conditions = [eq(publications.isPublished, true)];
+export const getPublicPublications = createCachedQuery(
+  async function getPublicPublicationsDirect(params: { 
+    type?: string; 
+    publicationType?: string;
+    search?: string; 
+    page?: number; 
+    limit?: number; 
+  } = {}) {
+    const conditions = [eq(publications.isPublished, true)];
 
-  const filterType = params.publicationType || params.type;
-  if (filterType && filterType !== "all") {
-    conditions.push(eq(publications.publicationType, filterType as any));
-  }
+    const filterType = params.publicationType || params.type;
+    if (filterType && filterType !== "all") {
+      conditions.push(eq(publications.publicationType, filterType as any));
+    }
 
-  if (params.search) {
-    const s = `%${params.search}%`;
-    conditions.push(or(
-      like(publications.titleEn, s),
-      like(publications.titleAr, s),
-      like(publications.descriptionEn, s)
-    )!);
-  }
+    if (params.search) {
+      const s = `%${params.search}%`;
+      conditions.push(or(
+        like(publications.titleEn, s),
+        like(publications.titleAr, s),
+        like(publications.descriptionEn, s)
+      )!);
+    }
 
-  const query = db.select()
-    .from(publications)
-    .where(and(...conditions))
-    .orderBy(desc(publications.publicationDate));
+    const query = db.select()
+      .from(publications)
+      .where(and(...conditions))
+      .orderBy(desc(publications.publicationDate));
 
-  if (params.limit) {
-    const page = Math.max(1, params.page || 1);
-    const limit = Math.min(50, Math.max(1, params.limit));
-    const offset = (page - 1) * limit;
-    return await query.limit(limit).offset(offset);
-  }
+    if (params.limit) {
+      const page = Math.max(1, params.page || 1);
+      const limit = Math.min(50, Math.max(1, params.limit));
+      const offset = (page - 1) * limit;
+      return await query.limit(limit).offset(offset);
+    }
 
-  return await query;
-}
+    return await query;
+  },
+  ["public-publications"],
+  { tags: ["publications"], revalidate: 60 }
+);
 
 /**
  * Fetch public site settings map.
@@ -1036,94 +1101,106 @@ export async function getAdminDashboardMetrics() {
  * Fetch a single gallery album by slug with its media photos and associated event details.
  * Security: Returns null if album is draft or unpublished (Strix-Supabase isolation).
  */
-export async function getPublicGalleryAlbumBySlug(slug: string) {
-  const [album] = await db.select({
-    id: galleryAlbums.id,
-    slug: galleryAlbums.slug,
-    titleEn: galleryAlbums.titleEn,
-    titleAr: galleryAlbums.titleAr,
-    descriptionEn: galleryAlbums.descriptionEn,
-    descriptionAr: galleryAlbums.descriptionAr,
-    coverImageUrl: galleryAlbums.coverImageUrl,
-    eventDate: galleryAlbums.eventDate,
-    academicYear: galleryAlbums.academicYear,
-    category: galleryAlbums.category,
-    relatedEventId: galleryAlbums.relatedEventId,
-    relatedEventSlug: events.slug,
-    relatedEventTitle: events.titleEn,
-    photographerCredit: galleryAlbums.photographerCredit,
-    location: galleryAlbums.location,
-    isFeatured: galleryAlbums.isFeatured,
-    isPublished: galleryAlbums.isPublished,
-    createdAt: galleryAlbums.createdAt,
-    updatedAt: galleryAlbums.updatedAt,
-  })
-  .from(galleryAlbums)
-  .leftJoin(events, eq(galleryAlbums.relatedEventId, events.id))
-  .where(and(
-    eq(galleryAlbums.slug, slug),
-    eq(galleryAlbums.isPublished, true),
-    eq(galleryAlbums.isArchived, false)
-  ))
-  .limit(1);
+/**
+ * Fetch a single gallery album by slug with its media photos and associated event details.
+ * Security: Returns null if album is draft or unpublished (Strix-Supabase isolation).
+ */
+export const getPublicGalleryAlbumBySlug = createCachedQuery(
+  async function getPublicGalleryAlbumBySlugDirect(slug: string) {
+    const [album] = await db.select({
+      id: galleryAlbums.id,
+      slug: galleryAlbums.slug,
+      titleEn: galleryAlbums.titleEn,
+      titleAr: galleryAlbums.titleAr,
+      descriptionEn: galleryAlbums.descriptionEn,
+      descriptionAr: galleryAlbums.descriptionAr,
+      coverImageUrl: galleryAlbums.coverImageUrl,
+      eventDate: galleryAlbums.eventDate,
+      academicYear: galleryAlbums.academicYear,
+      category: galleryAlbums.category,
+      relatedEventId: galleryAlbums.relatedEventId,
+      relatedEventSlug: events.slug,
+      relatedEventTitle: events.titleEn,
+      photographerCredit: galleryAlbums.photographerCredit,
+      location: galleryAlbums.location,
+      isFeatured: galleryAlbums.isFeatured,
+      isPublished: galleryAlbums.isPublished,
+      createdAt: galleryAlbums.createdAt,
+      updatedAt: galleryAlbums.updatedAt,
+    })
+    .from(galleryAlbums)
+    .leftJoin(events, eq(galleryAlbums.relatedEventId, events.id))
+    .where(and(
+      eq(galleryAlbums.slug, slug),
+      eq(galleryAlbums.isPublished, true),
+      eq(galleryAlbums.isArchived, false)
+    ))
+    .limit(1);
 
-  if (!album) return null;
+    if (!album) return null;
 
-  const photos = await getAlbumMediaAssets(album.id);
-  return { 
-    ...album, 
-    photos,
-    media: photos,
-    mediaCount: photos.length,
-    photoCount: photos.filter(p => p.mediaType === "image").length,
-    videoCount: photos.filter(p => p.mediaType === "video").length,
-  };
-}
+    const photos = await getAlbumMediaAssets(album.id);
+    return { 
+      ...album, 
+      photos,
+      media: photos,
+      mediaCount: photos.length,
+      photoCount: photos.filter(p => p.mediaType === "image").length,
+      videoCount: photos.filter(p => p.mediaType === "video").length,
+    };
+  },
+  ["public-gallery-album-by-slug"],
+  { tags: ["gallery-albums"], revalidate: 60 }
+);
 
 /**
  * Fetches the public gallery album associated with a given event ID.
  * Returns null if no album is linked, or if the album is a draft or archived (Strix-Supabase isolation).
  */
-export async function getPublicGalleryAlbumByEventId(eventId: string) {
-  const [album] = await db.select({
-    id: galleryAlbums.id,
-    slug: galleryAlbums.slug,
-    titleEn: galleryAlbums.titleEn,
-    titleAr: galleryAlbums.titleAr,
-    descriptionEn: galleryAlbums.descriptionEn,
-    descriptionAr: galleryAlbums.descriptionAr,
-    coverImageUrl: galleryAlbums.coverImageUrl,
-    eventDate: galleryAlbums.eventDate,
-    academicYear: galleryAlbums.academicYear,
-    category: galleryAlbums.category,
-    relatedEventId: galleryAlbums.relatedEventId,
-    photographerCredit: galleryAlbums.photographerCredit,
-    location: galleryAlbums.location,
-    isFeatured: galleryAlbums.isFeatured,
-    isPublished: galleryAlbums.isPublished,
-    createdAt: galleryAlbums.createdAt,
-    updatedAt: galleryAlbums.updatedAt,
-  })
-  .from(galleryAlbums)
-  .where(and(
-    eq(galleryAlbums.relatedEventId, eventId),
-    eq(galleryAlbums.isPublished, true),
-    eq(galleryAlbums.isArchived, false)
-  ))
-  .limit(1);
+export const getPublicGalleryAlbumByEventId = createCachedQuery(
+  async function getPublicGalleryAlbumByEventIdDirect(eventId: string) {
+    const [album] = await db.select({
+      id: galleryAlbums.id,
+      slug: galleryAlbums.slug,
+      titleEn: galleryAlbums.titleEn,
+      titleAr: galleryAlbums.titleAr,
+      descriptionEn: galleryAlbums.descriptionEn,
+      descriptionAr: galleryAlbums.descriptionAr,
+      coverImageUrl: galleryAlbums.coverImageUrl,
+      eventDate: galleryAlbums.eventDate,
+      academicYear: galleryAlbums.academicYear,
+      category: galleryAlbums.category,
+      relatedEventId: galleryAlbums.relatedEventId,
+      photographerCredit: galleryAlbums.photographerCredit,
+      location: galleryAlbums.location,
+      isFeatured: galleryAlbums.isFeatured,
+      isPublished: galleryAlbums.isPublished,
+      createdAt: galleryAlbums.createdAt,
+      updatedAt: galleryAlbums.updatedAt,
+    })
+    .from(galleryAlbums)
+    .where(and(
+      eq(galleryAlbums.relatedEventId, eventId),
+      eq(galleryAlbums.isPublished, true),
+      eq(galleryAlbums.isArchived, false)
+    ))
+    .limit(1);
 
-  if (!album) return null;
+    if (!album) return null;
 
-  const photos = await getAlbumMediaAssets(album.id);
-  return {
-    ...album,
-    photos,
-    media: photos,
-    mediaCount: photos.length,
-    photoCount: photos.filter(p => p.mediaType === "image").length,
-    videoCount: photos.filter(p => p.mediaType === "video").length,
-  };
-}
+    const photos = await getAlbumMediaAssets(album.id);
+    return {
+      ...album,
+      photos,
+      media: photos,
+      mediaCount: photos.length,
+      photoCount: photos.filter(p => p.mediaType === "image").length,
+      videoCount: photos.filter(p => p.mediaType === "video").length,
+    };
+  },
+  ["public-gallery-album-by-event"],
+  { tags: ["gallery-albums", "events"], revalidate: 60 }
+);
 
 /**
  * Administrative query to fetch an album associated with an event ID regardless of publication status.
@@ -1601,6 +1678,32 @@ export async function getMemberCommitteeHistory(memberId: string) {
   .from(committeeAssignments)
   .innerJoin(committeeTerms, eq(committeeAssignments.termId, committeeTerms.id))
   .where(eq(committeeAssignments.memberId, memberId))
+  .orderBy(desc(committeeTerms.startDate));
+}
+
+/**
+ * Batched retrieval of committee histories for a collection of member IDs.
+ * Eliminates N+1 serial round-trips when rendering multi-member directories.
+ */
+export async function getMembersCommitteeHistoryBatch(memberIds: string[]) {
+  if (!memberIds || memberIds.length === 0) return [];
+  return await db.select({
+    memberId: committeeAssignments.memberId,
+    assignmentId: committeeAssignments.id,
+    termId: committeeTerms.id,
+    academicYear: committeeTerms.academicYear,
+    termTitleEn: committeeTerms.titleEn,
+    termTitleAr: committeeTerms.titleAr,
+    isCurrent: committeeTerms.isCurrent,
+    positionTitleEn: committeeAssignments.positionTitleEn,
+    positionTitleAr: committeeAssignments.positionTitleAr,
+    rankOrder: committeeAssignments.rankOrder,
+    roleDescription: committeeAssignments.roleDescription,
+    startDate: committeeTerms.startDate,
+  })
+  .from(committeeAssignments)
+  .innerJoin(committeeTerms, eq(committeeAssignments.termId, committeeTerms.id))
+  .where(inArray(committeeAssignments.memberId, memberIds))
   .orderBy(desc(committeeTerms.startDate));
 }
 

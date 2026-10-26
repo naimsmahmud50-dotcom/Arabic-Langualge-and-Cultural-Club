@@ -104,7 +104,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-10">
         {/* Controls Toolbar: Search, Category Filters, Academic Year Selector */}
-        <div className="bg-[var(--surface-color)] p-6 rounded-xl border border-[var(--border-color)] shadow-sm space-y-6">
+        <div className="bg-[var(--surface-color)] p-4 sm:p-6 rounded-xl border border-[var(--border-color)] shadow-sm space-y-4 sm:space-y-6">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
             {/* Search Input */}
             <form action="/gallery" method="GET" className="relative w-full md:max-w-md">
@@ -116,24 +116,24 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
                 name="q"
                 defaultValue={q}
                 placeholder="Search albums by keyword, topic, or location..."
-                className="w-full pl-10 pr-4 py-2.5 text-xs rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                className="w-full pl-10 pr-4 py-2.5 text-xs rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all min-h-[44px]"
               />
             </form>
 
             {/* Academic Year Dropdown & Stats */}
-            <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full md:w-auto justify-between md:justify-end">
               <span className="text-xs text-[var(--text-muted)] font-medium">
                 Showing <strong className="text-[var(--text-primary)]">{albums.length}</strong> of{" "}
                 <strong className="text-[var(--text-primary)]">{totalAlbums}</strong> albums
               </span>
 
               {availableYears.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5 text-[var(--brand-accent)]" />
-                  <div className="flex items-center gap-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1 text-xs">
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar max-w-full">
+                  <Calendar className="w-3.5 h-3.5 text-[var(--brand-accent)] shrink-0" />
+                  <div className="flex items-center gap-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1 text-xs shrink-0">
                     <Link
                       href={`/gallery?category=${category}&year=all&q=${encodeURIComponent(q)}`}
-                      className={`px-2.5 py-1 rounded transition-colors ${
+                      className={`px-2.5 py-1.5 rounded transition-colors min-h-[32px] flex items-center ${
                         year === "all"
                           ? "bg-[var(--brand-primary)] text-white font-semibold"
                           : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -145,7 +145,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
                       <Link
                         key={y}
                         href={`/gallery?category=${category}&year=${encodeURIComponent(y)}&q=${encodeURIComponent(q)}`}
-                        className={`px-2.5 py-1 rounded transition-colors ${
+                        className={`px-2.5 py-1.5 rounded transition-colors min-h-[32px] flex items-center ${
                           year === y
                             ? "bg-[var(--brand-primary)] text-white font-semibold"
                             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -161,14 +161,14 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
           </div>
 
           {/* Category Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-t border-[var(--border-subtle)] pt-4">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 border-t border-[var(--border-subtle)] pt-4">
             {CATEGORIES.map((cat) => {
               const isActive = category === cat.id;
               return (
                 <Link
                   key={cat.id}
                   href={`/gallery?category=${cat.id}&year=${year}&q=${encodeURIComponent(q)}`}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                  className={`px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 min-h-[36px] ${
                     isActive
                       ? "bg-[var(--brand-accent)] text-[var(--brand-dark)] shadow-sm"
                       : "bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
@@ -190,7 +190,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
             Archival Photography and Media Albums
           </h2>
           {albums.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {albums.map((album, idx) => (
               <Card 
                 key={album.id} 
@@ -241,7 +241,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
                     )}
                   </div>
 
-                  <CardContent className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                  <CardContent className="p-4 sm:p-6 space-y-3 flex-1 flex flex-col justify-between">
                     <div className="space-y-2">
                       <h3 className="text-base font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-accent)] transition-colors leading-tight">
                         {album.titleEn}

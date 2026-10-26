@@ -179,7 +179,7 @@ export function MobileNav({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-[6px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--brand-accent)] shrink-0"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-[6px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--brand-accent)] shrink-0"
               aria-label="Close navigation menu"
             >
               <X className="w-5 h-5" />
@@ -261,7 +261,7 @@ export function MobileNav({
                               href={child.href}
                               onClick={onClose}
                               className={cn(
-                                "flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-[13px] font-medium transition-colors min-h-[40px]",
+                                "flex items-center gap-2.5 px-3 py-2.5 rounded-[6px] text-[13px] font-medium transition-colors min-h-[44px]",
                                 isChildActive
                                   ? "bg-[var(--brand-primary)]/10 dark:bg-[var(--brand-accent)]/15 text-[var(--brand-primary)] dark:text-[var(--brand-accent)] font-bold"
                                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]"

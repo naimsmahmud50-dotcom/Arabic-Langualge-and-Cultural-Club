@@ -106,11 +106,11 @@ export default async function HistoryPage() {
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-8 sm:space-y-12 lg:space-y-16">
 
         {/* 2. Institutional Genesis Narrative */}
         {introSection && (
-          <section className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[8px] p-8 md:p-10 shadow-sm space-y-4">
+          <section className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[8px] p-4 sm:p-6 md:p-10 shadow-sm space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2">
               <Badge variant="accent" size="sm">
                 {introSection.contentEn.badge || "Historical Overview"}
@@ -119,7 +119,7 @@ export default async function HistoryPage() {
                 Verified Archival Narrative
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-[var(--text-primary)] leading-tight">
               {introSection.contentEn.heading || "Institutional Genesis & Academic Journey"}
             </h2>
             {introSection.contentEn.subheading && (
@@ -127,7 +127,7 @@ export default async function HistoryPage() {
                 {introSection.contentEn.subheading}
               </p>
             )}
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed pt-2">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed pt-1 sm:pt-2">
               {introSection.contentEn.body}
             </p>
           </section>
@@ -136,15 +136,15 @@ export default async function HistoryPage() {
         <HeritageDivider />
 
         {/* 3. Chronological Milestones Timeline */}
-        <section className="space-y-10" id="timeline">
+        <section className="space-y-8 sm:space-y-10" id="timeline">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <Badge variant="neutral" size="sm">
               {milestonesSection?.contentEn.badge || "Verified Chronology"}
             </Badge>
-            <h2 className="text-3xl font-serif font-bold text-[var(--text-primary)]">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)] leading-tight">
               {milestonesSection?.contentEn.heading || "Chronological Institutional Milestones"}
             </h2>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
               {milestonesSection?.contentEn.subheading || "Verified records documented and corroborated by the Club Archival Committee."}
             </p>
           </div>
@@ -158,20 +158,20 @@ export default async function HistoryPage() {
               />
             </div>
           ) : (
-            <div className="relative border-l-2 border-[var(--border-color)] ml-4 sm:ml-8 pl-6 sm:pl-10 space-y-12">
+            <div className="relative border-s-2 border-[var(--border-color)] ms-3 sm:ms-8 ps-4 sm:ps-10 space-y-8 sm:space-y-12">
               {milestonesList.map((item, idx) => (
                 <div key={idx} className="relative group">
                   {/* Timeline Node with Antique Brass Border */}
-                  <div className="absolute -left-[31px] sm:-left-[47px] top-1.5 w-6 h-6 rounded-full bg-[var(--bg-surface)] border-2 border-[var(--brand-accent)] flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                  <div className="absolute -start-[23px] sm:-start-[49px] top-1.5 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[var(--bg-surface)] border-2 border-[var(--brand-accent)] flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
                     <div className="w-2 h-2 rounded-full bg-[var(--brand-primary)]" />
                   </div>
 
                   <Card className="border-[var(--border-color)] bg-[var(--bg-surface)] hover:border-[var(--brand-accent)] transition-colors shadow-sm">
-                    <CardContent className="p-6 sm:p-7 space-y-4">
+                    <CardContent className="p-4 sm:p-6 md:p-7 space-y-3 sm:space-y-4">
                       {/* Milestone Header */}
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <span className="font-serif font-bold text-2xl text-[var(--brand-accent)]">
+                      <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <span className="font-serif font-bold text-xl sm:text-2xl text-[var(--brand-accent)]">
                             {item.year}
                           </span>
                           {item.badge && (
@@ -227,7 +227,7 @@ export default async function HistoryPage() {
 
         {/* 4. Archival Preservation Protocol & Policy */}
         {archivesSection && (
-          <section className="bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-[8px] p-8 space-y-6">
+          <section className="bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-[8px] p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2 max-w-2xl">
                 <div className="flex items-center gap-2">

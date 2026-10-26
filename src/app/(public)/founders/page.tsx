@@ -79,33 +79,33 @@ export default async function FoundersPage() {
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-8 sm:space-y-12 lg:space-y-16">
         
         {/* 2. Founding Assembly Narrative & Charter Citation */}
-        <section className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[8px] p-8 md:p-10 shadow-sm space-y-6">
+        <section className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[8px] p-4 sm:p-6 md:p-10 shadow-sm space-y-4 sm:space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-3 max-w-3xl">
+            <div className="space-y-2 sm:space-y-3 max-w-3xl">
               <div className="flex items-center gap-2">
                 <Badge variant="accent" size="sm">Charter Conveners</Badge>
                 <span className="text-xs text-[var(--text-muted)] font-medium">
                   General Assembly Inception 2022
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-[var(--text-primary)] leading-tight">
                 The Founding Academic Conveners
               </h2>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
                 In autumn 2022, an assembly of dedicated classical Arabic students, faculty patrons, and calligraphers convened to establish an enduring society on campus. Their vision was to restore eloquence in student debate, cultivate philological rigor, and permanently record every successive administration in our university cultural archives.
               </p>
             </div>
 
             {/* Founding Charter Document Card */}
-            <div className="bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-[6px] p-5 shrink-0 w-full lg:w-80 space-y-3">
+            <div className="bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-[6px] p-4 sm:p-5 shrink-0 w-full lg:w-80 space-y-3">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-[6px] bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-[6px] bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5" />
                 </div>
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 min-w-0">
                   <p className="text-xs font-bold text-[var(--text-primary)]">
                     Inaugural Founding Charter
                   </p>
@@ -124,33 +124,33 @@ export default async function FoundersPage() {
         <HeritageDivider />
 
         {/* 3. Verified Founders Roster Grid */}
-        <section className="space-y-8" id="roster">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <section className="space-y-6 sm:space-y-8" id="roster">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div>
-              <h3 className="text-2xl font-serif font-bold text-[var(--text-primary)]">
+              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)] leading-tight">
                 Founding Assembly & Patrons Roll
               </h3>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 Verified historical records maintained by the Archival Preservation Committee.
               </p>
             </div>
-            <Badge variant="primary" size="md">
+            <Badge variant="primary" size="md" className="self-start sm:self-auto">
               Verified Profiles: {founders.length}
             </Badge>
           </div>
 
           {founders.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8">
               {founders.map((founder, idx) => (
                 <Card 
                   key={founder.id} 
                   hoverElevate 
                   className="border-[var(--border-color)] bg-[var(--bg-surface)] overflow-hidden flex flex-col justify-between shadow-sm"
                 >
-                  <CardContent className="p-8 space-y-5">
+                  <CardContent className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-5">
                     {/* Portrait or Elegant Neutral Monogram */}
-                    <div className="flex items-start gap-4">
-                      <div className="w-16 h-16 rounded-[8px] bg-[var(--bg-surface-elevated)] text-[var(--brand-primary)] flex items-center justify-center font-serif text-xl font-bold border-2 border-[var(--brand-accent)] shrink-0 shadow-xs">
+                    <div className="flex items-start gap-3.5 sm:gap-4">
+                      <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-[8px] bg-[var(--bg-surface-elevated)] text-[var(--brand-primary)] flex items-center justify-center font-serif text-lg sm:text-xl font-bold border-2 border-[var(--brand-accent)] shrink-0 shadow-xs">
                         {founder.portraitUrl ? (
                           <img 
                             src={founder.portraitUrl} 
@@ -164,8 +164,8 @@ export default async function FoundersPage() {
                         )}
                       </div>
 
-                      <div className="space-y-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                           <Badge variant="accent" size="sm">
                             {founder.foundingYear ? `Convener ${founder.foundingYear}` : "Founding Convener"}
                           </Badge>
@@ -174,11 +174,11 @@ export default async function FoundersPage() {
                             Verified
                           </span>
                         </div>
-                        <h4 className="text-lg font-serif font-bold text-[var(--text-primary)] leading-tight">
+                        <h4 className="text-base sm:text-lg font-serif font-bold text-[var(--text-primary)] leading-tight">
                           {founder.nameEn}
                         </h4>
                         {founder.nameAr && (
-                          <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                          <p className="font-arabic text-xs sm:text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                             {founder.nameAr}
                           </p>
                         )}
@@ -205,7 +205,7 @@ export default async function FoundersPage() {
                   </CardContent>
 
                   {/* Card Footer with Archival Verification Notice */}
-                  <div className="px-8 py-3.5 bg-[var(--bg-surface-elevated)] border-t border-[var(--border-color)] flex items-center justify-between text-[11px] text-[var(--text-muted)]">
+                  <div className="px-4 sm:px-6 lg:px-8 py-3 bg-[var(--bg-surface-elevated)] border-t border-[var(--border-color)] flex items-center justify-between text-[11px] text-[var(--text-muted)]">
                     <span className="inline-flex items-center gap-1.5 font-mono">
                       <BookOpen className="w-3.5 h-3.5 text-[var(--brand-accent)]" />
                       Archive Roll #{idx + 1}

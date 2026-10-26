@@ -75,12 +75,12 @@ export default async function ContactPage() {
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-10">
           {/* Sidebar: Approved Institutional Contact Coordinates */}
           <div className="space-y-6">
             <Card className="border border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-6">
+              <CardContent className="p-4 sm:p-6 space-y-6">
                 <div className="flex items-center gap-3">
                   <ClubLogo variant="crest" size="md" className="shrink-0 drop-shadow-xs" />
                   <div>

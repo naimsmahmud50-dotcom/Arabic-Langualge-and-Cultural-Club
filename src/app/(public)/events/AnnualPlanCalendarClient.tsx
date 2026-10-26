@@ -282,11 +282,11 @@ export function AnnualPlanCalendarClient({
   return (
     <div className="space-y-8">
       {/* 1. Primary Platform Mode Tabs */}
-      <div className="flex border-b-2 border-[var(--border-color)] gap-4 sm:gap-8 overflow-x-auto pb-1">
+      <div className="flex border-b-2 border-[var(--border-color)] gap-3 sm:gap-8 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
         <button
           type="button"
           onClick={() => setMainTab("plan")}
-          className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 -mb-[3px] transition-all whitespace-nowrap ${
+          className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 -mb-[3px] transition-all whitespace-nowrap min-h-[44px] shrink-0 ${
             mainTab === "plan"
               ? "border-[var(--brand-accent)] text-[var(--brand-primary)] dark:text-[var(--brand-accent)]"
               : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -298,7 +298,7 @@ export function AnnualPlanCalendarClient({
         <button
           type="button"
           onClick={() => setMainTab("upcoming")}
-          className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 -mb-[3px] transition-all whitespace-nowrap ${
+          className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 -mb-[3px] transition-all whitespace-nowrap min-h-[44px] shrink-0 ${
             mainTab === "upcoming"
               ? "border-[var(--brand-accent)] text-[var(--brand-primary)] dark:text-[var(--brand-accent)]"
               : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -310,7 +310,7 @@ export function AnnualPlanCalendarClient({
         <button
           type="button"
           onClick={() => setMainTab("past")}
-          className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 -mb-[3px] transition-all whitespace-nowrap ${
+          className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 -mb-[3px] transition-all whitespace-nowrap min-h-[44px] shrink-0 ${
             mainTab === "past"
               ? "border-[var(--brand-accent)] text-[var(--brand-primary)] dark:text-[var(--brand-accent)]"
               : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -325,10 +325,10 @@ export function AnnualPlanCalendarClient({
       {/* TAB 1: 12-MONTH MASTER PLAN & CALENDAR GRID                                */}
       {/* ========================================================================= */}
       {mainTab === "plan" && (
-        <div className="space-y-8 animate-in fade-in">
+        <div className="space-y-6 sm:space-y-8 animate-in fade-in">
           {/* Academic Session Selector & Master Control Header */}
-          <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[6px] p-6 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[var(--border-color)]">
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[6px] p-4 sm:p-6 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 pb-4 sm:pb-6 border-b border-[var(--border-color)]">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs uppercase tracking-widest font-mono font-semibold text-[var(--brand-accent)]">
@@ -337,16 +337,16 @@ export function AnnualPlanCalendarClient({
                   <span className="text-[var(--border-color)]">•</span>
                   <span className="text-xs text-[var(--text-muted)]">Ratified Program</span>
                 </div>
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+                <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] leading-tight">
                   Session Calendar ({selectedYear})
                 </h2>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1">
                   Official schedule of academic lectures, classical language circles, debate tournaments, and cultural gatherings.
                 </p>
               </div>
 
               {/* Academic Year Selector Pills */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <span className="text-xs font-semibold text-[var(--text-secondary)] whitespace-nowrap">
                   Academic Session:
                 </span>
@@ -373,30 +373,30 @@ export function AnnualPlanCalendarClient({
             </div>
 
             {/* Real Metrics Banner (Strictly Zero Fake Data) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 pt-6 text-center">
-              <div className="p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
-                <div className="text-2xl font-bold font-mono text-[var(--text-primary)]">{yearStats.total}</div>
-                <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Total Activities</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 sm:gap-4 pt-4 sm:pt-6 text-center">
+              <div className="p-2.5 sm:p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
+                <div className="text-xl sm:text-2xl font-bold font-mono text-[var(--text-primary)]">{yearStats.total}</div>
+                <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Total Activities</div>
               </div>
-              <div className="p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
-                <div className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">{yearStats.completed}</div>
-                <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Completed</div>
+              <div className="p-2.5 sm:p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
+                <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">{yearStats.completed}</div>
+                <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Completed</div>
               </div>
-              <div className="p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
-                <div className="text-2xl font-bold font-mono text-[var(--brand-primary)] dark:text-[var(--brand-accent)]">{yearStats.confirmed}</div>
-                <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Confirmed</div>
+              <div className="p-2.5 sm:p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
+                <div className="text-xl sm:text-2xl font-bold font-mono text-[var(--brand-primary)] dark:text-[var(--brand-accent)]">{yearStats.confirmed}</div>
+                <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Confirmed</div>
               </div>
-              <div className="p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
-                <div className="text-2xl font-bold font-mono text-amber-600 dark:text-amber-400">{yearStats.planned}</div>
-                <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Planned</div>
+              <div className="p-2.5 sm:p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
+                <div className="text-xl sm:text-2xl font-bold font-mono text-amber-600 dark:text-amber-400">{yearStats.planned}</div>
+                <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Planned</div>
               </div>
-              <div className="p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
-                <div className="text-2xl font-bold font-mono text-amber-500">{yearStats.postponed}</div>
-                <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Postponed</div>
+              <div className="p-2.5 sm:p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
+                <div className="text-xl sm:text-2xl font-bold font-mono text-amber-500">{yearStats.postponed}</div>
+                <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Postponed</div>
               </div>
-              <div className="p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
-                <div className="text-2xl font-bold font-mono text-rose-600 dark:text-rose-400">{yearStats.cancelled}</div>
-                <div className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Cancelled</div>
+              <div className="p-2.5 sm:p-3 rounded-[4px] bg-[var(--bg-surface-elevated)] border border-[var(--border-color)]">
+                <div className="text-xl sm:text-2xl font-bold font-mono text-rose-600 dark:text-rose-400">{yearStats.cancelled}</div>
+                <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">Cancelled</div>
               </div>
             </div>
           </div>
@@ -404,11 +404,11 @@ export function AnnualPlanCalendarClient({
           {/* Interactive Navigation Controls */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             {/* View Mode Toggle */}
-            <div className="inline-flex p-1 bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[6px] shadow-sm">
+            <div className="flex overflow-x-auto no-scrollbar p-1 bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[6px] shadow-sm -mx-4 px-4 sm:mx-0 sm:px-1 gap-1">
               <button
                 type="button"
                 onClick={() => setViewMode("schedule")}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-[4px] text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-[4px] text-xs font-semibold transition-all shrink-0 whitespace-nowrap min-h-[40px] ${
                   viewMode === "schedule"
                     ? "bg-[var(--brand-primary)] text-white shadow-sm"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -420,7 +420,7 @@ export function AnnualPlanCalendarClient({
               <button
                 type="button"
                 onClick={() => setViewMode("calendar")}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-[4px] text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-[4px] text-xs font-semibold transition-all shrink-0 whitespace-nowrap min-h-[40px] ${
                   viewMode === "calendar"
                     ? "bg-[var(--brand-primary)] text-white shadow-sm"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -432,7 +432,7 @@ export function AnnualPlanCalendarClient({
               <button
                 type="button"
                 onClick={() => setViewMode("list")}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-[4px] text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-[4px] text-xs font-semibold transition-all shrink-0 whitespace-nowrap min-h-[40px] ${
                   viewMode === "list"
                     ? "bg-[var(--brand-primary)] text-white shadow-sm"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"

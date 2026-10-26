@@ -34,16 +34,16 @@ export function Footer({ settings }: FooterProps) {
   const copyrightText = settings?.footer_copyright_en || "Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka. All institutional rights reserved.";
 
   return (
-    <footer className="relative bg-[var(--brand-dark)] text-[#F5F0E5] pt-16 pb-12 border-t border-[var(--border-color)] overflow-hidden">
+    <footer className="relative bg-[var(--brand-dark)] text-[#F5F0E5] pt-10 sm:pt-16 pb-8 sm:pb-12 border-t border-[var(--border-color)] overflow-hidden">
       {/* Background Subtle Watermark */}
       <div className="absolute inset-0 pointer-events-none opacity-5">
         <GeometricPattern />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 pb-10 sm:pb-12">
           {/* Column 1: Institutional Identity */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="sm:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <ClubLogo variant="crest" size="md" src={logoSrc} className="drop-shadow-sm" />
               <div>
@@ -73,29 +73,29 @@ export function Footer({ settings }: FooterProps) {
             <h3 className="text-xs uppercase font-bold tracking-wider text-[#E5BE6A]">
               Heritage & History
             </h3>
-            <ul className="space-y-2 text-sm text-[#C3C9C2]">
+            <ul className="space-y-1 sm:space-y-2 text-sm text-[#C3C9C2]">
               <li>
-                <Link href="/about" className="hover:text-white transition-colors">
+                <Link href="/about" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   About the Club
                 </Link>
               </li>
               <li>
-                <Link href="/founders" className="hover:text-white transition-colors">
+                <Link href="/founders" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Founders Archive
                 </Link>
               </li>
               <li>
-                <Link href="/history" className="hover:text-white transition-colors">
+                <Link href="/history" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Chronological Timeline
                 </Link>
               </li>
               <li>
-                <Link href="/leadership" className="hover:text-white transition-colors">
+                <Link href="/leadership" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Former Committees
                 </Link>
               </li>
               <li>
-                <Link href="/members" className="hover:text-white transition-colors">
+                <Link href="/members" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Member Directory
                 </Link>
               </li>
@@ -107,34 +107,34 @@ export function Footer({ settings }: FooterProps) {
             <h3 className="text-xs uppercase font-bold tracking-wider text-[#E5BE6A]">
               Operations & Media
             </h3>
-            <ul className="space-y-2 text-sm text-[#C3C9C2]">
+            <ul className="space-y-1 sm:space-y-2 text-sm text-[#C3C9C2]">
               <li>
-                <Link href="/events" className="hover:text-white transition-colors">
+                <Link href="/events" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Annual 12-Month Plan
                 </Link>
               </li>
               <li>
-                <Link href="/gallery" className="hover:text-white transition-colors">
+                <Link href="/gallery" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Photo & Media Archive
                 </Link>
               </li>
               <li>
-                <Link href="/resources" className="hover:text-white transition-colors">
+                <Link href="/resources" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Arabic Learning Hub
                 </Link>
               </li>
               <li>
-                <Link href="/publications" className="hover:text-white transition-colors">
+                <Link href="/publications" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Magazines & Bulletins
                 </Link>
               </li>
               <li>
-                <Link href="/news" className="hover:text-white transition-colors">
+                <Link href="/news" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Official Announcements
                 </Link>
               </li>
               <li>
-                <Link href="/membership" className="hover:text-white transition-colors">
+                <Link href="/membership" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Membership Application
                 </Link>
               </li>
@@ -146,31 +146,31 @@ export function Footer({ settings }: FooterProps) {
             <h3 className="text-xs uppercase font-bold tracking-wider text-[#E5BE6A]">
               Governance & Policies
             </h3>
-            <ul className="space-y-2 text-sm text-[#C3C9C2]">
+            <ul className="space-y-1 sm:space-y-2 text-sm text-[#C3C9C2]">
               <li>
-                <Link href="/policies" className="hover:text-white transition-colors">
+                <Link href="/policies" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Privacy & Data Retention
                 </Link>
               </li>
               <li>
-                <Link href="/policies#consent" className="hover:text-white transition-colors">
+                <Link href="/policies#consent" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Photo Publication Consent
                 </Link>
               </li>
               <li>
-                <Link href="/policies#accessibility" className="hover:text-white transition-colors">
+                <Link href="/policies#accessibility" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   WCAG 2.2 AA Accessibility
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-white transition-colors">
+                <Link href="/contact" className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 hover:text-white transition-colors">
                   Contact & Partnerships
                 </Link>
               </li>
               <li className="pt-2">
                 <Link
                   href="/admin"
-                  className="inline-flex items-center gap-1.5 text-xs text-[#E5BE6A] hover:underline font-semibold"
+                  className="inline-flex items-center min-h-[36px] sm:min-h-0 py-1 gap-1.5 text-xs text-[#E5BE6A] hover:underline font-semibold"
                 >
                   <Shield className="w-3.5 h-3.5" />
                   Admin CMS Portal

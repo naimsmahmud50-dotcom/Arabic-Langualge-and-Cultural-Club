@@ -34,7 +34,7 @@ import { Card, CardContent, Badge, EmptyState, Button, HeritageDivider } from "@
 import { 
   getCommitteeTerms, 
   getCommitteeMembersByTerm, 
-  getMemberCommitteeHistory 
+  getMembersCommitteeHistoryBatch 
 } from "@/lib/db/queries";
 import { 
   Shield, 
@@ -83,17 +83,28 @@ export default async function LeadershipPage({ searchParams }: LeadershipPagePro
     ? await getCommitteeMembersByTerm(activeTerm.id).catch(() => []) 
     : [];
 
-  // For each officer in the term, query multi-term service history
-  const membersWithHistory = await Promise.all(
-    rawMembers.map(async (m) => {
-      const history = await getMemberCommitteeHistory(m.memberId).catch(() => []);
-      return {
-        ...m,
-        termsServed: history.map((h) => h.academicYear),
-        totalTermsCount: history.length,
-      };
-    })
-  );
+  // Single batched query for multi-term service history across all members
+  const memberIds = rawMembers.map((m) => m.memberId);
+  const allHistories = memberIds.length > 0
+    ? await getMembersCommitteeHistoryBatch(memberIds).catch(() => [])
+    : [];
+
+  const historyByMember = new Map<string, string[]>();
+  for (const h of allHistories) {
+    if (!h.memberId) continue;
+    const list = historyByMember.get(h.memberId) || [];
+    if (h.academicYear) list.push(h.academicYear);
+    historyByMember.set(h.memberId, list);
+  }
+
+  const membersWithHistory = rawMembers.map((m) => {
+    const termsServed = historyByMember.get(m.memberId) || [];
+    return {
+      ...m,
+      termsServed,
+      totalTermsCount: termsServed.length,
+    };
+  });
 
   const breadcrumbs = [
     { label: "Home", href: "/" },
@@ -135,11 +146,11 @@ export default async function LeadershipPage({ searchParams }: LeadershipPagePro
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-8 sm:space-y-12 lg:space-y-16">
 
         {/* 2. Term Switcher / Historical Navigation Toolbar */}
-        <section className="bg-[var(--bg-surface)] p-6 md:p-8 rounded-[8px] border border-[var(--border-color)] shadow-sm space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <section className="bg-[var(--bg-surface)] p-4 sm:p-6 md:p-8 rounded-[8px] border border-[var(--border-color)] shadow-sm space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs uppercase tracking-wider font-bold text-[var(--brand-accent)]">
@@ -149,25 +160,25 @@ export default async function LeadershipPage({ searchParams }: LeadershipPagePro
                   (Constitutional Term-by-Term Preservation)
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
+              <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)] leading-tight">
                 Browse Governing Councils
               </h2>
             </div>
 
-            <Badge variant={activeTerm.isCurrent ? "primary" : "accent"} size="md">
+            <Badge variant={activeTerm.isCurrent ? "primary" : "accent"} size="md" className="self-start sm:self-auto">
               {activeTerm.isCurrent ? "Active Governing Council (المجلس الحالي)" : "Historical Archive (سابق)"}
             </Badge>
           </div>
 
           {/* Academic Term Selection Buttons */}
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
             {terms.map((t) => {
               const isSelected = activeTerm?.id === t.id;
               return (
                 <Link
                   key={t.id}
                   href={`/leadership?term=${t.id}`}
-                  className={`px-4 py-2.5 rounded-[6px] text-xs font-semibold tracking-wide transition-all border flex items-center gap-2 ${
+                  className={`px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-[6px] text-xs font-semibold tracking-wide transition-all border flex items-center gap-2 shrink-0 whitespace-nowrap min-h-[44px] ${
                     isSelected
                       ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-xs"
                       : "bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border-[var(--border-color)] hover:border-[var(--brand-accent)]"
@@ -186,7 +197,7 @@ export default async function LeadershipPage({ searchParams }: LeadershipPagePro
           </div>
 
           {/* Active Term Summary Card */}
-          <div className="pt-4 border-t border-[var(--border-color)] grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="pt-4 border-t border-[var(--border-color)] grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             <div className="md:col-span-2 space-y-1.5">
               <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
                 {activeTerm.titleEn}
@@ -246,14 +257,14 @@ export default async function LeadershipPage({ searchParams }: LeadershipPagePro
           </div>
 
           {membersWithHistory.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {membersWithHistory.map((officer, idx) => (
                 <Card 
                   key={officer.assignmentId} 
                   hoverElevate 
                   className="border-[var(--border-color)] bg-[var(--bg-surface)] overflow-hidden flex flex-col justify-between shadow-sm"
                 >
-                  <CardContent className="p-6 space-y-4">
+                  <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                     {/* Header: Position Badge & Rank Precedence */}
                     <div className="flex items-center justify-between gap-2">
                       <Badge variant={officer.rankOrder <= 2 ? "primary" : "neutral"} size="sm">

@@ -110,7 +110,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
   };
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="space-y-8 sm:space-y-12 pb-12 sm:pb-20">
       {/* 1. Header */}
       <PageHeader
         title="Arabic Learning Resource Center"
@@ -120,9 +120,9 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-10">
         {/* 2. Filter & Search Controls */}
-        <div className="bg-[var(--bg-surface)] p-6 rounded-[8px] border border-[var(--border-color)] space-y-5">
+        <div className="bg-[var(--bg-surface)] p-4 sm:p-6 rounded-[8px] border border-[var(--border-color)] space-y-4 sm:space-y-5">
           {/* Top Row: Search & Active Filters */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-[var(--brand-accent)]">
@@ -139,7 +139,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
                 name="q"
                 defaultValue={searchQuery}
                 placeholder="Search syntax guides, roots..."
-                className="w-full pl-9 pr-4 py-2 text-xs rounded-[5px] bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--brand-accent)]"
+                className="w-full pl-9 pr-4 py-2.5 text-xs rounded-[5px] bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--brand-accent)] min-h-[44px]"
               />
             </form>
           </div>
@@ -215,7 +215,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
         {/* 3. Resources Grid */}
         <section className="space-y-6">
           {resources.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {resources.map((res) => {
                 const levelVariant = 
                   res.skillLevel === "beginner" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-300/40" :
@@ -224,7 +224,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
 
                 return (
                   <Card key={res.id} hoverElevate className="border-[var(--border-color)] flex flex-col justify-between">
-                    <CardContent className="p-6 space-y-4">
+                    <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                       <div className="flex items-center justify-between">
                         <Badge variant="accent" size="sm" className="capitalize">
                           {res.category || "General"}
@@ -260,7 +260,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
                       </div>
                     </CardContent>
 
-                    <div className="p-6 pt-0">
+                    <div className="p-4 sm:p-6 pt-0">
                       <a
                         href={res.fileUrl || "#"}
                         target="_blank"
@@ -270,7 +270,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full justify-between"
+                          className="w-full justify-between min-h-[44px]"
                           rightIcon={<Download className="w-3.5 h-3.5" />}
                         >
                           <span>Download Material</span>

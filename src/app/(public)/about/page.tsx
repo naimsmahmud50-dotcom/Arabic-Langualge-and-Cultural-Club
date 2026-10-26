@@ -137,12 +137,12 @@ export default async function AboutPage() {
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-12 sm:space-y-20">
         
         {/* 2. Mission & Vision Dual Heritage Showcase */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8" id="mission-vision">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8" id="mission-vision">
           {/* Mission Card */}
-          <Card className="border-[var(--border-color)] bg-[var(--bg-surface)] p-8 flex flex-col justify-between space-y-6 shadow-sm">
+          <Card className="border-[var(--border-color)] bg-[var(--bg-surface)] p-4 sm:p-6 lg:p-8 flex flex-col justify-between space-y-5 sm:space-y-6 shadow-sm">
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-[6px] bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center border border-[var(--brand-primary)]/20">
                 <Target className="w-6 h-6" />
@@ -151,21 +151,21 @@ export default async function AboutPage() {
                 <Badge variant="accent" size="sm">
                   {missionSection?.contentEn.badge || "Our Mission"}
                 </Badge>
-                <h2 className="text-2xl font-serif font-bold text-[var(--text-primary)]">
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
                   {missionSection?.contentEn.heading || "Institutional Mission"}
                 </h2>
                 <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
                   {missionSection?.contentAr.heading || "رسالتنا المؤسسية الرصينة"}
                 </p>
               </div>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
                 {missionSection?.contentEn.body || "To cultivate an academic environment that empowers students to master Arabic linguistics, appreciate the depth of Islamic and classical literature, and articulate thought with eloquence, integrity, and analytical depth."}
               </p>
             </div>
             
             {missionSection?.contentEn.quote && (
               <div className="pt-4 border-t border-[var(--border-color)] space-y-1">
-                <blockquote className="font-arabic text-base text-[var(--brand-accent)]" dir="rtl">
+                <blockquote className="font-arabic text-sm sm:text-base text-[var(--brand-accent)]" dir="rtl">
                   {missionSection.contentEn.quote.text}
                 </blockquote>
                 {missionSection.contentEn.quote.attribution && (
@@ -178,7 +178,7 @@ export default async function AboutPage() {
           </Card>
 
           {/* Vision Card */}
-          <Card className="border-[var(--border-color)] bg-[var(--bg-surface)] p-8 flex flex-col justify-between space-y-6 shadow-sm">
+          <Card className="border-[var(--border-color)] bg-[var(--bg-surface)] p-4 sm:p-6 lg:p-8 flex flex-col justify-between space-y-5 sm:space-y-6 shadow-sm">
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-[6px] bg-[var(--brand-accent)]/10 text-[var(--brand-accent)] flex items-center justify-center border border-[var(--brand-accent)]/20">
                 <Compass className="w-6 h-6" />
@@ -187,14 +187,14 @@ export default async function AboutPage() {
                 <Badge variant="accent" size="sm">
                   {visionSection?.contentEn.badge || "Our Vision"}
                 </Badge>
-                <h2 className="text-2xl font-serif font-bold text-[var(--text-primary)]">
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
                   {visionSection?.contentEn.heading || "Institutional Vision"}
                 </h2>
                 <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
                   {visionSection?.contentAr.heading || "رؤيتنا المستقبلية الواعدة"}
                 </p>
               </div>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
                 {visionSection?.contentEn.body || "To be the premier university forum for Arabic literary scholarship, recognized regionally for producing articulate leaders, eloquent orators, and scholarly publications that bridge traditional heritage and contemporary intellectual dialogue."}
               </p>
             </div>
@@ -231,11 +231,11 @@ export default async function AboutPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               {valuesSection.contentEn.items?.map((val: SectionContentItem, idx: number) => (
                 <Card 
                   key={val.id || idx} 
-                  className="border-[var(--border-color)] bg-[var(--bg-surface)] p-6 space-y-4 hover:border-[var(--brand-accent)] transition-colors shadow-sm"
+                  className="border-[var(--border-color)] bg-[var(--bg-surface)] p-4 sm:p-6 space-y-3 sm:space-y-4 hover:border-[var(--brand-accent)] transition-colors shadow-sm"
                 >
                   <div className="flex items-center justify-between">
                     <div className="w-10 h-10 rounded-[6px] bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center">
@@ -266,24 +266,24 @@ export default async function AboutPage() {
 
         {/* 4. The Four Academic Pillars Section */}
         {pillarsSection && (
-          <section className="space-y-10" id="pillars">
+          <section className="space-y-6 sm:space-y-10" id="pillars">
             <div className="text-center max-w-2xl mx-auto space-y-3">
               <Badge variant="neutral" size="sm">
                 {pillarsSection.contentEn.badge || "Operational Framework"}
               </Badge>
-              <h2 className="text-3xl font-serif font-bold text-[var(--text-primary)]">
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
                 {pillarsSection.contentEn.heading || "The Four Academic Pillars"}
               </h2>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
                 {pillarsSection.contentEn.subheading || "Our comprehensive operational framework across linguistic and cultural domains."}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {pillarsSection.contentEn.items?.map((pillar: SectionContentItem, idx: number) => (
                 <div 
                   key={idx}
-                  className="border border-[var(--border-color)] bg-[var(--bg-surface)] p-6 rounded-[6px] space-y-3 flex flex-col justify-between"
+                  className="border border-[var(--border-color)] bg-[var(--bg-surface)] p-4 sm:p-6 rounded-[6px] space-y-3 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <Badge variant="accent" size="sm">
@@ -313,7 +313,7 @@ export default async function AboutPage() {
 
         {/* 6. Constitution & Governance Charter (Downloadable Document & Verification) */}
         {constitutionSection && (
-          <section className="bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-[8px] p-8 md:p-10 space-y-6" id="constitution">
+          <section className="bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-[8px] p-4 sm:p-8 md:p-10 space-y-6" id="constitution">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-start gap-4 max-w-2xl">
                 <ClubLogo variant="crest" size="lg" className="shrink-0 hidden sm:inline-flex drop-shadow-sm" />
@@ -326,17 +326,17 @@ export default async function AboutPage() {
                       Verified Institutional Record
                     </span>
                   </div>
-                  <h2 className="text-2xl font-serif font-bold text-[var(--text-primary)]">
+                  <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
                     {constitutionSection.contentEn.heading || "Club Constitution & Institutional Governance"}
                   </h2>
-                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
                     {constitutionSection.contentEn.body || "The Arabic Language & Cultural Club operates under an institutional constitution ratified by the founding general assembly. The constitution mandates annual executive committee transitions, democratic representation, transparent auditing of club assets, and permanent preservation of archival records."}
                   </p>
                 </div>
               </div>
 
               {/* Downloadable Constitution Card */}
-              <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[6px] p-5 shrink-0 w-full md:w-80 space-y-4 shadow-sm">
+              <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-[6px] p-4 sm:p-5 shrink-0 w-full md:w-80 space-y-4 shadow-sm">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-[6px] bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center shrink-0">
                     <FileText className="w-5 h-5" />
@@ -356,7 +356,7 @@ export default async function AboutPage() {
                   download
                   className="w-full inline-block"
                 >
-                  <Button variant="accent" size="sm" className="w-full" leftIcon={<Download className="w-3.5 h-3.5" />}>
+                  <Button variant="accent" size="sm" className="w-full min-h-[44px]" leftIcon={<Download className="w-3.5 h-3.5" />}>
                     Download Constitution
                   </Button>
                 </a>
@@ -366,7 +366,7 @@ export default async function AboutPage() {
         )}
 
         {/* 6. Archival Cross-Link Navigation Banner */}
-        <section className="bg-[var(--bg-surface)] p-8 rounded-[8px] border border-[var(--border-color)] shadow-sm">
+        <section className="bg-[var(--bg-surface)] p-4 sm:p-8 rounded-[8px] border border-[var(--border-color)] shadow-sm">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center lg:text-left">
               <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">

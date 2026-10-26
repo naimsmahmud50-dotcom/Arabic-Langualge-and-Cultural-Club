@@ -58,7 +58,7 @@ export function HeroSection({ stats, settings }: HeroSectionProps) {
 
   return (
     <section 
-      className="relative overflow-hidden bg-[var(--brand-dark)] text-[#F5F0E5] pt-24 pb-20 lg:pt-28 lg:pb-24 border-b border-[var(--border-color)]"
+      className="relative overflow-hidden bg-[var(--brand-dark)] text-[#F5F0E5] pt-10 pb-12 sm:pt-16 sm:pb-16 lg:pt-24 lg:pb-20 border-b border-[var(--border-color)]"
       aria-label="Institutional Welcome & Motto"
     >
       {/* Background Image Overlay if Configured */}
@@ -75,58 +75,74 @@ export function HeroSection({ stats, settings }: HeroSectionProps) {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Main Editorial Content Column */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[5px] bg-white/10 border border-white/20 text-xs font-semibold text-[#E5BE6A] uppercase tracking-wider">
+          <div className="lg:col-span-8 space-y-5 sm:space-y-6">
+            {/* Mobile Crest & Badge */}
+            <div className="flex items-center gap-3 lg:hidden">
+              <ClubLogo 
+                variant="crest" 
+                size="md" 
+                src={logoSrc} 
+                priority 
+                className="w-11 h-11 shrink-0 drop-shadow-md" 
+              />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[5px] bg-white/10 border border-white/20 text-[11px] font-semibold text-[#E5BE6A] uppercase tracking-wider">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>{badgeText}</span>
+              </div>
+            </div>
+
+            <div className="hidden lg:inline-flex items-center gap-2 px-3 py-1.5 rounded-[5px] bg-white/10 border border-white/20 text-xs font-semibold text-[#E5BE6A] uppercase tracking-wider">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>{badgeText}</span>
             </div>
 
             {/* Bilingual Typography Header */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <p 
-                className="font-arabic text-2xl sm:text-3xl text-[#E5BE6A] font-semibold leading-relaxed" 
+                className="font-arabic text-lg sm:text-2xl lg:text-3xl text-[#E5BE6A] font-semibold leading-relaxed" 
                 dir="rtl"
                 lang="ar"
               >
                 {arabicHeading}
               </p>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight font-serif">
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight font-serif">
                 {titleText}
               </h1>
             </div>
 
-            <p className="text-lg sm:text-xl text-[#D8DFD7] leading-relaxed max-w-2xl font-light">
+            <p className="text-sm sm:text-lg text-[#D8DFD7] leading-relaxed max-w-2xl font-light">
               {subtitleText}
             </p>
 
             {/* Primary Meaningful Calls to Action */}
-            <div className="pt-4 flex flex-wrap items-center gap-4">
-              <Link href={ctaPrimaryLink} prefetch={false}>
+            <div className="pt-2 sm:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+              <Link href={ctaPrimaryLink} className="w-full sm:w-auto">
                 <Button 
                   variant="accent" 
                   size="lg" 
+                  className="w-full sm:w-auto min-h-[44px] justify-center"
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
                   {ctaPrimaryLabel}
                 </Button>
               </Link>
-              <Link href={ctaSecondaryLink} prefetch={false}>
+              <Link href={ctaSecondaryLink} className="w-full sm:w-auto">
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="border-white/30 text-white hover:bg-white/10"
+                  className="w-full sm:w-auto min-h-[44px] justify-center border-white/30 text-white hover:bg-white/10"
                 >
                   {ctaSecondaryLabel}
                 </Button>
               </Link>
-              <Link href={ctaTertiaryLink} prefetch={false}>
+              <Link href={ctaTertiaryLink} className="w-full sm:w-auto">
                 <Button 
                   variant="ghost" 
                   size="lg" 
-                  className="text-[#E5BE6A] hover:bg-white/5"
+                  className="w-full sm:w-auto min-h-[44px] justify-center text-[#E5BE6A] hover:bg-white/5"
                   leftIcon={<Calendar className="w-4 h-4" />}
                 >
                   {ctaTertiaryLabel}
@@ -135,18 +151,18 @@ export function HeroSection({ stats, settings }: HeroSectionProps) {
             </div>
 
             {/* Verified Institutional Metadata Ribbon */}
-            <div className="pt-8 border-t border-white/15 grid grid-cols-2 sm:grid-cols-3 gap-6 text-xs text-[#C5D0C7]">
+            <div className="pt-6 sm:pt-8 border-t border-white/15 grid grid-cols-3 gap-3 sm:gap-6 text-xs text-[#C5D0C7]">
               <div>
-                <span className="block text-xl font-bold text-white font-mono">{foundingYear}</span>
-                <span className="text-[11px] uppercase tracking-wider text-[#E5BE6A]">Year of Foundation</span>
+                <span className="block text-lg sm:text-xl font-bold text-white font-mono">{foundingYear}</span>
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#E5BE6A]">Foundation</span>
               </div>
               <div>
-                <span className="block text-xl font-bold text-white font-mono">100%</span>
-                <span className="text-[11px] uppercase tracking-wider text-[#E5BE6A]">Verified Records</span>
+                <span className="block text-lg sm:text-xl font-bold text-white font-mono">100%</span>
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#E5BE6A]">Verified Records</span>
               </div>
-              <div className="col-span-2 sm:col-span-1">
-                <span className="block text-xl font-bold text-white font-arabic" dir="rtl">اللغة الخالدة</span>
-                <span className="text-[11px] uppercase tracking-wider text-[#E5BE6A]">Classical Heritage</span>
+              <div>
+                <span className="block text-lg sm:text-xl font-bold text-white font-arabic" dir="rtl">اللغة الخالدة</span>
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#E5BE6A]">Heritage</span>
               </div>
             </div>
           </div>

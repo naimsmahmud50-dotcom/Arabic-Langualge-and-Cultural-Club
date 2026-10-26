@@ -87,12 +87,23 @@
     border-color: var(--border-color);
   }
 
+  html {
+    overflow-x: hidden;
+    max-width: 100vw;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     font-family: var(--font-inter, system-ui, -apple-system, sans-serif);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    max-width: 100vw;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Refined Editorial Headings */
@@ -210,5 +221,14 @@
 
 .ornamental-gold-border {
   border-image: linear-gradient(to right, transparent, var(--brand-accent), transparent) 1;
+}
+
+/* Touch-friendly horizontal scroll utility without visible scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 

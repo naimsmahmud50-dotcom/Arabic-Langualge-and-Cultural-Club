@@ -58,31 +58,31 @@ export function IntroductionSection({ settings }: IntroductionSectionProps) {
   ];
 
   return (
-    <section className="py-20 bg-[var(--bg-primary)] border-b border-[var(--border-color)]" aria-label="Introduction to the Club">
+    <section className="py-10 sm:py-16 lg:py-20 bg-[var(--bg-primary)] border-b border-[var(--border-color)]" aria-label="Introduction to the Club">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16 space-y-2 sm:space-y-3">
           <Badge variant="accent" size="sm">{badgeText}</Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] font-serif">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)] font-serif leading-tight">
             {titleText}
           </h2>
-          <p className="font-arabic text-base text-[var(--brand-accent)] font-medium" dir="rtl">
+          <p className="font-arabic text-sm sm:text-base text-[var(--brand-accent)] font-medium" dir="rtl">
             {subtitleText}
           </p>
-          <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
             {descText}
           </p>
         </div>
 
         {/* Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {pillars.map((pillar, idx) => {
             const Icon = pillar.icon;
             return (
               <Card key={idx} hoverElevate className="border-[var(--border-color)] bg-[var(--bg-surface)]">
-                <CardContent className="p-6 space-y-4">
-                  <div className="w-12 h-12 rounded-[6px] bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] dark:text-[var(--brand-accent)] flex items-center justify-center">
-                    <Icon className="w-6 h-6" />
+                <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[6px] bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] dark:text-[var(--brand-accent)] flex items-center justify-center">
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-[var(--text-primary)]">
