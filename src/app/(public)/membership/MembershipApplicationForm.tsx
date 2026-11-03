@@ -32,12 +32,14 @@ import {
   ArrowRight,
   Info
 } from "lucide-react";
+import { transliterateEnglishToAr } from "@/lib/utils/arabic-transliteration";
 
 export function MembershipApplicationForm() {
   const [isPending, startTransition] = useTransition();
   const [submissionResult, setSubmissionResult] = useState<ApplicationSubmissionResult | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState(false);
+  const [isArNameManuallyEdited, setIsArNameManuallyEdited] = useState(false);
 
   // Form Field States
   const [formData, setFormData] = useState({
@@ -56,11 +58,41 @@ export function MembershipApplicationForm() {
     directoryConsent: true,
   });
 
+  const handleSyncArabicName = () => {
+    const autoAr = transliterateEnglishToAr(formData.applicantName);
+    setFormData(prev => ({ ...prev, applicantNameAr: autoAr }));
+    setIsArNameManuallyEdited(false);
+    if (fieldErrors["applicantNameAr"]) {
+      setFieldErrors(prev => {
+        const updated = { ...prev };
+        delete updated["applicantNameAr"];
+        return updated;
+      });
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-    if (type === "checkbox") {
+    if (name === "applicantName") {
+      const newEnglishName = value;
+      setFormData(prev => {
+        const autoAr = !isArNameManuallyEdited ? transliterateEnglishToAr(newEnglishName) : prev.applicantNameAr;
+        return {
+          ...prev,
+          applicantName: newEnglishName,
+          applicantNameAr: autoAr,
+        };
+      });
+    } else if (name === "applicantNameAr") {
+      if (!value.trim()) {
+        setIsArNameManuallyEdited(false);
+      } else {
+        setIsArNameManuallyEdited(true);
+      }
+      setFormData(prev => ({ ...prev, applicantNameAr: value }));
+    } else if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
@@ -282,16 +314,40 @@ export function MembershipApplicationForm() {
               error={!!fieldErrors.applicantName}
               helperText={fieldErrors.applicantName || "As printed on your university identification card"}
             />
-            <Input
-              label="الاسم الكامل باللغة العربية (Arabic Name)"
-              name="applicantNameAr"
-              value={formData.applicantNameAr}
-              onChange={handleChange}
-              placeholder="مثال: عبد الله بن سالم"
-              dir="rtl"
-              error={!!fieldErrors.applicantNameAr}
-              helperText={fieldErrors.applicantNameAr || "الاسم الثلاثي أو الرباعي بالرسم الصحيح"}
-            />
+            <div className="space-y-1.5 w-full">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-[var(--text-primary)]">
+                  الاسم الكامل باللغة العربية (Arabic Name)
+                </label>
+                {formData.applicantName.trim().length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleSyncArabicName}
+                    className="text-[11px] text-[var(--brand-accent)] hover:underline flex items-center gap-1 font-medium transition-colors cursor-pointer"
+                    title="Auto-generate or re-sync Arabic name from English"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>{isArNameManuallyEdited ? "Re-sync" : "Auto-synced"}</span>
+                  </button>
+                )}
+              </div>
+              <Input
+                name="applicantNameAr"
+                value={formData.applicantNameAr}
+                onChange={handleChange}
+                placeholder="مثال: عبد الله بن سالم"
+                dir="rtl"
+                error={!!fieldErrors.applicantNameAr}
+                helperText={
+                  fieldErrors.applicantNameAr ||
+                  (formData.applicantNameAr && !isArNameManuallyEdited
+                    ? "Auto-generated from English (editable anytime)"
+                    : isArNameManuallyEdited
+                    ? "Custom spelling active (click 'Re-sync' to reset)"
+                    : "الاسم الثلاثي أو الرباعي بالرسم الصحيح")
+                }
+              />
+            </div>
           </div>
         </div>
 
