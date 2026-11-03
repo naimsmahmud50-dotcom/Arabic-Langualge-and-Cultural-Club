@@ -228,7 +228,7 @@ async function runGovernanceTests() {
       { key: "club_name", valueEn: "Arabic Language & Cultural Club", valueAr: "نادي اللغة والثقافة العربية", category: "general" },
       { key: "club_tagline", valueEn: "Preserving Heritage, Advancing Eloquence, Cultivating Leadership", valueAr: "صون التراث، وترقية البيان، وبناء القيادات", category: "general" },
       { key: "contact_email", valueEn: "contact@arabicclub.internal", valueAr: "contact@arabicclub.internal", category: "contact" },
-      { key: "social_facebook", valueEn: "https://facebook.com/ArabicClubOfficial", valueAr: "https://facebook.com/ArabicClubOfficial", category: "social" },
+      { key: "social_facebook", valueEn: "https://www.facebook.com/profile.php?id=61581814677754&mibextid=ZbWKwL", valueAr: "https://www.facebook.com/profile.php?id=61581814677754&mibextid=ZbWKwL", category: "social" },
     ]);
     await db.delete(siteSettings).where(eq(siteSettings.key, "contact_phone"));
     await db.delete(siteSettings).where(eq(siteSettings.key, "meta_description"));

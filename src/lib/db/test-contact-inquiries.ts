@@ -79,7 +79,7 @@ async function runContactInquiriesTestSuite() {
       "ANTI-FABRICATION: Unsupplied Twitter URL is null (not invented)"
     );
     assert(
-      settings.socialFacebook === "https://facebook.com/ArabicClubOfficial",
+      settings.socialFacebook === "https://www.facebook.com/profile.php?id=61581814677754&mibextid=ZbWKwL",
       `Verified Official Facebook: ${settings.socialFacebook}`
     );
   } catch (err: any) {

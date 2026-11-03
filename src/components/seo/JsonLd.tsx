@@ -30,6 +30,7 @@ export function JsonLd({ customSchema }: JsonLdProps) {
     "@id": `${baseUrl}/#organization`,
     name: "Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka",
     alternateName: [
+      "Arabic Language And Cultural Club",
       "نادي اللغة والثقافة العربية، كلية كابي نذرول الحكومية",
       "কবি নজরুল সরকারি কলেজ আরবি ভাষা ও সংস্কৃতি সংসদ"
     ],
@@ -50,7 +51,7 @@ export function JsonLd({ customSchema }: JsonLdProps) {
     },
     knowsLanguage: ["ar", "en", "bn"],
     sameAs: [
-      "https://facebook.com/arabicclub",
+      "https://www.facebook.com/profile.php?id=61581814677754&mibextid=ZbWKwL",
       "https://twitter.com/arabicclub",
       "https://youtube.com/@arabicclub"
     ],

@@ -17,7 +17,7 @@
 import React from "react";
 import Link from "next/link";
 import { GeometricPattern, HeritageDivider, ClubLogo } from "@/components/ui";
-import { Shield, Mail, MapPin, Globe } from "lucide-react";
+import { Shield, Mail, MapPin, Globe, ExternalLink } from "lucide-react";
 import { type SiteSettings } from "@/lib/types/settings";
 
 export interface FooterProps {
@@ -32,6 +32,8 @@ export function Footer({ settings }: FooterProps) {
   const aboutText = settings?.footer_about_text_en || "An enduring institutional archive and digital platform advancing classical Arabic eloquence, literary scholarship, cultural heritage, and student leadership.";
   const motto = settings?.footer_motto_ar || settings?.footer_motto_en || "«لِسَانُ الْعَرَبِ حِلْيَةُ الْأَدَبِ وَمِفْتَاحُ الْفَهْمِ»";
   const copyrightText = settings?.footer_copyright_en || "Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka. All institutional rights reserved.";
+  const contactEmail = settings?.contact_email || "arabicclubkngc2025@gmail.com";
+  const facebookUrl = settings?.social_facebook || "https://www.facebook.com/profile.php?id=61581814677754&mibextid=ZbWKwL";
 
   return (
     <footer className="relative bg-[var(--brand-dark)] text-[#F5F0E5] pt-10 sm:pt-16 pb-8 sm:pb-12 border-t border-[var(--border-color)] overflow-hidden">
@@ -65,6 +67,35 @@ export function Footer({ settings }: FooterProps) {
 
             <div className="pt-2 text-xs text-[#E5BE6A] font-medium">
               {motto}
+            </div>
+
+            {/* Direct Official Contact & Social Media */}
+            <div className="pt-3 flex flex-wrap gap-2 text-xs">
+              {contactEmail && (
+                <a
+                  href={`mailto:${contactEmail}`}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-white/5 hover:bg-white/10 text-[#C3C9C2] hover:text-white transition-colors border border-white/10 focus:outline-none focus:ring-1 focus:ring-[#E5BE6A]"
+                  aria-label={`Official Email: ${contactEmail}`}
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#E5BE6A]" />
+                  <span>{contactEmail}</span>
+                </a>
+              )}
+              {facebookUrl && (
+                <a
+                  href={facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-white/5 hover:bg-white/10 text-[#C3C9C2] hover:text-white transition-colors border border-white/10 focus:outline-none focus:ring-1 focus:ring-[#E5BE6A]"
+                  aria-label="Official Facebook Page (opens in new tab)"
+                >
+                  <svg className="w-3.5 h-3.5 fill-current text-[#E5BE6A]" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                  <span>Official Facebook</span>
+                  <ExternalLink className="w-3 h-3 text-[#E5BE6A]/70" />
+                </a>
+              )}
             </div>
           </div>
 

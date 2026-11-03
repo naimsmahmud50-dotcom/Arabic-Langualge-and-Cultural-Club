@@ -81,8 +81,8 @@ export async function seedDatabase() {
     {
       id: "set_social_facebook",
       key: "social_facebook",
-      valueEn: "https://facebook.com/ArabicClubOfficial",
-      valueAr: "https://facebook.com/ArabicClubOfficial",
+      valueEn: "https://www.facebook.com/profile.php?id=61581814677754&mibextid=ZbWKwL",
+      valueAr: "https://www.facebook.com/profile.php?id=61581814677754&mibextid=ZbWKwL",
       category: "social",
       updatedAt: now,
     },

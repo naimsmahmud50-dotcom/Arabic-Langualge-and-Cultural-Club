@@ -151,7 +151,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   office_hours_ar: "الأحد – الخميس: 10:00 صباحاً – 4:00 مساءً (أوقات الدراسة)",
 
   // Social Media
-  social_facebook: "https://facebook.com/ArabicClubOfficial",
+  social_facebook: "https://www.facebook.com/profile.php?id=61581814677754&mibextid=ZbWKwL",
   social_youtube: "https://youtube.com/@ArabicClubOfficial",
   social_twitter: "",
   social_instagram: "",
