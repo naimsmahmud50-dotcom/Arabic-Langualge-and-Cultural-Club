@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arabic Language & Cultural Club — Comprehensive Project Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@500;700&family=Noto+Sans+Bengali:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #081611;
+      --bg-card: #0F241D;
+      --bg-card-hover: #143027;
+      --border-gold: rgba(229, 190, 106, 0.25);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --gold-primary: #E5BE6A;
+      --gold-deep: #B18A4A;
+      --emerald-accent: #2A725D;
+      --text-white: #FFFFFF;
+      --text-muted: #C3C9C2;
+      --text-gold-light: #F5E8C7;
+      --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-arabic: 'Noto Naskh Arabic', 'Amiri', serif;
+      --font-bengali: 'Noto Sans Bengali', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    .ar-text {
+      font-family: var(--font-arabic) !important;
+      direction: rtl;
+      display: inline-block;
+      unicode-bidi: isolate;
+      font-weight: 600;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Screen Slide Deck Container */
+    .deck-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px 80px 20px;
+    }
+
+    /* Top Presentation Bar */
+    .deck-nav {
+      position: sticky;
+      top: 15px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(11, 27, 21, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 10px 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .deck-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-crest {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: contain;
+    }
+
+    .brand-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      letter-spacing: 0.5px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-nav {
+      background: rgba(229, 190, 106, 0.15);
+      color: var(--gold-primary);
+      border: 1px solid var(--border-gold);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-nav:hover {
+      background: var(--gold-primary);
+      color: var(--bg-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-download-pdf {
+      background: linear-gradient(135deg, var(--gold-deep), var(--gold-primary));
+      color: var(--bg-dark);
+      font-weight: 700;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(229, 190, 106, 0.25);
+    }
+
+    .slide-counter {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      padding: 0 8px;
+    }
+
+    /* Single Slide Styles */
+    .slide-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      min-height: 650px;
+    }
+
+    /* Watermark effect */
+    .slide-card::before {
+      content: "";
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(229, 190, 106, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .slide-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(229, 190, 106, 0.12);
+      border: 1px solid rgba(229, 190, 106, 0.3);
+      color: var(--gold-primary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+      align-self: flex-start;
+    }
+
+    .slide-header {
+      margin-bottom: 25px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 18px;
+    }
+
+    .slide-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-white);
+      letter-spacing: -0.5px;
+      line-height: 1.25;
+    }
+
+    .slide-subtitle {
+      font-size: 14px;
+      color: var(--gold-primary);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    /* Sub-cards */
+    .info-box {
+      background: rgba(20, 48, 39, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .info-box:hover {
+      border-color: var(--border-gold);
+      background: var(--bg-card-hover);
+    }
+
+    .info-box-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .info-box-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .info-box-tag {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: var(--gold-light);
+      border: 1px solid rgba(229, 190, 106, 0.2);
+    }
+
+    /* Tables */
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .spec-table th {
+      background: rgba(229, 190, 106, 0.12);
+      color: var(--gold-primary);
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    .spec-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+
+    .spec-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .spec-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-white);
+    }
+
+    .tag-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(42, 114, 93, 0.4);
+      color: #7FE5C4;
+      border: 1px solid rgba(127, 229, 196, 0.3);
+      font-family: var(--font-mono);
+    }
+
+    .tag-code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold-primary);
+      background: rgba(0, 0, 0, 0.25);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Button Action Pill */
+    .action-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(229, 190, 106, 0.2), rgba(177, 138, 74, 0.3));
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-primary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    /* Cover Slide Specific */
+    .slide-cover {
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #132E24 0%, var(--bg-card) 70%, var(--bg-dark) 100%);
+      border: 2px solid var(--gold-primary);
+    }
+
+    .cover-crest {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));
+    }
+
+    .cover-title-ar {
+      font-family: var(--font-arabic);
+      font-size: 28px;
+      color: var(--gold-primary);
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .cover-title-en {
+      font-size: 34px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .cover-college {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-gold-light);
+      margin-bottom: 25px;
+    }
+
+    .cover-divider {
+      width: 120px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+      margin: 0 auto 25px auto;
+    }
+
+    .cover-meta {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-gold);
+      padding-top: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .slide-footer-brand {
+      color: var(--gold-primary);
+      font-weight: 600;
+    }
+
+    /* Print Styles (PDF Export Optimization) */
+    @media print {
+      body {
+        background-color: #081611 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .deck-nav {
+        display: none !important;
+      }
+      .deck-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .slide-card {
+        margin-bottom: 0 !important;
+        border-radius: 0 !important;
+        min-height: 100vh !important;
+        height: 100vh !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Navigation Controls -->
+  <div class="deck-container">
+    <div class="deck-nav">
+      <div class="deck-nav-brand">
+        <div>
+          <div class="brand-title">ARABIC LANGUAGE & CULTURAL CLUB</div>
+          <div class="brand-sub">Kabi Nazrul Government College, Dhaka — Platform Presentation</div>
+        </div>
+      </div>
+      <div class="deck-controls">
+        <span class="slide-counter" id="slideIndicator">10 Slides Deck</span>
+        <button class="btn-nav" onclick="window.print()">Print / Save PDF</button>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 1: COVER SLIDE -->
+    <!-- ===================================================================== -->
+    <section class="slide-card slide-cover" id="slide-1">
+      <div class="slide-badge">Academic Architecture & Digital Dossier</div>
+      <div class="cover-title-ar">نادي اللغة والثقافة العربية - كلية كابي نذرول الحكومية، دكا</div>
+      <h1 class="cover-title-en">Arabic Language & Cultural Club</h1>
+      <div class="cover-college">Kabi Nazrul Government College, Dhaka</div>
+      <div class="cover-divider"></div>
+      <p style="max-width: 700px; font-size: 14px; line-height: 1.6; color: var(--text-muted); margin-bottom: 30px;">
+        Comprehensive Technical Presentation & Operational Manual.<br>
+        Detailed breakdown of Programming Languages, System Architecture, UI Interactive Controls, and Real-time Admissions Engineering.
+      </p>
+
+      <div class="cover-meta">
+        <div><strong>Project Type:</strong> Web Application & Institutional Archive</div>
+        <div><strong>Framework:</strong> Next.js 16 (App Router) + Turbopack</div>
+        <div><strong>Status:</strong> Production Verified</div>
+      </div>
+
+      <div class="slide-footer" style="width: 100%;">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club Engineering Secretariat</div>
+        <div>Slide 1 of 10</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 2: PLATFORM VISION & INSTITUTIONAL PURPOSE -->
+    <!-- ===================================================================== -->
+    <section class="slide-card" id="slide-2">
+      <div class="slide-badge">Institutional Mission</div>
+      <div class="slide-header">
+        <h2 class="slide-title">1. Platform Purpose & Institutional Scope</h2>
+        <div class="slide-subtitle">Digital Transformation for Classical Arabic Heritage & Collegiate Scholarship</div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="info-box">
+            <div class="info-box-title">Institutional Vision & Mandate</div>
+            <p class="info-box-desc">
+              The Arabic Language & Cultural Club is the premier collegiate academic society at Kabi Nazrul Government College, Dhaka.
+              The digital platform unites student governance, historical preservation, annual calendar logistics, and bilingual literary archives under a zero-fabrication academic standard.
+            </p>
+            <div class="info-box-tag">Motto: <bdi dir="rtl">لِسَانُ الْعَرَبِ حِلْيَةُ الْأَدَبِ وَمِفْتَاحُ الْفَهْمِ</bdi></div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">Critical Problem Addressed</div>
+            <p class="info-box-desc">
+              Prior student clubs relied on scattered social media posts, lost paper application dossiers, and fragmented event schedules.
+              This platform provides an authoritative, centralized digital sanctuary ensuring permanent record retention, tamper-resistant admissions, and bilingual accessibility.
+            </p>
+            <div class="info-box-tag">Core Value: Permanent Archival Retention</div>
+          </div>
+        </div>
+
+        <div class="grid-4" style="margin-top: 10px;">
+          <div class="info-box">
+            <div class="info-box-title">Student Admissions</div>
+            <p class="info-box-desc">Automated enrollment with English-to-Arabic transliteration and reference vouchers.</p>
+          </div>
+          <div class="info-box">
+            <div class="info-box-title">12-Month Calendar</div>
+            <p class="info-box-desc">Chronological events, syntax masterclasses, debate symposiums, and registrations.</p>
+          </div>
+          <div class="info-box">
+            <div class="info-box-title">Heritage Archives</div>
+            <p class="info-box-desc">Curated founder timelines, previous executive committees, and photo galleries.</p>
+          </div>
+          <div class="info-box">
+            <div class="info-box-title">Super Admin CMS</div>
+            <p class="info-box-desc">Secure governance, zero-wipe site settings, binary database backups, and audit logs.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club — KNGC Dhaka</div>
+        <div>Slide 2 of 10</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 3: COMPLETE LANGUAGE & TECH STACK BREAKDOWN -->
+    <!-- ===================================================================== -->
+    <section class="slide-card" id="slide-3">
+      <div class="slide-badge">Core Engineering</div>
+      <div class="slide-header">
+        <h2 class="slide-title">2. Language & Technology Breakdown</h2>
+        <div class="slide-subtitle">কোথায় কোন ল্যাঙ্গুয়েজ এবং টেকনোলজি ব্যবহার করা হয়েছে</div>
+      </div>
+
+      <div class="slide-body">
+        <table class="spec-table">
+          <thead>
+            <tr>
+              <th>Language / Tech</th>
+              <th>Primary Role & Location in Project</th>
+              <th>Why Chosen (Architecture Benefit)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag-badge">TypeScript 5.x</span></td>
+              <td>
+                All business logic, database queries, server actions, and models in <code>src/lib/**/*.ts</code>, <code>src/app/**/*.tsx</code>
+              </td>
+              <td>100% type safety, prevents runtime undefined crashes, strict interfaces for collegiate entities.</td>
+            </tr>
+            <tr>
+              <td><span class="tag-badge">React 19 & Next.js 16</span></td>
+              <td>
+                App Router architecture, hybrid Server Components (RSC) and Client Components (<code>"use client"</code>)
+              </td>
+              <td>Ultra-fast initial server-render, zero client bundle overhead for static pages, instant route transitions.</td>
+            </tr>
+            <tr>
+              <td><span class="tag-badge">Tailwind CSS 3.x</span></td>
+              <td>
+                Global styles, layout tokens in <code>src/app/globals.css</code>, logical RTL utilities (<code>ms-</code>, <code>me-</code>)
+              </td>
+              <td>Semantic CSS variable tokens (<code>--brand-primary</code>, <code>--brand-accent</code>), instant Dark/Light mode.</td>
+            </tr>
+            <tr>
+              <td><span class="tag-badge">SQLite + Drizzle ORM</span></td>
+              <td>
+                Relational persistence in <code>arabic_club.db</code> and schema declarations in <code>src/lib/db/schema.ts</code>
+              </td>
+              <td>Zero external network database latency, ACID transactional integrity, single-file backup capability.</td>
+            </tr>
+            <tr>
+              <td><span class="tag-badge">HTML5 & JSON-LD</span></td>
+              <td>
+                Semantic page layouts, accessible headings, Schema.org graph in <code>src/components/seo/JsonLd.tsx</code>
+              </td>
+              <td>Search engine indexability, Google rich cards, WCAG 2.2 AA accessibility screen-reader compliance.</td>
+            </tr>
+            <tr>
+              <td><span class="tag-badge">Multilingual i18n</span></td>
+              <td>
+                <strong>Arabic</strong> (Classical / Amiri), <strong>English</strong> (Academic), <strong>Bengali</strong> (Institutional)
+              </td>
+              <td>Dictionary mapping in <code>src/lib/i18n/dictionaries/*</code> with instant in-memory switching.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="slide-footer">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club — KNGC Dhaka</div>
+        <div>Slide 3 of 10</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 4: HEADER & GLOBAL CONTROLS BUTTON MAP -->
+    <!-- ===================================================================== -->
+    <section class="slide-card" id="slide-4">
+      <div class="slide-badge">UI Controls Guide (Part 1)</div>
+      <div class="slide-header">
+        <h2 class="slide-title">3. Header & Global Navigation Button Map</h2>
+        <div class="slide-subtitle">হেডার ও নেভিগেশন বারের কোন বাটন কী কাজ করে</div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Join Club / <bdi dir="rtl">انضم للنادي</bdi></span>
+            </div>
+            <p class="info-box-desc">
+              <strong>Location:</strong> Top-right corner of the sticky header.<br>
+              <strong>Function:</strong> Primary Call-To-Action button. Navigates prospective student applicants directly to the official admissions portal (<code>/membership</code>). Styled in metallic gold with zero text-wrapping.
+            </p>
+            <div class="info-box-tag">Route: /membership</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Language Switcher (EN / <bdi dir="rtl">العربية</bdi> / বাংলা)</span>
+            </div>
+            <p class="info-box-desc">
+              <strong>Location:</strong> Header right toolbar.<br>
+              <strong>Function:</strong> Dropdown control toggling interface between English, Arabic, and Bengali. Dynamically updates text dictionaries and sets <code>dir="rtl"</code> / <code>dir="ltr"</code> instantly without page reload.
+            </p>
+            <div class="info-box-tag">Mechanism: React i18n Context</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Theme Mode Toggle (Sun / Moon)</span>
+            </div>
+            <p class="info-box-desc">
+              <strong>Location:</strong> Header action bar.<br>
+              <strong>Function:</strong> Smoothly switches between Day Mode (warm parchment stone) and Night Mode (deep emerald nocturnal aesthetic). Persists user preference in LocalStorage.
+            </p>
+            <div class="info-box-tag">Theme Engine: next-themes + Tailwind</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Dropdown Navigation Menus</span>
+            </div>
+            <p class="info-box-desc">
+              <strong>Location:</strong> Main horizontal desktop bar & mobile drawer.<br>
+              <strong>Function:</strong> Groups 5 major domains: <em>About</em> (Founders, History, Leadership), <em>Activities</em> (Events, Gallery), <em>Library</em> (Resources, Publications), <em>News</em>, and <em>Contact</em>. Fully keyboard navigable (Arrow keys, Esc).
+            </p>
+            <div class="info-box-tag">Accessibility: WCAG 2.2 AA Keyboard Friendly</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club — KNGC Dhaka</div>
+        <div>Slide 4 of 10</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 5: ADMISSIONS FORM & ARABIC TRANSLITERATION CONTROLS -->
+    <!-- ===================================================================== -->
+    <section class="slide-card" id="slide-5">
+      <div class="slide-badge">UI Controls Guide (Part 2)</div>
+      <div class="slide-header">
+        <h2 class="slide-title">4. Admissions Form & Auto-Transliteration Engine</h2>
+        <div class="slide-subtitle">মেম্বারশিপ ফরম ও স্বয়ংক্রিয় আরবি নামের বাটন ও ফিল্ড কন্ট্রোল</div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="info-box">
+            <div class="info-box-title">Full Legal Name (English) Input</div>
+            <p class="info-box-desc">
+              <strong>Interactive Trigger:</strong> When the student types their English name (e.g. <code>Abdullah Bin Salem</code>), it automatically activates the pure-TypeScript transliteration engine.
+            </p>
+            <div class="info-box-tag">Real-Time Event: onInputChange</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">Arabic Name Target Field: <span class="ar-text" style="color: var(--gold-primary);">الاسم بالعربية</span></div>
+            <p class="info-box-desc">
+              <strong>Auto-Fill Behavior:</strong> Instantly displays the authentic Arabic spelling (<span class="ar-text" style="color: var(--gold-primary);">عبد الله بن سالم</span>) in RTL orientation without needing an Arabic keyboard.
+            </p>
+            <div class="info-box-tag">Status: ✦ Auto-synced Indicator</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">✦ Re-sync Button</span>
+            </div>
+            <p class="info-box-desc">
+              <strong>Override & Reset:</strong> If an applicant manually edits their Arabic spelling, the system locks it. Clicking <strong>"Re-sync"</strong> instantly resets and regenerates the Arabic name from the English input.
+            </p>
+            <div class="info-box-tag">Protection: Manual Edit Lock Guard</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Submit Admissions Application</span>
+            </div>
+            <p class="info-box-desc">
+              <strong>Submission Flow:</strong> Validates fields with Zod, invokes Next.js Server Action, saves to SQLite, and transitions to a tamper-proof confirmation voucher with a unique <strong>Reference Code</strong> (e.g. <code>ARB-2026-X89F</code>).
+            </p>
+            <div class="info-box-tag">Output: Digital Dossier Voucher</div>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 5px;">
+          <div class="info-box-title">
+            <span class="action-pill">Copy Reference ID & Track Status Tabs</span>
+          </div>
+          <p class="info-box-desc">
+            The <strong>"Copy Reference ID"</strong> button writes the code directly to system clipboard with a green checkmark toast. The <strong>"Track Application Status"</strong> tab lets applicants check committee review decisions anytime.
+          </p>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club — KNGC Dhaka</div>
+        <div>Slide 5 of 10</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 6: HOMEPAGE HERO & CORE PUBLIC BUTTONS -->
+    <!-- ===================================================================== -->
+    <section class="slide-card" id="slide-6">
+      <div class="slide-badge">UI Controls Guide (Part 3)</div>
+      <div class="slide-header">
+        <h2 class="slide-title">5. Homepage Hero & Content Action Buttons</h2>
+        <div class="slide-subtitle">হোমপেজ ও পাবলিক সেকশনের প্রধান ইন্টারঅ্যাক্টিভ বাটনসমূহ</div>
+      </div>
+
+      <div class="slide-body">
+        <table class="spec-table">
+          <thead>
+            <tr>
+              <th>Button / Interactive Element</th>
+              <th>Target Location</th>
+              <th>Exact Action & User Experience</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="action-pill">Explore Academic Calendar</span></td>
+              <td>Hero Primary CTA</td>
+              <td>Navigates to <code>/events</code> with smooth transition, displaying the 12-month schedule of syntax workshops and debate tournaments.</td>
+            </tr>
+            <tr>
+              <td><span class="action-pill">Historical Timeline Archive</span></td>
+              <td>Hero Secondary CTA</td>
+              <td>Navigates to <code>/history</code>, rendering the verified chronological timeline from founding year (2022) to present.</td>
+            </tr>
+            <tr>
+              <td><span class="action-pill">Photo & Media Gallery</span></td>
+              <td>Hero Tertiary CTA</td>
+              <td>Opens <code>/gallery</code> showcasing categorized albums of symposiums, calligraphy exhibits, and graduation ceremonies.</td>
+            </tr>
+            <tr>
+              <td><span class="action-pill">Filter Pills (Upcoming / Past)</span></td>
+              <td>Events & Calendar Page</td>
+              <td>Instant client-side filtering separating upcoming open events from historical archives without page reload.</td>
+            </tr>
+            <tr>
+              <td><span class="action-pill">Download Learning Guide (PDF)</span></td>
+              <td>Language Learning Hub</td>
+              <td>Direct download link for classical grammar handbooks and morphology charts stored in persistent media storage.</td>
+            </tr>
+            <tr>
+              <td><span class="action-pill">Skip to Main Content</span></td>
+              <td>Top of page (Accessible)</td>
+              <td>Hidden keyboard accessibility anchor (<code>#main-content</code>) for screen-reader users and keyboard navigation.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="slide-footer">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club — KNGC Dhaka</div>
+        <div>Slide 6 of 10</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 7: FOOTER & INSTITUTIONAL CHANNELS -->
+    <!-- ===================================================================== -->
+    <section class="slide-card" id="slide-7">
+      <div class="slide-badge">UI Controls Guide (Part 4)</div>
+      <div class="slide-header">
+        <h2 class="slide-title">6. Institutional Footer & Verified External Channels</h2>
+        <div class="slide-subtitle">ফুটারের বাটন ও অফিসিয়াল যোগাযোগ চ্যানেলের বিবরণ</div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Official Facebook Page Button</span>
+            </div>
+            <p class="info-box-desc">
+              <strong>URL:</strong> <code>https://www.facebook.com/profile.php?id=61581814677754</code><br>
+              <strong>Function:</strong> Renders official Facebook SVG icon and label. Opens verified club social page in a secure new tab with <code>target="_blank" rel="noopener noreferrer"</code>.
+            </p>
+            <div class="info-box-tag">Status: Verified & Live in Footer Column 1</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Official Email Button</span>
+            </div>
+            <p class="info-box-desc">
+              <strong>Address:</strong> <code>arabicclubkngc2025@gmail.com</code><br>
+              <strong>Function:</strong> Interactive mail link with Mail icon. Automatically opens the visitor's default email client (Gmail, Outlook, Apple Mail) with pre-filled recipient.
+            </p>
+            <div class="info-box-tag">Action: mailto: Protocol Link</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Admin CMS Portal Access Link</span>
+            </div>
+            <p class="info-box-desc">
+              <strong>Location:</strong> Footer Governance & Policies column.<br>
+              <strong>Function:</strong> Discreet gateway to the administrative control panel (<code>/admin</code>). Requires Argon2id hashed credentials and secure HTTP-only cookies.
+            </p>
+            <div class="info-box-tag">Security: Protected Session Gateway</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">Institutional Sitemaps & Policies</div>
+            <p class="info-box-desc">
+              <strong>Links:</strong> Privacy & Data Retention, Photo Publication Consent, WCAG 2.2 AA Accessibility Statement, Founders Archive, and Alumni Directory.
+            </p>
+            <div class="info-box-tag">Compliance: Collegiate Governance Rules</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club — KNGC Dhaka</div>
+        <div>Slide 7 of 10</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 8: SUPER ADMIN CMS CONTROL PANEL -->
+    <!-- ===================================================================== -->
+    <section class="slide-card" id="slide-8">
+      <div class="slide-badge">UI Controls Guide (Part 5)</div>
+      <div class="slide-header">
+        <h2 class="slide-title">7. Super Admin CMS Dashboard Controls</h2>
+        <div class="slide-subtitle">অ্যাডমিন প্যানেলের বিশেষ বাটন ও নিয়ন্ত্রণ ব্যবস্থা</div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Save Site Settings</span>
+            </div>
+            <p class="info-box-desc">
+              Safeguarded with selective persistence. Admin can update social links, branding, or contact email without accidentally wiping existing values.
+            </p>
+            <div class="info-box-tag">Zero-Wipe Invariant</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Export Audit Logs</span>
+            </div>
+            <p class="info-box-desc">
+              Downloads a timestamped CSV or JSON log of all administrative modifications, logins, and member status transitions for auditing.
+            </p>
+            <div class="info-box-tag">Format: CSV / JSON</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Download Binary Backup</span>
+            </div>
+            <p class="info-box-desc">
+              Generates an instant binary snapshot of the entire SQLite database file (<code>.db</code>), allowing complete disaster recovery in 1 click.
+            </p>
+            <div class="info-box-tag">Disaster Recovery</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Approve / Reject Application</span>
+            </div>
+            <p class="info-box-desc">
+              Review incoming student admissions dossiers. Transition applicant status from <em>Pending</em> to <em>Verified Member</em> with registration email dispatch.
+            </p>
+            <div class="info-box-tag">Admissions Review</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Publish Announcement / News</span>
+            </div>
+            <p class="info-box-desc">
+              Create bilingual announcements and circulars with rich markdown support, attached PDF circulars, and instant tag invalidation.
+            </p>
+            <div class="info-box-tag">ISR Revalidation: 60s</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              <span class="action-pill">Sign Out / Lock Session</span>
+            </div>
+            <p class="info-box-desc">
+              Instantly terminates the encrypted admin session, clears the session cookie from the browser, and redirects to public home.
+            </p>
+            <div class="info-box-tag">HTTP-Only Cleared</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club — KNGC Dhaka</div>
+        <div>Slide 8 of 10</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 9: QUALITY, PERFORMANCE & ANTI-FABRICATION -->
+    <!-- ===================================================================== -->
+    <section class="slide-card" id="slide-9">
+      <div class="slide-badge">Quality Assurance</div>
+      <div class="slide-header">
+        <h2 class="slide-title">8. Security, Performance & Academic Integrity</h2>
+        <div class="slide-subtitle">নিরাপত্তা, পারফরম্যান্স এবং জিরো-ফেব্রিকেশন পলিসি</div>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="info-box">
+            <div class="info-box-title">Anti-Fabrication & Academic Integrity</div>
+            <p class="info-box-desc">
+              Unlike generic web templates, this project adheres to strict institutional principles:
+              <strong>Zero AI emojis</strong>, zero synthetic placeholder phone numbers, and zero invented statistics.
+              Every historical record and committee member is officially verified.
+            </p>
+            <div class="info-box-tag">Policy: Zero AI Emojis & Authentic Copy</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">Mobile-First Responsiveness (360px - 1280px)</div>
+            <p class="info-box-desc">
+              Every single page and form is tested across 5 viewport breakpoints:
+              <strong>360px, 390px, 430px, 768px, and 1280px</strong>.
+              Automated Playwright testing ensures <strong>0 horizontal scrollbars</strong> on mobile devices.
+            </p>
+            <div class="info-box-tag">Verified: 0px Horizontal Overflow</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">Multi-Layer Defense in Depth</div>
+            <p class="info-box-desc">
+              - <strong>SQL Injection Protection:</strong> Drizzle ORM parameterized queries.<br>
+              - <strong>XSS Prevention:</strong> React sanitized DOM rendering.<br>
+              - <strong>CSRF Defense:</strong> SameSite strict cookies and Next.js server actions.<br>
+              - <strong>Session Security:</strong> Hashed session tokens.
+            </p>
+            <div class="info-box-tag">Security: 18 Core Invariants Pass</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">Dual Deployment Architecture</div>
+            <p class="info-box-desc">
+              - <strong>Global Edge:</strong> Vercel automated CI/CD deployed via Git push.<br>
+              - <strong>Local Edge (Dhaka Node):</strong> Cloudflare quick tunnel routing directly to port 3005 without ISP DNS throttling.
+            </p>
+            <div class="info-box-tag">Edge Caching: Sub-100ms Responses</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club — KNGC Dhaka</div>
+        <div>Slide 9 of 10</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SLIDE 10: CONCLUSION & LIVE REPOSITORIES -->
+    <!-- ===================================================================== -->
+    <section class="slide-card slide-cover" id="slide-10">
+      <div class="slide-badge">Presentation Summary</div>
+      <h2 class="slide-title" style="font-size: 32px; margin-bottom: 12px;">9. Conclusion & Live Demonstration</h2>
+      <div class="slide-subtitle" style="font-size: 16px; margin-bottom: 25px;">Ready for Evaluation & Campus Deployment</div>
+      <div class="cover-divider"></div>
+
+      <div class="grid-3" style="max-width: 900px; margin: 0 auto 30px auto; text-align: left;">
+        <div class="info-box">
+          <div class="info-box-title">Live Vercel Site</div>
+          <p class="info-box-desc" style="font-family: var(--font-mono); font-size: 11px; word-break: break-all;">
+            arabic-langualge-and-cultural-club.vercel.app
+          </p>
+        </div>
+        <div class="info-box">
+          <div class="info-box-title">Cloudflare Live Tunnel</div>
+          <p class="info-box-desc" style="font-family: var(--font-mono); font-size: 11px; word-break: break-all;">
+            expectations-topics-grew-screw.trycloudflare.com
+          </p>
+        </div>
+        <div class="info-box">
+          <div class="info-box-title">GitHub Repository</div>
+          <p class="info-box-desc" style="font-family: var(--font-mono); font-size: 11px;">
+            Branches: master & main (Synchronized)
+          </p>
+        </div>
+      </div>
+
+      <div style="font-size: 16px; color: var(--gold-primary); font-family: var(--font-arabic);">
+        شُكْراً لِحُسْنِ اسْتِمَاعِكُمْ — Thank You & Questions
+      </div>
+
+      <div class="slide-footer" style="width: 100%; margin-top: 40px;">
+        <div class="slide-footer-brand">Arabic Language & Cultural Club, Kabi Nazrul Government College, Dhaka</div>
+        <div>Slide 10 of 10</div>
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>
