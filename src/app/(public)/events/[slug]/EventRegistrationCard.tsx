@@ -308,7 +308,7 @@ export function EventRegistrationCard({
 
           <Input
             label="Student ID / Registration No."
-            placeholder="e.g. STU-2024-089 (Optional)"
+            placeholder="e.g. STU-2025-089 (Optional)"
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
             disabled={isPending}

@@ -654,7 +654,7 @@ export function PageSectionModal({
                           if (isArabic) updateArField("quote", quote);
                           else updateEnField("quote", quote);
                         }}
-                        placeholder={isArabic ? "الحديث النبوي الشريف في الفصاحة والبلاغة" : "e.g. Founding Assembly Charter, 2022"}
+                        placeholder={isArabic ? "الحديث النبوي الشريف في الفصاحة والبلاغة" : "e.g. Founding Assembly Charter, 2025"}
                         className={`w-full px-3 py-1.5 rounded-[5px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs focus:ring-1 focus:ring-[var(--brand-accent)] ${isArabic ? "font-arabic" : ""}`}
                       />
                     </div>
@@ -723,7 +723,7 @@ export function PageSectionModal({
                                 dir={isArabic ? "rtl" : "ltr"}
                                 value={item.title || ""}
                                 onChange={(e) => handleUpdateItem(idx, "title", e.target.value, langTab)}
-                                placeholder={isArabic ? "مثال: علوم اللغة العربية أو 2022" : "e.g. Classical Linguistics or 2022"}
+                                placeholder={isArabic ? "مثال: علوم اللغة العربية أو 2025" : "e.g. Classical Linguistics or 2025"}
                                 className={`w-full px-2.5 py-1.5 rounded-[4px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs focus:ring-1 focus:ring-[var(--brand-accent)] ${isArabic ? "font-arabic" : ""}`}
                               />
                             </div>
@@ -752,7 +752,7 @@ export function PageSectionModal({
                                 type="text"
                                 value={item.year || ""}
                                 onChange={(e) => handleUpdateItem(idx, "year", e.target.value, langTab)}
-                                placeholder="e.g. 2022"
+                                placeholder="e.g. 2025"
                                 className="w-full px-2.5 py-1.5 rounded-[4px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-primary)] font-mono text-xs focus:ring-1 focus:ring-[var(--brand-accent)]"
                               />
                             </div>
@@ -782,7 +782,7 @@ export function PageSectionModal({
                                 type="text"
                                 value={item.citation || ""}
                                 onChange={(e) => handleUpdateItem(idx, "citation", e.target.value, langTab)}
-                                placeholder="e.g. Ref: FCA-2020-01"
+                                placeholder="e.g. Ref: FCA-2025-01"
                                 className="w-full px-2.5 py-1.5 rounded-[4px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-primary)] font-mono text-xs focus:ring-1 focus:ring-[var(--brand-accent)]"
                               />
                             </div>

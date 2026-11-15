@@ -324,7 +324,7 @@ export function AlbumFormModal({
             <Input
               value={formData.dateNotes}
               onChange={(e) => setFormData({ ...formData, dateNotes: e.target.value })}
-              placeholder="e.g. Circa Autumn 2024, or Academic Year Foundation Period"
+              placeholder="e.g. Circa Autumn 2025, or Academic Year Foundation Period"
             />
           </div>
 

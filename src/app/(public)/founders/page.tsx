@@ -88,14 +88,14 @@ export default async function FoundersPage() {
               <div className="flex items-center gap-2">
                 <Badge variant="accent" size="sm">Charter Conveners</Badge>
                 <span className="text-xs text-[var(--text-muted)] font-medium">
-                  General Assembly Inception 2022
+                  General Assembly Inception 2025
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-[var(--text-primary)] leading-tight">
                 The Founding Academic Conveners
               </h2>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
-                In autumn 2022, an assembly of dedicated classical Arabic students, faculty patrons, and calligraphers convened to establish an enduring society on campus. Their vision was to restore eloquence in student debate, cultivate philological rigor, and permanently record every successive administration in our university cultural archives.
+                In autumn 2025, an assembly of dedicated classical Arabic students, faculty patrons, and calligraphers convened to establish an enduring society on campus. Their vision was to restore eloquence in student debate, cultivate philological rigor, and permanently record every successive administration in our university cultural archives.
               </p>
             </div>
 
@@ -110,7 +110,7 @@ export default async function FoundersPage() {
                     Inaugural Founding Charter
                   </p>
                   <p className="text-[11px] text-[var(--text-muted)] font-mono">
-                    Ref: FCA-2022-INCEPTION
+                    Ref: FCA-2025-INCEPTION
                   </p>
                 </div>
               </div>

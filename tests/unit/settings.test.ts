@@ -16,7 +16,7 @@ describe("Site Settings Engine & Default Safeguards", () => {
   it("provides comprehensive collegiate fallback defaults", () => {
     expect(DEFAULT_SITE_SETTINGS.club_name_en).toContain("Arabic Language & Cultural Club");
     expect(DEFAULT_SITE_SETTINGS.college_name_en).toContain("Kabi Nazrul Government College");
-    expect(DEFAULT_SITE_SETTINGS.founding_year).toBe("2022");
+    expect(DEFAULT_SITE_SETTINGS.founding_year).toBe("2025");
     expect(DEFAULT_SITE_SETTINGS.contact_email).toBe("arabicclubkngc2025@gmail.com");
     expect(DEFAULT_SITE_SETTINGS.hero_title_en).toBeDefined();
     expect(DEFAULT_SITE_SETTINGS.nav_cta_link).toBe("/membership");
@@ -40,6 +40,7 @@ describe("Site Settings Engine & Default Safeguards", () => {
     expect(settings.club_name_en.length).toBeGreaterThan(0);
     expect(settings.contact_email.length).toBeGreaterThan(0);
     expect(settings.navigation_menu.length).toBeGreaterThan(0);
+    expect(settings.founding_year).toBe("2025");
   });
 
   it("rejects saveSiteSettingsAction when called without an active session", async () => {

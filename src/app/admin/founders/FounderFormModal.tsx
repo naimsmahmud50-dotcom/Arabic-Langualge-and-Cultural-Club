@@ -50,7 +50,7 @@ export function FounderFormModal({
   const [roleTitleEn, setRoleTitleEn] = useState("");
   const [roleTitleAr, setRoleTitleAr] = useState("");
   const [portraitUrl, setPortraitUrl] = useState("");
-  const [foundingYear, setFoundingYear] = useState<number | "">(2024);
+  const [foundingYear, setFoundingYear] = useState<number | "">(2025);
   const [sortOrder, setSortOrder] = useState(0);
   const [isPublished, setIsPublished] = useState(true);
   const [bioEn, setBioEn] = useState("");
@@ -66,7 +66,7 @@ export function FounderFormModal({
       setRoleTitleEn(founder.roleTitleEn || "");
       setRoleTitleAr(founder.roleTitleAr || "");
       setPortraitUrl(founder.portraitUrl || "");
-      setFoundingYear(founder.foundingYear ?? 2024);
+      setFoundingYear(founder.foundingYear ?? 2025);
       setSortOrder(founder.sortOrder ?? 0);
       setIsPublished(founder.isPublished !== undefined ? founder.isPublished : true);
       setBioEn(founder.bioEn || "");
@@ -77,7 +77,7 @@ export function FounderFormModal({
       setRoleTitleEn("");
       setRoleTitleAr("");
       setPortraitUrl("");
-      setFoundingYear(2024);
+      setFoundingYear(2025);
       setSortOrder(0);
       setIsPublished(true);
       setBioEn("");
@@ -263,7 +263,7 @@ export function FounderFormModal({
                 type="number"
                 value={foundingYear}
                 onChange={(e) => setFoundingYear(e.target.value === "" ? "" : parseInt(e.target.value))}
-                placeholder="2024"
+                placeholder="2025"
                 disabled={isLoading}
                 className="w-full px-3 py-2 rounded-[6px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-primary)] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
               />

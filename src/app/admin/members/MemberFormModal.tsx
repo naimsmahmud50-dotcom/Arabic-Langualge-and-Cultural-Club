@@ -246,7 +246,7 @@ export function MemberFormModal({
                 type="text"
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
-                placeholder="e.g. 2024-ARB-042"
+                placeholder="e.g. 2025-ARB-042"
                 disabled={isLoading}
                 className="w-full px-3 py-2 rounded-[6px] border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-primary)] font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
               />

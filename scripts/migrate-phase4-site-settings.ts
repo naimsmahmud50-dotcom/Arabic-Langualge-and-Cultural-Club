@@ -72,8 +72,8 @@ const SEED_SETTINGS: SettingSeed[] = [
   },
   {
     key: "founding_year",
-    valueEn: "2022",
-    valueAr: "٢٠٢٢",
+    valueEn: "2025",
+    valueAr: "٢٠٢٥",
     category: "general",
   },
   {

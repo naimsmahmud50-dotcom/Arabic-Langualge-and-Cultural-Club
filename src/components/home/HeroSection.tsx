@@ -36,7 +36,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ stats, settings }: HeroSectionProps) {
-  const foundingYear = stats?.foundingYear || (settings?.founding_year ? parseInt(settings.founding_year, 10) : 2022);
+  const foundingYear = stats?.foundingYear || (settings?.founding_year ? parseInt(settings.founding_year, 10) : 2025);
   const badgeText = settings?.hero_badge_en || "Official Collegiate Society • Kabi Nazrul Govt. College, Dhaka";
   const arabicHeading = settings?.hero_arabic_heading || "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ • نَادِي اللُّغَةِ وَالثَّقَافَةِ الْعَرَبِيَّةِ - كُلِّيَّةُ كَابِي نَذْرُول الْحُكُومِيَّة";
   const titleText = settings?.hero_title_en || "Preserving Heritage, Advancing Eloquence, Cultivating Leadership.";

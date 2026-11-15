@@ -115,7 +115,7 @@ export function SettingsManagerClient({
     club_tagline_ar: getVal("club_tagline", "ar") || "صون التراث، وترقية البيان، وبناء القيادات",
     club_motto_en: getVal("club_motto", "en") || "Preserving Heritage, Advancing Eloquence, Cultivating Leadership.",
     club_motto_ar: getVal("club_motto", "ar") || "لِسَانُ الْعَرَبِ حِلْيَةُ الْأَدَبِ وَمِفْتَاحُ الْفَهْمِ",
-    founding_year: getVal("founding_year", "en") || "2022",
+    founding_year: getVal("founding_year", "en") || "2025",
     logo_crest_url: getVal("logo_crest_url", "en") || "/images/logo/club-crest-transparent.png",
     logo_full_url: getVal("logo_full_url", "en") || "/images/logo/club-logo-full.png",
 

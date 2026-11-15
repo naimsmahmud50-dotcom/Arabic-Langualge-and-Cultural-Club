@@ -47,7 +47,7 @@ export function FoundersPreviewSection({ founders }: FoundersPreviewSectionProps
               سِجِلُّ الرُّوَّادِ • تَكْرِيمُ الْمُؤَسِّسِينَ وَأَصْحَابِ الْفَضْلِ فِي نَشْأَةِ النَّادِي
             </p>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              In 2022, a dedicated convocation of scholars, student debaters, and calligraphers established the permanent charter of the Arabic Language & Cultural Club.
+              In 2025, a dedicated convocation of scholars, student debaters, and calligraphers established the permanent charter of the Arabic Language & Cultural Club.
             </p>
           </div>
           <Link href="/founders">

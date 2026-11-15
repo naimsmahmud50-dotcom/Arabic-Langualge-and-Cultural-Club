@@ -362,7 +362,7 @@ export function MembershipApplicationForm() {
               name="studentId"
               value={formData.studentId}
               onChange={handleChange}
-              placeholder="e.g. 2024-ARB-104"
+              placeholder="e.g. 2025-ARB-001"
               error={!!fieldErrors.studentId}
               helperText={fieldErrors.studentId || "University matriculation reference"}
             />

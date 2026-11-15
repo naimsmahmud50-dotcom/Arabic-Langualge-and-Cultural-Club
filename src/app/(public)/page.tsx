@@ -105,7 +105,7 @@ export default async function HomePage() {
       {/* 1. Flagship Institutional Hero */}
       <HeroSection
         stats={{
-          foundingYear: parseInt(siteSettings.founding_year, 10) || 2022,
+          foundingYear: parseInt(siteSettings.founding_year, 10) || 2025,
           upcomingEvents: eventsResult.data.length,
         }}
         settings={siteSettings}

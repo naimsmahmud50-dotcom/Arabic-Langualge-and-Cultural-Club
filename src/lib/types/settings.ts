@@ -138,7 +138,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   club_tagline_ar: "صون التراث، وترقية البيان، وبناء القيادات",
   club_motto_en: "Preserving Heritage, Advancing Eloquence, Cultivating Leadership.",
   club_motto_ar: "لِسَانُ الْعَرَبِ حِلْيَةُ الْأَدَبِ وَمِفْتَاحُ الْفَهْمِ",
-  founding_year: "2022",
+  founding_year: "2025",
   logo_crest_url: "/images/logo/club-crest-transparent.png",
   logo_full_url: "/images/logo/club-logo-full.png",
 
