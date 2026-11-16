@@ -16,4 +16,4 @@
 - [x] T009: Run unit tests with `pnpm test:unit` to ensure no regression.
 - [x] T010: Run full production build with `pnpm build` to verify clean compilation.
 - [x] T011: Verify git status to confirm strictly zero collateral changes in untouched files.
-- [ ] T012: Commit and push changes to git repository.
+- [x] T012: Commit and push changes to git repository.
