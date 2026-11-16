@@ -32,6 +32,18 @@ function checkRegistrationRateLimit(identifier: string): { allowed: boolean; ret
   const now = Date.now();
   const windowStart = now - REGISTRATION_RATE_WINDOW_MS;
 
+  // Periodic eviction to prevent unbounded memory growth
+  if (rateLimitStore.size > 500) {
+    for (const [key, value] of rateLimitStore.entries()) {
+      const remaining = value.timestamps.filter(t => t > windowStart);
+      if (remaining.length === 0) {
+        rateLimitStore.delete(key);
+      } else {
+        rateLimitStore.set(key, { timestamps: remaining });
+      }
+    }
+  }
+
   const record = rateLimitStore.get(identifier) || { timestamps: [] };
   // Filter out timestamps older than the active window
   const activeTimestamps = record.timestamps.filter(t => t > windowStart);
@@ -92,10 +104,11 @@ export async function registerForEventAction(
   formData: FormData
 ): Promise<RegistrationActionResponse> {
   try {
-    // 1. Resolve client IP for abuse throttling
+    // 1. Resolve client IP for abuse throttling (supports Cloudflare CF-Connecting-IP)
     const headersList = await headers();
+    const cfConnectingIp = headersList.get("cf-connecting-ip");
     const forwardedFor = headersList.get("x-forwarded-for");
-    const clientIp = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
+    const clientIp = cfConnectingIp || (forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1");
 
     // 2. Extract and parse form fields
     const rawData = {
