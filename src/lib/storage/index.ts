@@ -108,7 +108,12 @@ export class LocalDiskStorage implements StorageProvider {
 
   private resolveDiskPath(key: string): string {
     const cleanKey = key.replace(/\.\.+/g, "").replace(/^[/\\]+/, "");
-    return path.join(this.baseDir, cleanKey);
+    const resolved = path.resolve(this.baseDir, cleanKey);
+    const root = path.resolve(this.baseDir);
+    if (!resolved.startsWith(root)) {
+      throw new Error("Path traversal forbidden: storage target exceeds volume root boundary.");
+    }
+    return resolved;
   }
 
   async uploadFile(key: string, buffer: Buffer, mimeType: string): Promise<StorageUploadResult> {

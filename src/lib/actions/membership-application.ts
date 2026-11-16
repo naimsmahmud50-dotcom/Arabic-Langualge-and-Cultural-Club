@@ -127,8 +127,9 @@ export async function submitMembershipApplicationAction(
 ): Promise<ApplicationSubmissionResult> {
   // 1. IP Rate Limiting Check
   const reqHeaders = await headers();
+  const cfConnectingIp = reqHeaders.get("cf-connecting-ip");
   const forwardedFor = reqHeaders.get("x-forwarded-for");
-  const clientIp = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
+  const clientIp = cfConnectingIp || (forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1");
 
   const rateCheck = checkApplicationRateLimit(`app_submit_${clientIp}`);
   if (!rateCheck.allowed) {
@@ -196,8 +197,9 @@ export async function trackApplicationStatusAction(
 ): Promise<StatusTrackingResult> {
   // 1. IP Rate Limiting Check to prevent brute-force Reference ID enumeration
   const reqHeaders = await headers();
+  const cfConnectingIp = reqHeaders.get("cf-connecting-ip");
   const forwardedFor = reqHeaders.get("x-forwarded-for");
-  const clientIp = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
+  const clientIp = cfConnectingIp || (forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1");
 
   const rateCheck = checkTrackingRateLimit(`app_track_${clientIp}`);
   if (!rateCheck.allowed) {

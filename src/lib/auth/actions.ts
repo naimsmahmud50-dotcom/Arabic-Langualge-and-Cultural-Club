@@ -78,8 +78,9 @@ const ProvisionUserSchema = z.object({
  */
 async function getClientContext() {
   const headerList = await headers();
+  const cfConnectingIp = headerList.get("cf-connecting-ip");
   const forwarded = headerList.get("x-forwarded-for");
-  const ip = forwarded ? forwarded.split(",")[0].trim() : headerList.get("x-real-ip") || "127.0.0.1";
+  const ip = cfConnectingIp || (forwarded ? forwarded.split(",")[0].trim() : headerList.get("x-real-ip")) || "127.0.0.1";
   const userAgent = headerList.get("user-agent") || "Unknown Client";
   return { ip, userAgent };
 }
@@ -134,7 +135,12 @@ export async function loginAction(
     .where(eq(users.email, email))
     .get();
 
+  // Timing attack mitigation: prevent username enumeration via response latency
+  const DUMMY_BCRYPT_HASH = "$2b$12$KNGClubSecureDummyPaddingHashForTimingAttackDefense2026";
   if (!userRecord || !userRecord.isActive) {
+    // Perform dummy constant-time verification so latency matches existing user checks
+    verifyPassword(password, DUMMY_BCRYPT_HASH);
+
     // Record failed attempt
     await recordLoginAttempt(ip, email, false);
     await recordAuditLog({

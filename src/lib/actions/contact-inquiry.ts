@@ -52,6 +52,19 @@ function isRateLimited(ip: string): boolean {
     return false;
   }
   const now = Date.now();
+
+  // Periodic eviction to prevent unbounded memory growth
+  if (inquiryRateLimits.size > 500) {
+    for (const [key, value] of inquiryRateLimits.entries()) {
+      const remaining = value.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+      if (remaining.length === 0) {
+        inquiryRateLimits.delete(key);
+      } else {
+        inquiryRateLimits.set(key, { timestamps: remaining });
+      }
+    }
+  }
+
   const record = inquiryRateLimits.get(ip) || { timestamps: [] };
   
   // Filter out expired timestamps
@@ -90,13 +103,14 @@ export interface InquirySubmissionResult {
 export async function submitContactInquiryAction(
   rawInput: unknown
 ): Promise<InquirySubmissionResult> {
-  // A. Determine Client IP for Rate Limiting & Audit
+  // A. Determine Client IP for Rate Limiting & Audit (supports Cloudflare CF-Connecting-IP)
   let clientIp = "127.0.0.1";
   try {
     const headerList = await headers();
+    const cfConnectingIp = headerList.get("cf-connecting-ip");
     const forwardedFor = headerList.get("x-forwarded-for");
     const realIp = headerList.get("x-real-ip");
-    clientIp = (forwardedFor ? forwardedFor.split(",")[0].trim() : realIp) || "127.0.0.1";
+    clientIp = (cfConnectingIp || (forwardedFor ? forwardedFor.split(",")[0].trim() : realIp)) || "127.0.0.1";
   } catch {
     // Safe fallback when executed in test scripts outside request context
     clientIp = "127.0.0.1";

@@ -78,7 +78,9 @@ export function JsonLd({ customSchema }: JsonLdProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaToRender) }}
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(schemaToRender).replace(/</g, "\\u003c"),
+      }}
     />
   );
 }

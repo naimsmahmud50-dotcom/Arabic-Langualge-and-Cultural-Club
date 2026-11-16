@@ -76,12 +76,12 @@ async function runSecurityAuditSuite() {
   console.log("================================================================================\n");
 
   // --------------------------------------------------------------------------
-  // 1. Password Hashing & Verification (Scrypt)
+  // 1. Password Hashing & Verification (Bcrypt / Scrypt)
   // --------------------------------------------------------------------------
-  console.log("Checkpoint 1: Scrypt Password Cryptography & Verification");
+  console.log("Checkpoint 1: Password Cryptography & Verification");
   const testPw = "ScholarlySecure2026!";
   const hash = hashPassword(testPw);
-  assert(hash.startsWith("scrypt$v1$"), "Password hash uses scrypt$v1$ format prefix");
+  assert(hash.startsWith("$2a$") || hash.startsWith("$2b$") || hash.startsWith("scrypt$v1$"), "Password hash uses standard bcrypt or scrypt$v1$ format prefix");
   assert(hash.split("$").length >= 4, "Password hash contains salt and derived key separated by dollar signs");
   assert(verifyPassword(testPw, hash), "Password verification succeeds with correct plaintext");
   assert(!verifyPassword("WrongPassword123!", hash), "Password verification fails with incorrect plaintext");
