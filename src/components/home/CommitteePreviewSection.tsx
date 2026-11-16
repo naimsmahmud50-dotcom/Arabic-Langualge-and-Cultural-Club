@@ -12,6 +12,7 @@
  *   - Desktop (>= 1024px): 3 executive cards visible simultaneously with smooth horizontal sliding.
  *   - Tablet (640px - 1023px): 2 cards visible with proportional slide steps.
  *   - Mobile (< 640px): 1 card visible with 1:1 real-time touch drag, momentum snap, and rubber-banding.
+ *   - Dual navigation controls: Floating side arrows on the cards + header buttons + pagination dots.
  * - Royal Islamic Mihrab Arch Frame & Insignia:
  *   - Replaces flat letter boxes with an arched Moorish Mihrab frame, 1.5px gold border, and ambient shadow.
  *   - Renders high-res portrait when `photoUrl` is present.
@@ -155,11 +156,15 @@ export function CommitteePreviewSection({
   // Carousel state
   const [activeIndex, setActiveIndex] = useState(0);
   const [visibleCards, setVisibleCards] = useState(3);
+  const [stepPx, setStepPx] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isTouching, setIsTouching] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  // DOM Refs
+  const trackRef = useRef<HTMLDivElement>(null);
 
   // Touch gesture tracking refs
   const [dragOffset, setDragOffset] = useState<number>(0);
@@ -170,10 +175,11 @@ export function CommitteePreviewSection({
   const touchPauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const swipeClickPreventTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Responsive items count updater
+  // Responsive items count updater & step measurement
   useEffect(() => {
-    const updateVisibleCards = () => {
+    const updateDimensions = () => {
       if (typeof window === "undefined") return;
+
       if (window.innerWidth < 640) {
         setVisibleCards(1);
       } else if (window.innerWidth < 1024) {
@@ -181,12 +187,33 @@ export function CommitteePreviewSection({
       } else {
         setVisibleCards(3);
       }
+
+      if (trackRef.current) {
+        const firstArticle = trackRef.current.querySelector("article");
+        if (firstArticle) {
+          const rect = firstArticle.getBoundingClientRect();
+          // rect.width + 24px gap (gap-6)
+          setStepPx(rect.width + 24);
+        }
+      }
     };
 
-    updateVisibleCards();
-    window.addEventListener("resize", updateVisibleCards);
-    return () => window.removeEventListener("resize", updateVisibleCards);
-  }, []);
+    updateDimensions();
+
+    let ro: ResizeObserver | null = null;
+    if (trackRef.current && typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => {
+        updateDimensions();
+      });
+      ro.observe(trackRef.current);
+    }
+
+    window.addEventListener("resize", updateDimensions);
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+      if (ro) ro.disconnect();
+    };
+  }, [officers.length]);
 
   // Detect OS accessibility reduced motion preference
   useEffect(() => {
@@ -370,9 +397,11 @@ export function CommitteePreviewSection({
     }
   };
 
-  // Dynamic step percentage translation calculation
-  // Each step moves exactly 1 card slot: (100% + 24px) / visibleCards
-  const translateExpression = `calc(-${activeIndex} * (100% + 24px) / ${visibleCards} + ${dragOffset}px)`;
+  // 100% exact translateX calculation using measured pixel step with fallback
+  const translateStyle =
+    stepPx > 0
+      ? `translateX(calc(-${activeIndex * stepPx}px + ${dragOffset}px))`
+      : `translateX(calc(-${activeIndex} * (100% + 24px) / ${visibleCards} + ${dragOffset}px))`;
 
   return (
     <section
@@ -415,7 +444,7 @@ export function CommitteePreviewSection({
                 <button
                   type="button"
                   onClick={goToPrev}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--brand-accent)]/15 hover:text-[var(--brand-accent-text)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--brand-accent)] hover:text-white transition-all active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
                   aria-label="Previous leadership slide"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -424,7 +453,7 @@ export function CommitteePreviewSection({
                 <button
                   type="button"
                   onClick={togglePause}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--brand-accent)]/15 hover:text-[var(--brand-accent-text)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--brand-accent)] hover:text-white transition-all active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
                   aria-label={
                     isPaused ? "Resume leadership auto-play" : "Pause leadership auto-play"
                   }
@@ -436,7 +465,7 @@ export function CommitteePreviewSection({
                 <button
                   type="button"
                   onClick={goToNext}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--brand-accent)]/15 hover:text-[var(--brand-accent-text)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--brand-accent)] hover:text-white transition-all active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
                   aria-label="Next leadership slide"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -470,17 +499,42 @@ export function CommitteePreviewSection({
             aria-roledescription="carousel"
             aria-label="Executive Council Officers Carousel"
           >
+            {/* Floating Side Navigation Arrows for Immediate Visual Clickability */}
+            {officers.length > visibleCards && (
+              <>
+                <button
+                  type="button"
+                  onClick={goToPrev}
+                  className="hidden md:flex absolute -left-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full items-center justify-center bg-[var(--bg-surface)] hover:bg-[var(--brand-accent)] text-[var(--text-primary)] hover:text-white border border-[var(--border-color)] hover:border-[var(--brand-accent)] shadow-lg transition-all duration-200 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
+                  aria-label="Slide previous leadership officer"
+                  title="Previous officer"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={goToNext}
+                  className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full items-center justify-center bg-[var(--bg-surface)] hover:bg-[var(--brand-accent)] text-[var(--text-primary)] hover:text-white border border-[var(--border-color)] hover:border-[var(--brand-accent)] shadow-lg transition-all duration-200 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]"
+                  aria-label="Slide next leadership officer"
+                  title="Next officer"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+
             {/* Sliding Track Wrapper */}
             <div className="overflow-hidden -mx-2 px-2 py-4">
               <div
+                ref={trackRef}
                 className={cn(
-                  "flex gap-6",
+                  "flex gap-6 will-change-transform",
                   isTouching
                     ? "transition-none"
                     : "transition-transform duration-500 ease-out"
                 )}
                 style={{
-                  transform: translateExpression,
+                  transform: translateStyle,
                 }}
               >
                 {officers.map((officer, index) => {
@@ -496,7 +550,7 @@ export function CommitteePreviewSection({
                         "p-6 sm:p-7 rounded-[10px] border border-[var(--border-color)] bg-[var(--bg-surface)]",
                         "shadow-[0_4px_20px_-2px_rgba(23,61,50,0.05)] hover:shadow-[0_12px_32px_-4px_rgba(23,61,50,0.12)]",
                         "hover:border-[var(--brand-accent)]/60 transition-all duration-300",
-                        "overflow-hidden"
+                        "overflow-hidden select-none"
                       )}
                       aria-roledescription="slide"
                       aria-label={`${officer.fullNameEn}, ${officer.positionTitleEn}`}
@@ -642,10 +696,10 @@ export function CommitteePreviewSection({
                       aria-label={`Slide group ${idx + 1} of ${maxIndex + 1}`}
                       onClick={() => setActiveIndex(idx)}
                       className={cn(
-                        "h-1.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]",
+                        "h-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)] cursor-pointer p-0",
                         isActive
                           ? "w-8 bg-[var(--brand-accent)]"
-                          : "w-2 bg-[var(--border-color)] hover:bg-[var(--text-muted)]"
+                          : "w-2.5 bg-[var(--border-color)] hover:bg-[var(--text-muted)]"
                       )}
                     />
                   );
