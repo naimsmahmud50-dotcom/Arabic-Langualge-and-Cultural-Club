@@ -35,7 +35,7 @@ export function VerifiedContactSection({ settings = {} }: VerifiedContactSection
               <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] font-serif">
                 Institutional Coordinates & Headquarters
               </h2>
-              <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
+              <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
                 التَّوَاصُلُ الرَّسْمِيُّ وَمَقَرُّ الْأَمَانَةِ الْعَامَّةِ • لِلِاسْتِفْسَارَاتِ وَالشَّرَاكَاتِ
               </p>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">

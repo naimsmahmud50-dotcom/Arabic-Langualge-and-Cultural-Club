@@ -236,7 +236,7 @@ function AlbumCard({
             </h3>
             {album.titleAr && (
               <p
-                className="font-arabic text-xs sm:text-sm text-[var(--brand-accent-text)] font-semibold leading-normal line-clamp-1"
+                className="font-arabic-heading text-xs sm:text-sm text-[var(--brand-accent-text)] font-semibold leading-normal line-clamp-1"
                 dir="rtl"
               >
                 {album.titleAr}
@@ -503,7 +503,7 @@ export function GalleryPreviewSection({ albums }: GalleryPreviewSectionProps) {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)] font-serif leading-tight">
               Visual Archives & Event Highlights
             </h2>
-            <p className="font-arabic text-sm sm:text-base text-[var(--brand-accent)] font-medium" dir="rtl">
+            <p className="font-arabic-heading text-sm sm:text-base text-[var(--brand-accent)] font-medium" dir="rtl">
               الْمَعْرِضُ الْفُوتُوغْرَافِيُّ وَالتَّوْثِيقُ الْمَرْئِيُّ • لَقَطَاتٌ مِنْ فَعَالِيَّاتِ النَّادِي
             </p>
             <p className="text-xs sm:text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">

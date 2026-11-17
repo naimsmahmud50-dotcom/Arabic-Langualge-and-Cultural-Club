@@ -38,7 +38,7 @@ export function MembershipInvitationSection() {
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif leading-tight text-white">
                 Join the Scholarly Brotherhood of the Arabic Language Club
               </h2>
-              <p className="font-arabic text-xl text-[#E5BE6A] font-medium" dir="rtl">
+              <p className="font-arabic-heading text-xl text-[#E5BE6A] font-medium" dir="rtl">
                 «انْضَمَّ إِلَى رِحَابِ اللُّغَةِ وَالْأَدَبِ» • بَابُ الِانْتِسَابِ مَفْتُوحٌ لِكُلِّ شَغُوفٍ
               </p>
             </div>

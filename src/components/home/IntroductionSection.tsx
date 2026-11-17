@@ -207,7 +207,7 @@ function PillarCard({
             {pillar.titleEn}
           </h3>
           <p
-            className="font-arabic text-sm sm:text-base text-[var(--brand-accent-text)] font-semibold leading-normal"
+            className="font-arabic-heading text-sm sm:text-base text-[var(--brand-accent-text)] font-semibold leading-normal"
             dir="rtl"
           >
             {pillar.titleAr}
@@ -543,7 +543,7 @@ export function IntroductionSection({ settings }: IntroductionSectionProps) {
             {titleText}
           </h2>
           <p
-            className="font-arabic text-sm sm:text-base lg:text-lg text-[var(--brand-accent-text)] font-semibold leading-relaxed"
+            className="font-arabic-heading text-sm sm:text-base lg:text-lg text-[var(--brand-accent-text)] font-semibold leading-relaxed"
             dir="rtl"
           >
             {subtitleText}

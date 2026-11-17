@@ -38,7 +38,7 @@ export default function PublicError({
           <h2 className="text-2xl font-bold text-[var(--text-primary)]">
             Archive Retrieval Interrupted
           </h2>
-          <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
+          <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
             عذراً، تعذر تحميل السجل الأكاديمي المطلوب حالياً
           </p>
           <p className="text-xs text-[var(--text-secondary)] leading-relaxed pt-1">

@@ -153,7 +153,7 @@ export default function DesignSystemPage() {
             <Card>
               <CardHeader>
                 <Badge variant="accent" size="sm">الخط العربي الأصيل (RTL)</Badge>
-                <CardTitle className="text-2xl mt-2 font-arabic" dir="rtl">
+                <CardTitle className="text-2xl mt-2 font-arabic-heading" dir="rtl">
                   صون التراث، وترقية البيان، وبناء القيادات
                 </CardTitle>
                 <CardDescription dir="rtl">

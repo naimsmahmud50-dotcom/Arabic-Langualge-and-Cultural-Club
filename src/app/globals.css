@@ -8,6 +8,61 @@
 
 @import "tailwindcss";
 
+/* Authentic Local Arabic Typography Fallbacks */
+@font-face {
+  font-family: 'Thuluth';
+  src: url('/fonts/thuluth.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'Thuluth';
+  src: url('/fonts/thuluth.woff2') format('woff2');
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'KatibehLocal';
+  src: url('/fonts/katibeh.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'KatibehLocal';
+  src: url('/fonts/katibeh.woff2') format('woff2');
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'AmiriLocal';
+  src: url('/fonts/amiri-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'AmiriLocal';
+  src: url('/fonts/amiri-bold.woff2') format('woff2');
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
 @layer base {
   :root {
     /* Core Heritage Palette - Light Theme */
@@ -106,30 +161,38 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Refined Editorial Headings */
+  /* Refined Editorial Headings - 1st Font for all headlines across website */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-manrope, system-ui, sans-serif);
+    font-family: 'Thuluth', 'KatibehLocal', var(--font-manrope), system-ui, sans-serif;
     color: var(--text-primary);
     letter-spacing: -0.015em;
     font-weight: 600;
   }
 
-  /* Arabic & Bengali Typography & Proper Shaping */
+  /* Arabic & Bengali Typography System */
   :root {
-    --font-arabic-body: var(--font-noto-arabic), "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif;
-    --font-arabic-heading: var(--font-amiri), "Amiri", "Noto Naskh Arabic", "Traditional Arabic", serif;
+    /* 1st Font (All Headlines across website): Authentic Thuluth / Katibeh headline script */
+    --font-arabic-heading: "Thuluth", "KatibehLocal", var(--font-katibeh), "Katibeh", "DecoType Thuluth", "AmiriLocal", var(--font-amiri), "Amiri", serif;
+    /* 2nd Font (All Other Arabic Text / Body): Authentic Amiri */
+    --font-arabic-body: "AmiriLocal", var(--font-amiri), "Amiri", "Traditional Arabic", var(--font-noto-arabic), serif;
     --font-bangla: var(--font-noto-bengali), "Noto Sans Bengali", "Kalpurush", sans-serif;
   }
 
+  /* General Arabic text / body text uses the 2nd font (Amiri) */
   [lang="ar"], [dir="rtl"] {
     font-family: var(--font-arabic-body);
     line-height: 1.85;
     letter-spacing: 0 !important;
   }
 
+  /* All headlines in Arabic or RTL context strictly use the 1st font (Thuluth / Katibeh) */
   [lang="ar"] h1, [lang="ar"] h2, [lang="ar"] h3, [lang="ar"] h4, [lang="ar"] h5, [lang="ar"] h6,
-  [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
-    font-family: var(--font-arabic-heading);
+  [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6,
+  h1[dir="rtl"], h2[dir="rtl"], h3[dir="rtl"], h4[dir="rtl"], h5[dir="rtl"], h6[dir="rtl"],
+  .font-arabic-heading,
+  .font-thuluth,
+  .font-katibeh {
+    font-family: var(--font-arabic-heading) !important;
     line-height: 1.6;
     letter-spacing: 0 !important;
   }
@@ -137,6 +200,10 @@
   [lang="bn"] {
     font-family: var(--font-bangla);
     line-height: 1.75;
+  }
+
+  [lang="bn"] h1, [lang="bn"] h2, [lang="bn"] h3, [lang="bn"] h4, [lang="bn"] h5, [lang="bn"] h6 {
+    font-family: var(--font-bangla);
   }
 
   /* Form Elements & Inputs Directional Alignment */
@@ -168,12 +235,18 @@
 }
 
 /* Directional & BiDi Helper Classes */
-.font-arabic {
-  font-family: var(--font-arabic-body, "Noto Naskh Arabic", "Amiri", serif);
+/* General Arabic text / body text uses the 2nd font (Amiri) */
+.font-arabic,
+.font-arabic-body,
+.font-amiri {
+  font-family: var(--font-arabic-body, "Amiri", "Traditional Arabic", serif);
 }
 
-.font-amiri {
-  font-family: var(--font-arabic-heading, "Amiri", "Noto Naskh Arabic", serif);
+/* Headlines and titles across the site use the 1st font (Thuluth / Katibeh) */
+.font-arabic-heading,
+.font-thuluth,
+.font-katibeh {
+  font-family: var(--font-arabic-heading, "Thuluth", "Katibeh", serif) !important;
 }
 
 .font-bangla {

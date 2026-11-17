@@ -187,7 +187,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                         {pub.titleEn}
                       </h3>
                       {pub.titleAr && (
-                        <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                        <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                           {pub.titleAr}
                         </p>
                       )}
@@ -319,7 +319,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                         {ach.titleEn}
                       </h3>
                       {ach.titleAr && (
-                        <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                        <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                           {ach.titleAr}
                         </p>
                       )}

@@ -93,7 +93,7 @@ export function MembershipPortalView() {
               <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                 Kabi Nazrul Government College, Dhaka
               </p>
-              <p className="font-arabic text-[11px] text-[var(--brand-accent)] mt-1" dir="rtl">
+              <p className="font-arabic-heading text-[11px] text-[var(--brand-accent)] mt-1" dir="rtl">
                 نادي اللغة والثقافة العربية
               </p>
             </div>

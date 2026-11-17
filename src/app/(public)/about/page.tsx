@@ -154,7 +154,7 @@ export default async function AboutPage() {
                 <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
                   {missionSection?.contentEn.heading || "Institutional Mission"}
                 </h2>
-                <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
+                <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
                   {missionSection?.contentAr.heading || "رسالتنا المؤسسية الرصينة"}
                 </p>
               </div>
@@ -190,7 +190,7 @@ export default async function AboutPage() {
                 <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
                   {visionSection?.contentEn.heading || "Institutional Vision"}
                 </h2>
-                <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
+                <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
                   {visionSection?.contentAr.heading || "رؤيتنا المستقبلية الواعدة"}
                 </p>
               </div>
@@ -250,7 +250,7 @@ export default async function AboutPage() {
                       {val.title}
                     </h3>
                     {val.arabicTitle && (
-                      <p className="font-arabic text-xs text-[var(--brand-accent)] font-medium" dir="rtl">
+                      <p className="font-arabic-heading text-xs text-[var(--brand-accent)] font-medium" dir="rtl">
                         {val.arabicTitle}
                       </p>
                     )}

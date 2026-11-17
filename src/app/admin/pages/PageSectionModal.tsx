@@ -925,11 +925,11 @@ export function PageSectionModal({
                       {currentData.badge}
                     </Badge>
                   )}
-                  <h2 className={`text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)] ${isArabic ? "font-arabic" : ""}`}>
+                  <h2 className={`text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)] ${isArabic ? "font-arabic-heading" : ""}`}>
                     {currentData.heading || (isArabic ? "عنوان القسم التجريبي" : "Section Heading Demo")}
                   </h2>
                   {(currentData.subheading || currentData.subtitle) && (
-                    <p className={`text-sm text-[var(--brand-accent)] font-medium ${isArabic ? "font-arabic" : "italic font-serif"}`}>
+                    <p className={`text-sm text-[var(--brand-accent)] font-medium ${isArabic ? "font-arabic-heading" : "italic font-serif"}`}>
                       {currentData.subheading || currentData.subtitle}
                     </p>
                   )}

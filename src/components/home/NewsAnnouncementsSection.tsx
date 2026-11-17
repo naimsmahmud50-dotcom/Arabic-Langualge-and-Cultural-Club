@@ -225,7 +225,7 @@ function NoticeCard({
           </h3>
           {item.titleAr && (
             <p
-              className="font-arabic text-xs sm:text-sm text-[var(--brand-accent-text)] font-semibold leading-normal line-clamp-1"
+              className="font-arabic-heading text-xs sm:text-sm text-[var(--brand-accent-text)] font-semibold leading-normal line-clamp-1"
               dir="rtl"
             >
               {item.titleAr}
@@ -483,7 +483,7 @@ export function NewsAnnouncementsSection({ announcements }: NewsAnnouncementsSec
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)] font-serif leading-tight">
               Latest News & Institutional Notices
             </h2>
-            <p className="font-arabic text-sm sm:text-base text-[var(--brand-accent)] font-medium" dir="rtl">
+            <p className="font-arabic-heading text-sm sm:text-base text-[var(--brand-accent)] font-medium" dir="rtl">
               الْأَخْبَارُ وَالْبَيَانَاتُ الرَّسْمِيَّةُ • بَلَاغَاتُ الْأَمَانَةِ الْعَامَّةِ لِلنَّادِي
             </p>
             <p className="text-xs sm:text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">

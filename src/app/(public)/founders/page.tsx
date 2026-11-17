@@ -178,7 +178,7 @@ export default async function FoundersPage() {
                           {founder.nameEn}
                         </h4>
                         {founder.nameAr && (
-                          <p className="font-arabic text-xs sm:text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                          <p className="font-arabic-heading text-xs sm:text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                             {founder.nameAr}
                           </p>
                         )}

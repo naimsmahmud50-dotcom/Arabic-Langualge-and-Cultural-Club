@@ -64,7 +64,7 @@ export function AnnualPlanSection({ plans }: AnnualPlanSectionProps) {
             <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] font-serif">
               12-Month Academic & Operational Plan
             </h2>
-            <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
+            <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
               الْخُطَّةُ التَّشْغِيلِيَّةُ السَّنَوِيَّةُ • بَرَامِجُ الْعَامِ الْأَكَادِيمِيِّ الْمُعْتَمَدَةُ
             </p>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -101,7 +101,7 @@ export function AnnualPlanSection({ plans }: AnnualPlanSectionProps) {
                         {plan.activityTitleEn}
                       </h3>
                       {plan.activityTitleAr && (
-                        <p className="font-arabic text-xs text-[var(--brand-accent)] font-medium" dir="rtl">
+                        <p className="font-arabic-heading text-xs text-[var(--brand-accent)] font-medium" dir="rtl">
                           {plan.activityTitleAr}
                         </p>
                       )}

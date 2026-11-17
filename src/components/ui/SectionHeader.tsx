@@ -54,7 +54,7 @@ export function SectionHeader({
 
       {titleAr && (
         <p
-          className="font-arabic text-xl sm:text-2xl text-[var(--brand-accent-text)] font-semibold leading-relaxed"
+          className="font-arabic-heading text-xl sm:text-2xl text-[var(--brand-accent-text)] font-semibold leading-relaxed"
           dir="rtl"
         >
           {titleAr}

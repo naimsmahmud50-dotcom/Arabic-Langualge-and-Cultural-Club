@@ -423,7 +423,7 @@ export function CommitteePreviewSection({
               Executive Council & Committee ({academicYear})
             </h2>
             <p
-              className="font-arabic text-sm sm:text-base text-[var(--brand-accent)] font-semibold"
+              className="font-arabic-heading text-sm sm:text-base text-[var(--brand-accent)] font-semibold"
               dir="rtl"
             >
               الْهَيْئَةُ الْإِدَارِيَّةُ الْحَالِيَّةُ • أَعْضَاءُ الْمَجْلِسِ التَّنْفِيذِيِّ لِلْعَامِ الْأَكَادِيمِيِّ
@@ -590,7 +590,7 @@ export function CommitteePreviewSection({
                                   />
                                 </div>
                                 <span
-                                  className="font-arabic font-bold text-xs text-[var(--brand-accent-text)] tracking-wider"
+                                  className="font-arabic-heading font-bold text-xs text-[var(--brand-accent-text)] tracking-wider"
                                   dir="rtl"
                                 >
                                   {officer.fullNameAr
@@ -632,7 +632,7 @@ export function CommitteePreviewSection({
 
                         {officer.fullNameAr && (
                           <p
-                            className="font-arabic text-xs sm:text-sm text-[var(--brand-accent)] font-semibold"
+                            className="font-arabic-heading text-xs sm:text-sm text-[var(--brand-accent)] font-semibold"
                             dir="rtl"
                           >
                             {officer.fullNameAr}

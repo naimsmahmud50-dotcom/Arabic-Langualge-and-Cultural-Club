@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
             Reset Administrative Access
           </h1>
-          <p className="font-arabic text-sm text-[var(--brand-accent)]" dir="rtl">
+          <p className="font-arabic-heading text-sm text-[var(--brand-accent)]" dir="rtl">
             استعادة كلمة المرور • نادي اللغة والثقافة العربية
           </p>
           <p className="text-xs text-[var(--text-secondary)]">

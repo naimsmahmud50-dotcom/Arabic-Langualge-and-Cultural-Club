@@ -101,7 +101,7 @@ export function HeroSection({ stats, settings }: HeroSectionProps) {
             {/* Bilingual Typography Header */}
             <div className="space-y-3 sm:space-y-4">
               <p 
-                className="font-arabic text-lg sm:text-2xl lg:text-3xl text-[#E5BE6A] font-semibold leading-relaxed" 
+                className="font-arabic-heading text-lg sm:text-2xl lg:text-3xl text-[#E5BE6A] font-semibold leading-relaxed" 
                 dir="rtl"
                 lang="ar"
               >
@@ -161,7 +161,7 @@ export function HeroSection({ stats, settings }: HeroSectionProps) {
                 <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#E5BE6A]">Verified Records</span>
               </div>
               <div>
-                <span className="block text-lg sm:text-xl font-bold text-white font-arabic" dir="rtl">اللغة الخالدة</span>
+                <span className="block text-lg sm:text-xl font-bold text-white font-arabic-heading" dir="rtl">اللغة الخالدة</span>
                 <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#E5BE6A]">Heritage</span>
               </div>
             </div>

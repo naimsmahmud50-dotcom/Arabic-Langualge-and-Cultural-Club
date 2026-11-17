@@ -43,7 +43,7 @@ export default async function ForbiddenPage({ searchParams }: ForbiddenPageProps
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
             Access Restricted
           </h1>
-          <p className="font-arabic text-base text-[var(--brand-accent)]" dir="rtl">
+          <p className="font-arabic-heading text-base text-[var(--brand-accent)]" dir="rtl">
             وصول مقيد • غير مصرح لهذه الرتبة
           </p>
           <p className="text-xs text-[var(--text-secondary)]">

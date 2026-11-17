@@ -57,7 +57,7 @@ export function CulturalProgramsSection() {
           <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] font-serif">
             Cultural Programs & Academic Circles
           </h2>
-          <p className="font-arabic text-base text-[var(--brand-accent)] font-medium" dir="rtl">
+          <p className="font-arabic-heading text-base text-[var(--brand-accent)] font-medium" dir="rtl">
             الْبَرَامِجُ وَالْأَنْشِطَةُ الثَّقَافِيَّةُ • أَنْشِطَةٌ تَرْبِطُ التُّرَاثَ بِالْإِبْدَاعِ الْمُعَاصِرِ
           </p>
           <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -89,7 +89,7 @@ export function CulturalProgramsSection() {
                     <h3 className="text-xl font-bold text-[var(--text-primary)]">
                       {prog.titleEn}
                     </h3>
-                    <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium mt-1" dir="rtl">
+                    <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium mt-1" dir="rtl">
                       {prog.titleAr}
                     </p>
                   </div>

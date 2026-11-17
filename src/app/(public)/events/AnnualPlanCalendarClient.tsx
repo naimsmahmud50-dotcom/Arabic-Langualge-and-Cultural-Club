@@ -544,7 +544,7 @@ export function AnnualPlanCalendarClient({
                               <h3 className="text-lg font-bold text-[var(--text-primary)]">
                                 {monthInfo.nameEn}
                               </h3>
-                              <p className="text-xs text-[var(--brand-accent)] font-arabic" dir="rtl">
+                              <p className="text-xs text-[var(--brand-accent)] font-arabic-heading" dir="rtl">
                                 {monthInfo.nameAr}
                               </p>
                             </div>
@@ -653,7 +653,7 @@ export function AnnualPlanCalendarClient({
                         {evt.titleEn}
                       </h4>
                       {evt.titleAr && (
-                        <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                        <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                           {evt.titleAr}
                         </p>
                       )}
@@ -755,7 +755,7 @@ export function AnnualPlanCalendarClient({
                         {evt.titleEn}
                       </h4>
                       {evt.titleAr && (
-                        <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                        <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                           {evt.titleAr}
                         </p>
                       )}
@@ -839,7 +839,7 @@ function ActivityCard({ activity, renderStatusBadge }: ActivityCardProps) {
             {activity.activityTitleEn}
           </h4>
           {activity.activityTitleAr && (
-            <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+            <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
               {activity.activityTitleAr}
             </p>
           )}
@@ -947,7 +947,7 @@ function ActivityListItem({ activity, renderStatusBadge }: ActivityCardProps) {
             {activity.activityTitleEn}
           </h4>
           {activity.activityTitleAr && (
-            <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold mt-0.5" dir="rtl">
+            <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold mt-0.5" dir="rtl">
               {activity.activityTitleAr}
             </p>
           )}
@@ -1227,7 +1227,7 @@ function ActivityDetailModal({ activity, onClose, renderStatusBadge }: ActivityD
             {activity.activityTitleEn}
           </h3>
           {activity.activityTitleAr && (
-            <p className="font-arabic text-base text-[var(--brand-accent)] font-semibold" dir="rtl">
+            <p className="font-arabic-heading text-base text-[var(--brand-accent)] font-semibold" dir="rtl">
               {activity.activityTitleAr}
             </p>
           )}

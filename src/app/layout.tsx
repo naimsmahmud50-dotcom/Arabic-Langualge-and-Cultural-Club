@@ -18,7 +18,7 @@
  */
 
 import type { Metadata, Viewport } from "next";
-import { Inter, Manrope, Amiri, Noto_Naskh_Arabic, Noto_Sans_Bengali } from "next/font/google";
+import { Inter, Manrope, Katibeh, Amiri, Noto_Naskh_Arabic, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -40,9 +40,17 @@ const manrope = Manrope({
   preload: true,
 });
 
+const katibeh = Katibeh({
+  subsets: ["arabic"],
+  weight: ["400"],
+  display: "swap",
+  variable: "--font-katibeh",
+  preload: false,
+});
+
 const amiri = Amiri({
   subsets: ["arabic"],
-  weight: ["700"],
+  weight: ["400", "700"],
   display: "swap",
   variable: "--font-amiri",
   preload: false,
@@ -50,7 +58,7 @@ const amiri = Amiri({
 
 const notoNaskhArabic = Noto_Naskh_Arabic({
   subsets: ["arabic"],
-  weight: ["400"],
+  weight: ["400", "700"],
   display: "swap",
   variable: "--font-noto-arabic",
   preload: false,
@@ -169,7 +177,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${manrope.variable} ${amiri.variable} ${notoNaskhArabic.variable} ${notoBengali.variable}`}
+      className={`${inter.variable} ${manrope.variable} ${katibeh.variable} ${amiri.variable} ${notoNaskhArabic.variable} ${notoBengali.variable}`}
       suppressHydrationWarning
     >
       <head>

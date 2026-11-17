@@ -25,7 +25,7 @@ export default function NotFound() {
           Page Not Found
         </h1>
 
-        <p className="font-arabic text-lg text-[var(--brand-accent)]" dir="rtl">
+        <p className="font-arabic-heading text-lg text-[var(--brand-accent)]" dir="rtl">
           الصفحة المطلوبة غير موجودة
         </p>
 

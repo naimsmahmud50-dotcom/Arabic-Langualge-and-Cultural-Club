@@ -477,7 +477,7 @@ export function OverviewGatewaySection({ stats }: OverviewGatewaySectionProps) {
               Explore Society Divisions & Archives
             </h2>
             <p
-              className="font-arabic text-sm sm:text-base text-[var(--brand-accent)] font-semibold"
+              className="font-arabic-heading text-sm sm:text-base text-[var(--brand-accent)] font-semibold"
               dir="rtl"
             >
               تصفح الأقسام الأكاديمية والفعاليات والأرشيف الرقمي المستقل
@@ -633,7 +633,7 @@ export function OverviewGatewaySection({ stats }: OverviewGatewaySectionProps) {
                             <div className="text-[var(--brand-accent)] mb-1">
                               <Icon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.75]" />
                             </div>
-                            <span className="font-arabic font-bold text-xs text-[var(--brand-accent-text)] tracking-wider" dir="rtl">
+                            <span className="font-arabic-heading font-bold text-xs text-[var(--brand-accent-text)] tracking-wider" dir="rtl">
                               {item.monogramAr}
                             </span>
                           </div>
@@ -668,7 +668,7 @@ export function OverviewGatewaySection({ stats }: OverviewGatewaySectionProps) {
                         </h3>
 
                         <p
-                          className="font-arabic text-xs sm:text-sm text-[var(--brand-accent)] font-semibold line-clamp-1"
+                          className="font-arabic-heading text-xs sm:text-sm text-[var(--brand-accent)] font-semibold line-clamp-1"
                           dir="rtl"
                         >
                           {item.titleAr}

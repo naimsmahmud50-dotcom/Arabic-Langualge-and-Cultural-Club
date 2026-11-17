@@ -247,7 +247,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
                         {album.titleEn}
                       </h3>
                       {album.titleAr && (
-                        <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold line-clamp-1" dir="rtl">
+                        <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold line-clamp-1" dir="rtl">
                           {album.titleAr}
                         </p>
                       )}

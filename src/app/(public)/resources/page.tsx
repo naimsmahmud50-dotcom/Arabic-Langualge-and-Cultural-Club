@@ -241,7 +241,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
                           {res.titleEn}
                         </h3>
                         {res.titleAr && (
-                          <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                          <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                             {res.titleAr}
                           </p>
                         )}

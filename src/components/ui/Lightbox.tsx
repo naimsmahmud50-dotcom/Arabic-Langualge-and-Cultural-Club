@@ -160,7 +160,7 @@ export function Lightbox({
         {(caption || titleAr) && (
           <div className="mt-4 text-center space-y-1 max-w-2xl px-4">
             {titleAr && (
-              <p className="font-arabic text-base text-[#E5BE6A]" dir="rtl">
+              <p className="font-arabic-heading text-base text-[#E5BE6A]" dir="rtl">
                 {titleAr}
               </p>
             )}

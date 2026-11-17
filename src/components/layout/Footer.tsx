@@ -55,7 +55,7 @@ export function Footer({ settings }: FooterProps) {
                 <p className="text-xs text-[#E3D9C4] font-medium mt-0.5">
                   {collegeTitle}
                 </p>
-                <p className="font-arabic text-xs text-[#E5BE6A] mt-0.5" dir="rtl">
+                <p className="font-arabic-heading text-xs text-[#E5BE6A] mt-0.5" dir="rtl">
                   {arabicTitle}
                 </p>
               </div>
@@ -65,7 +65,7 @@ export function Footer({ settings }: FooterProps) {
               {aboutText}
             </p>
 
-            <div className="pt-2 text-xs text-[#E5BE6A] font-medium">
+            <div className="pt-2 text-xs text-[#E5BE6A] font-medium font-arabic" dir="rtl">
               {motto}
             </div>
 

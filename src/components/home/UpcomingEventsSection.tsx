@@ -45,7 +45,7 @@ export function UpcomingEventsSection({ events }: UpcomingEventsSectionProps) {
             <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] font-serif">
               Upcoming Events & Scholarly Assemblies
             </h2>
-            <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
+            <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
               جَدْوَلُ الْفَعَالِيَّاتِ وَالْمُحَاضَرَاتِ • أَنْشِطَةُ النَّادِي الْقَادِمَةُ
             </p>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -90,7 +90,7 @@ export function UpcomingEventsSection({ events }: UpcomingEventsSectionProps) {
                         {evt.titleEn}
                       </h3>
                       {evt.titleAr && (
-                        <p className="font-arabic text-xs text-[var(--brand-accent)] font-medium" dir="rtl">
+                        <p className="font-arabic-heading text-xs text-[var(--brand-accent)] font-medium" dir="rtl">
                           {evt.titleAr}
                         </p>
                       )}

@@ -203,7 +203,7 @@ export default async function LeadershipPage({ searchParams }: LeadershipPagePro
                 {activeTerm.titleEn}
               </h3>
               {activeTerm.titleAr && (
-                <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                   {activeTerm.titleAr}
                 </p>
               )}
@@ -296,7 +296,7 @@ export default async function LeadershipPage({ searchParams }: LeadershipPagePro
                           {officer.fullNameEn}
                         </h4>
                         {officer.fullNameAr && (
-                          <p className="font-arabic text-xs text-[var(--brand-accent)] font-semibold" dir="rtl">
+                          <p className="font-arabic-heading text-xs text-[var(--brand-accent)] font-semibold" dir="rtl">
                             {officer.fullNameAr}
                           </p>
                         )}

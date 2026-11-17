@@ -143,7 +143,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                         {evt.titleEn}
                       </h4>
                       {evt.titleAr && (
-                        <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                        <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                           {evt.titleAr}
                         </p>
                       )}

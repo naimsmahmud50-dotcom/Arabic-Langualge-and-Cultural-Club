@@ -74,7 +74,7 @@ export function Timeline({ items, className }: TimelineProps) {
                   {item.titleEn}
                 </h3>
                 {item.titleAr && (
-                  <p className="font-arabic text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
+                  <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-semibold" dir="rtl">
                     {item.titleAr}
                   </p>
                 )}

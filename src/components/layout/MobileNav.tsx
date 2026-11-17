@@ -170,7 +170,7 @@ export function MobileNav({
                 <span className="text-[11px] text-[var(--text-secondary)] font-medium leading-tight mt-0.5 truncate">
                   {collegeTitle}
                 </span>
-                <span className="text-[10.5px] text-[var(--brand-accent)] font-arabic leading-tight mt-0.5 truncate" dir="rtl">
+                <span className="text-[10.5px] text-[var(--brand-accent)] font-arabic-heading leading-tight mt-0.5 truncate" dir="rtl">
                   {arabicTitle}
                 </span>
               </div>

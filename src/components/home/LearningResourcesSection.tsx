@@ -426,7 +426,7 @@ export function LearningResourcesSection({ resources }: LearningResourcesSection
               Arabic Learning Resources & Curated Library
             </h2>
             <p
-              className="font-arabic text-sm sm:text-base text-[var(--brand-accent)] font-semibold"
+              className="font-arabic-heading text-sm sm:text-base text-[var(--brand-accent)] font-semibold"
               dir="rtl"
             >
               مَرْكَزُ الْمَصَادِرِ وَالْمَوَادِّ التَّعْلِيمِيَّةِ • كُتُبٌ وَتَسْجِيلَاتٌ لِتَعْلِيمِ اللُّغَةِ الْعَرَبِيَّةِ
@@ -625,7 +625,7 @@ export function LearningResourcesSection({ resources }: LearningResourcesSection
 
                         {item.titleAr && (
                           <p
-                            className="font-arabic text-xs sm:text-sm text-[var(--brand-accent)] font-semibold line-clamp-1"
+                            className="font-arabic-heading text-xs sm:text-sm text-[var(--brand-accent)] font-semibold line-clamp-1"
                             dir="rtl"
                           >
                             {item.titleAr}

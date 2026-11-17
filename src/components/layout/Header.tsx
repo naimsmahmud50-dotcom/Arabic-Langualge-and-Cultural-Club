@@ -346,7 +346,7 @@ export function Header({ settings }: HeaderProps) {
                     {collegeTitle}
                   </span>
                   <span className="hidden sm:inline-block text-[var(--border-subtle)] text-[10px]" aria-hidden="true">•</span>
-                  <span className="hidden sm:inline-block font-arabic text-[11px] sm:text-[11.5px] text-[var(--brand-accent)] font-medium leading-tight shrink-0" dir="rtl">
+                  <span className="hidden sm:inline-block font-arabic-heading text-[11px] sm:text-[11.5px] text-[var(--brand-accent)] font-medium leading-tight shrink-0" dir="rtl">
                     {arabicTitle}
                   </span>
                 </div>

@@ -55,7 +55,7 @@ export function AchievementsSection({ achievements, publications }: Achievements
             <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] font-serif">
               Honors, Collegiate Accolades & Publications
             </h2>
-            <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
+            <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
               الْإِنْجَازَاتُ وَالْمَنْشُورَاتُ الرَّسْمِيَّةُ • سِجِلُّ التَّمَيُّزِ وَالْإِصْدَارَاتِ الْأَدَبِيَّةِ
             </p>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -105,7 +105,7 @@ export function AchievementsSection({ achievements, publications }: Achievements
                             {pub.titleEn}
                           </h4>
                           {pub.titleAr && (
-                            <p className="font-arabic text-xs text-[var(--brand-accent)] font-medium" dir="rtl">
+                            <p className="font-arabic-heading text-xs text-[var(--brand-accent)] font-medium" dir="rtl">
                               {pub.titleAr}
                             </p>
                           )}
@@ -166,7 +166,7 @@ export function AchievementsSection({ achievements, publications }: Achievements
                           {ach.titleEn}
                         </h4>
                         {ach.titleAr && (
-                          <p className="font-arabic text-xs text-[var(--brand-accent)] font-medium mt-0.5" dir="rtl">
+                          <p className="font-arabic-heading text-xs text-[var(--brand-accent)] font-medium mt-0.5" dir="rtl">
                             {ach.titleAr}
                           </p>
                         )}

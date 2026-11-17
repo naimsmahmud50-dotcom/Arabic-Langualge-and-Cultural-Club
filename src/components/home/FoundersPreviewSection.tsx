@@ -43,7 +43,7 @@ export function FoundersPreviewSection({ founders }: FoundersPreviewSectionProps
             <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] font-serif">
               Founders & Archival Genesis
             </h2>
-            <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
+            <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
               سِجِلُّ الرُّوَّادِ • تَكْرِيمُ الْمُؤَسِّسِينَ وَأَصْحَابِ الْفَضْلِ فِي نَشْأَةِ النَّادِي
             </p>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -76,7 +76,7 @@ export function FoundersPreviewSection({ founders }: FoundersPreviewSectionProps
                       {founder.nameEn}
                     </h3>
                     {founder.nameAr && (
-                      <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium mt-0.5" dir="rtl">
+                      <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium mt-0.5" dir="rtl">
                         {founder.nameAr}
                       </p>
                     )}

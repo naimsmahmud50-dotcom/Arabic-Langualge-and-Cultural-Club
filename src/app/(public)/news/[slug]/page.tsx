@@ -166,7 +166,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
         {item.contentAr && (
           <div className="pt-8 border-t border-[var(--border-color)] space-y-4">
             <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
-              <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2 font-arabic" dir="rtl">
+              <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2 font-arabic-heading" dir="rtl">
                 <BookOpen className="w-5 h-5 text-[var(--brand-accent)]" />
                 <span>البيان الرسمي المعتمد</span>
               </h2>
@@ -175,7 +175,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
 
             <div className="bg-[var(--bg-surface)] p-6 sm:p-8 rounded-[8px] border border-[var(--border-subtle)] space-y-4 font-arabic text-base leading-loose text-right text-[var(--text-primary)]" dir="rtl">
               {item.titleAr && (
-                <h3 className="text-lg font-bold text-[var(--brand-accent)]">
+                <h3 className="text-lg font-bold text-[var(--brand-accent)] font-arabic-heading">
                   {item.titleAr}
                 </h3>
               )}

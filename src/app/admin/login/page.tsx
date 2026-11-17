@@ -45,7 +45,7 @@ export default function AdminLoginPage() {
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
             Institutional CMS Portal
           </h1>
-          <p className="font-arabic text-sm text-[var(--brand-accent)]" dir="rtl">
+          <p className="font-arabic-heading text-sm text-[var(--brand-accent)]" dir="rtl">
             بوابة الإدارة المركزية • نادي اللغة والثقافة العربية
           </p>
           <p className="text-xs text-[var(--text-secondary)]">

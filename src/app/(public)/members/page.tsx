@@ -200,7 +200,7 @@ export default async function MembersPage({ searchParams }: MembersPageProps) {
                         {member.fullNameEn}
                       </h4>
                       {member.fullNameAr && (
-                        <p className="font-arabic text-xs text-[var(--brand-accent)] font-semibold" dir="rtl">
+                        <p className="font-arabic-heading text-xs text-[var(--brand-accent)] font-semibold" dir="rtl">
                           {member.fullNameAr}
                         </p>
                       )}

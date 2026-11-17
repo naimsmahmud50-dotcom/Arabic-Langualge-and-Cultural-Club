@@ -194,7 +194,7 @@ export default async function HistoryPage() {
                           {item.title}
                         </h3>
                         {item.arabicTitle && (
-                          <p className="font-arabic text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
+                          <p className="font-arabic-heading text-sm text-[var(--brand-accent)] font-medium" dir="rtl">
                             {item.arabicTitle}
                           </p>
                         )}
